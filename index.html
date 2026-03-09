@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>69 STORE | Next Level Streetwear</title>
+    <meta name="description"
+        content="Elite streetwear brand 69 STORE. Premium hoodies, tees, and accessories. Next level fashion.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo.png">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader-text">69</div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <header id="header">
+        <div class="container">
+            <a href="#" class="logo">69<span>STORE</span></a>
+
+            <nav id="navMenu">
+                <ul>
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#shop">Collection</a></li>
+                    <li><a href="#categories">Categories</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="cart-icon" id="cartTrigger">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-count">0</span>
+                </div>
+                <div class="menu-toggle" id="menuToggle">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </div>
+                <a href="#shop" class="btn btn-primary hide-mobile" style="padding: 12px 25px; border-radius: 2px;">Shop
+                    Now</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-bg">
+                <img src="assets/hero_streetwear.png" alt="Streetwear Hero">
+                <div class="hero-overlay"></div>
+            </div>
+
+            <div class="container">
+                <div class="hero-content animate-up">
+                    <span>Authentic Streetwear</span>
+                    <h1>DEFINE <br><span class="accent-text">EVERY</span> LIMIT.</h1>
+                    <p>Experience the next level of elite fashion. Crafted for those who lead, not follow. Exclusive
+                        2026 Drop is live.</p>
+                    <div class="hero-btns">
+                        <a href="#shop" class="btn btn-primary">Discover Collection</a>
+                        <a href="#about" class="btn btn-outline">Our Story</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Collection -->
+        <section id="shop" class="section">
+            <div class="container">
+                <div class="section-title">
+                    <p>Newest Arrivals</p>
+                    <h2>Featured <span class="accent-text">Drop</span></h2>
+                </div>
+
+                <div class="product-grid" id="productGrid">
+                    <!-- Products will be injected by script.js from Firebase -->
+                    <div class="loader-container" style="grid-column: 1/-1; text-align: center; padding: 50px;">
+                        <i class="fa-solid fa-circle-notch fa-spin"
+                            style="font-size: 2rem; color: var(--primary-color);"></i>
+                        <p style="margin-top: 15px;">Loading Collection...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Reviews Section -->
+        <section id="reviews" class="section">
+            <div class="container">
+                <div class="section-title">
+                    <p>What they say</p>
+                    <h2>Live <span class="accent-text">Feedback</span></h2>
+                </div>
+
+                <div id="reviewsContainer"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                    <!-- Reviews injected here -->
+                </div>
+
+                <div class="admin-card" style="margin-top: 50px; max-width: 600px; margin-inline: auto;">
+                    <h3>Leave a Review</h3>
+                    <form id="reviewForm" style="margin-top: 20px;">
+                        <input type="text" id="revName" placeholder="Your Name" required
+                            style="width: 100%; padding: 12px; margin-bottom: 15px; background: #1a1a1a; border: 1px solid var(--border-glass); color: white;">
+                        <textarea id="revMsg" placeholder="Your Message" required
+                            style="width: 100%; padding: 12px; height: 100px; margin-bottom: 15px; background: #1a1a1a; border: 1px solid var(--border-glass); color: white;"></textarea>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Share Review</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section id="categories" class="section" style="background: var(--bg-surface);">
+            <div class="container">
+                <div class="section-title">
+                    <p>Browse by</p>
+                    <h2>Style <span class="accent-text">Categories</span></h2>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                    <div style="height: 400px; position: relative; overflow: hidden; border-radius: 8px;">
+                        <img src="assets/hoodie.png" alt="Hoodies"
+                            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
+                        <div
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+                            <h3 style="font-size: 2.5rem;">HOODIES</h3>
+                        </div>
+                    </div>
+                    <div style="height: 400px; position: relative; overflow: hidden; border-radius: 8px;">
+                        <img src="assets/tee.png" alt="Tees"
+                            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
+                        <div
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+                            <h3 style="font-size: 2.5rem;">TOPS</h3>
+                        </div>
+                    </div>
+                    <div style="height: 400px; position: relative; overflow: hidden; border-radius: 8px;">
+                        <img src="assets/hero_streetwear.png" alt="Accessories"
+                            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
+                        <div
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+                            <h3 style="font-size: 2.5rem;">EXCLUSIVE</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="#" class="logo footer-logo">69<span>STORE</span></a>
+                    <p class="footer-text">Sri Lanka's premier destination for high-end streetwear. Defining the next
+                        level of urban fashion since 2026.</p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>SHOP</h4>
+                    <ul>
+                        <li><a href="#">New Arrivals</a></li>
+                        <li><a href="#">Hoodies</a></li>
+                        <li><a href="#">Tees</a></li>
+                        <li><a href="#">Accessories</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>COMPANY</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Shipping Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links" id="contact">
+                    <h4>CONNECT</h4>
+                    <div style="display: flex; gap: 20px; font-size: 1.5rem;">
+                        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 69 STORE BY SUBHASH. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Shopping Bag</h3>
+            <button class="close-cart" id="closeCart"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Items will be injected here -->
+            <div class="cart-empty-msg">Your bag is empty</div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total</span>
+                <span id="cartTotalAmount">LKR 0.00</span>
+            </div>
+            <button class="btn btn-primary" id="checkoutBtn" style="width: 100%; border-radius: 2px;">Checkout via
+                WhatsApp</button>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-content">
+            <div class="checkout-header">
+                <h3>Customer Details</h3>
+                <button class="close-modal" id="closeCheckout"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <input type="text" id="custName" placeholder="Full Name" required
+                        style="width: 100%; padding: 15px; background: var(--bg-surface); border: 1px solid var(--border-glass); color: white; margin-bottom: 15px; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="custAddress" placeholder="Delivery Address" required
+                        style="width: 100%; padding: 15px; background: var(--bg-surface); border: 1px solid var(--border-glass); color: white; margin-bottom: 15px; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="custPhone" placeholder="Phone Number" required
+                        style="width: 100%; padding: 15px; background: var(--bg-surface); border: 1px solid var(--border-glass); color: white; margin-bottom: 15px; border-radius: 4px;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm & Send Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
+            authDomain: "studio-7cdf1.firebaseapp.com",
+            databaseURL: "https://studio-7cdf1-default-rtdb.firebaseio.com",
+            projectId: "studio-7cdf1",
+            storageBucket: "studio-7cdf1.firebasestorage.app",
+            messagingSenderId: "460661592780",
+            appId: "1:460661592780:web:dc8fd00cad5541141e6869",
+            measurementId: "G-Q8YJHFC1H1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+        window.firebaseSet = set;
+        window.firebaseRemove = remove;
+
+        window.dispatchEvent(new Event('firebaseStoreLoaded'));
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

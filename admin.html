@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | 69 STORE</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background: #050505;
+        }
+
+        .admin-nav {
+            background: var(--bg-surface);
+            padding: 20px 4%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .admin-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-glass);
+            color: white;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .status-new {
+            background: #ff3e3e;
+        }
+
+        .status-done {
+            background: #28a745;
+        }
+
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 5000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 10px 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-card {
+                padding: 20px;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            .tab-btn {
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+
+            #loginOverlay .admin-card {
+                width: 90% !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loginOverlay">
+        <div class="admin-card" style="width: 400px; text-align: center;">
+            <h2 style="margin-bottom: 20px;">69 STORE ADMIN</h2>
+            <input type="password" id="adminPass" placeholder="Enter Admin Password" style="margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="checkAuth()" style="width: 100%;">Login</button>
+        </div>
+    </div>
+
+    <div class="admin-nav">
+        <div class="logo">69<span>STORE</span> ADMIN</div>
+        <div>
+            <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="showTab('products')">Products</button>
+            <button class="tab-btn" onclick="showTab('orders')">Orders</button>
+            <button class="tab-btn" onclick="showTab('settings')">Settings</button>
+            <a href="index.html" class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;">View Site</a>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <!-- Dashboard Tab -->
+        <div id="dashboardTab">
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="admin-card" style="text-align: center;">
+                    <i class="fa-solid fa-money-bill-trend-up"
+                        style="font-size: 2rem; color: var(--primary-color); margin-bottom: 10px;"></i>
+                    <h4 style="color: var(--text-dim);">Total Revenue</h4>
+                    <h2 id="statRevenue">LKR 0</h2>
+                </div>
+                <div class="admin-card" style="text-align: center;">
+                    <i class="fa-solid fa-cart-shopping"
+                        style="font-size: 2rem; color: var(--primary-color); margin-bottom: 10px;"></i>
+                    <h4 style="color: var(--text-dim);">Total Orders</h4>
+                    <h2 id="statOrders">0</h2>
+                </div>
+                <div class="admin-card" style="text-align: center;">
+                    <i class="fa-solid fa-box-open"
+                        style="font-size: 2rem; color: var(--primary-color); margin-bottom: 10px;"></i>
+                    <h4 style="color: var(--text-dim);">Total Products</h4>
+                    <h2 id="statProducts">0</h2>
+                </div>
+                <div class="admin-card" style="text-align: center;">
+                    <i class="fa-solid fa-users"
+                        style="font-size: 2rem; color: var(--primary-color); margin-bottom: 10px;"></i>
+                    <h4 style="color: var(--text-dim);">Visitors</h4>
+                    <h2 id="statVisitors">0</h2>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h3>Recent Sales Performance</h3>
+                <canvas id="salesChart" style="width: 100%; height: 300px; margin-top: 20px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="productsTab" style="display: none;">
+            <div class="admin-card">
+                <h3>Add New Product</h3>
+                <form id="productForm" style="margin-top: 20px;">
+                    <div class="form-row">
+                        <input type="text" id="pName" placeholder="Product Name" required>
+                        <input type="number" id="pPrice" placeholder="Price (LKR)" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="pImage" placeholder="Image URL (or upload below)" required>
+                        <input type="file" id="pFile" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h3>Current Products</h3>
+                <div id="productsList">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="ordersTab" style="display: none;">
+            <div class="admin-card">
+                <h3>Customer Orders</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" style="display: none;">
+            <div class="admin-card">
+                <h3>Brand Settings</h3>
+                <form id="settingsForm" style="margin-top: 20px;">
+                    <div class="form-row">
+                        <div>
+                            <label style="color: var(--text-dim); display: block; margin-bottom: 8px;">WhatsApp Number
+                                (for checkout)</label>
+                            <input type="text" id="settingWA" placeholder="e.g. 94701234567" required>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-dim); display: block; margin-bottom: 8px;">Admin Login
+                                Password</label>
+                            <input type="text" id="settingPass" placeholder="Admin Password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // --- AUTH & SETTINGS ---
+    let adminSettings = { password: '69admin', waNumber: '94701234567' };
+    onValue(ref(database, '69store/settings'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+    adminSettings = data;
+    document.getElementById('settingWA').value = data.waNumber || '';
+    document.getElementById('settingPass').value = data.password || '';
+    }
+    });
+
+    window.checkAuth = () => {
+    const pass = document.getElementById('adminPass').value;
+    if (pass === adminSettings.password) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    initDashboard();
+    } else {
+    alert('Wrong password!');
+    }
+    };
+
+    const sForm = document.getElementById('settingsForm');
+    if(sForm) {
+    sForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const waNumber = document.getElementById('settingWA').value;
+    const password = document.getElementById('settingPass').value;
+    set(ref(database, '69store/settings'), { waNumber, password })
+    .then(() => alert('Settings updated successfully!'));
+    });
+    }
+
+    // --- TABS ---
+    window.showTab = (tab) => {
+    const tabs = ['dashboard', 'products', 'orders', 'settings'];
+    tabs.forEach(t => {
+    const el = document.getElementById(t + 'Tab');
+    if(el) el.style.display = t === tab ? 'block' : 'none';
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.innerText.toLowerCase() === tab);
+    });
+    };
+
+    // --- DASHBOARD ANALYTICS ---
+    let salesChart;
+    const initDashboard = () => {
+    // Stats & Chart
+    onValue(ref(database, '69store'), (snapshot) => {
+    const data = snapshot.val();
+    if(!data) return;
+
+    const products = data.products ? Object.keys(data.products).length : 0;
+    const orders = data.orders ? Object.values(data.orders) : [];
+    const visitors = data.visitors || 0;
+
+    let revenue = 0;
+    let dailySales = {};
+
+    orders.forEach(o => {
+    revenue += o.total;
+    const date = o.timestamp.split('T')[0];
+    dailySales[date] = (dailySales[date] || 0) + o.total;
+    });
+
+    document.getElementById('statProducts').textContent = products;
+    document.getElementById('statOrders').textContent = orders.length;
+    document.getElementById('statVisitors').textContent = visitors;
+    document.getElementById('statRevenue').textContent = `LKR ${revenue.toLocaleString()}`;
+
+    // Update Chart
+    updateChart(dailySales);
+    });
+    };
+
+    const updateChart = (dailySales) => {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const labels = Object.keys(dailySales).sort().slice(-7); // Last 7 days
+    const data = labels.map(l => dailySales[l]);
+
+    if (salesChart) salesChart.destroy();
+
+    salesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+    labels: labels,
+    datasets: [{
+    label: 'Daily Sales (LKR)',
+    data: data,
+    borderColor: '#ff3e3e',
+    backgroundColor: 'rgba(255, 62, 62, 0.1)',
+    borderWidth: 3,
+    tension: 0.4,
+    fill: true
+    }]
+    },
+    options: {
+    responsive: true,
+    scales: {
+    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+    x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+    },
+    plugins: {
+    legend: { labels: { color: '#ffffff' } }
+    }
+    }
+    });
+    };
+
+    // --- PRODUCTS MANAGEMENT ---
+    const pForm = document.getElementById('productForm');
+    pForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('pName').value;
+    const price = parseFloat(document.getElementById('pPrice').value);
+    const image = document.getElementById('pImage').value;
+
+    push(ref(database, '69store/products'), { name, price, image });
+    pForm.reset();
+    alert('Product added!');
+    });
+
+    document.getElementById('pFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+    document.getElementById('pImage').value = reader.result;
+    };
+    reader.readAsDataURL(file);
+    });
+
+    onValue(ref(database, '69store/products'), (snapshot) => {
+    const data = snapshot.val();
+    const tbody = document.getElementById('productsTableBody');
+    tbody.innerHTML = '';
+    if (data) {
+    Object.keys(data).forEach(key => {
+    const p = data[key];
+    tbody.innerHTML += `
+    <tr>
+        <td><img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover;"></td>
+        <td>${p.name}</td>
+        <td>LKR ${p.price.toLocaleString()}</td>
+        <td><button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteProduct('${key}')">Delete</button>
+        </td>
+    </tr>
+    `;
+    });
+    }
+    });
+
+    window.deleteProduct = (key) => {
+    if (confirm('Delete product?')) remove(ref(database, `69store/products/${key}`));
+    };
+
+    // --- ORDERS MANAGEMENT ---
+    onValue(ref(database, '69store/orders'), (snapshot) => {
+    const data = snapshot.val();
+    const tbody = document.getElementById('ordersTableBody');
+    tbody.innerHTML = '';
+    if (data) {
+    Object.keys(data).reverse().forEach(key => {
+    const o = data[key];
+    tbody.innerHTML += `
+    <tr>
+        <td>${o.timestamp ? new Date(o.timestamp).toLocaleDateString() : 'N/A'}</td>
+        <td>${o.customer.name}<br><small>${o.customer.phone}</small></td>
+        <td>${o.items.map(i => i.name).join(', ')}</td>
+        <td>LKR ${o.total.toLocaleString()}</td>
+        <td><span class="badge-status ${o.status === 'New' ? 'status-new' : 'status-done'}">${o.status}</span></td>
+        <td>
+            <button class="btn btn-outline" onclick="toggleOrder('${key}', '${o.status}')">Toggle Status</button>
+            <button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteOrder('${key}')">Delete</button>
+        </td>
+    </tr>
+    `;
+    });
+    }
+    });
+
+    window.toggleOrder = (key, current) => {
+    const newStatus = current === 'New' ? 'Completed' : 'New';
+    update(ref(database, `69store/orders/${key}`), { status: newStatus });
+    };
+
+    window.deleteOrder = (key) => {
+    if (confirm('Delete order?')) remove(ref(database, `69store/orders/${key}`));
+    };
+
+    // Auto-login during development (optional)
+    // document.getElementById('adminPass').value = '69admin';
+    </script>
+</body>
+
+</html>
