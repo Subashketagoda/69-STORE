@@ -279,149 +279,164 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, set, remove, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-    // --- AUTH & SETTINGS ---
-    let adminSettings = { password: '69admin', waNumber: '94701234567' };
-    onValue(ref(database, '69store/settings'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-    adminSettings = data;
-    document.getElementById('settingWA').value = data.waNumber || '';
-    document.getElementById('settingPass').value = data.password || '';
-    }
-    });
+        const firebaseConfig = {
+            apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
+            authDomain: "studio-7cdf1.firebaseapp.com",
+            databaseURL: "https://studio-7cdf1-default-rtdb.firebaseio.com",
+            projectId: "studio-7cdf1",
+            storageBucket: "studio-7cdf1.firebasestorage.app",
+            messagingSenderId: "460661592780",
+            appId: "1:460661592780:web:dc8fd00cad5541141e6869",
+            measurementId: "G-Q8YJHFC1H1"
+        };
 
-    window.checkAuth = () => {
-    const pass = document.getElementById('adminPass').value;
-    if (pass === adminSettings.password) {
-    document.getElementById('loginOverlay').style.display = 'none';
-    initDashboard();
-    } else {
-    alert('Wrong password!');
-    }
-    };
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-    const sForm = document.getElementById('settingsForm');
-    if(sForm) {
-    sForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const waNumber = document.getElementById('settingWA').value;
-    const password = document.getElementById('settingPass').value;
-    set(ref(database, '69store/settings'), { waNumber, password })
-    .then(() => alert('Settings updated successfully!'));
-    });
-    }
+        // --- AUTH & SETTINGS ---
+        let adminSettings = { password: '69admin', waNumber: '94701234567' };
+        onValue(ref(database, '69store/settings'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                adminSettings = data;
+                document.getElementById('settingWA').value = data.waNumber || '';
+                document.getElementById('settingPass').value = data.password || '';
+            }
+        });
 
-    // --- TABS ---
-    window.showTab = (tab) => {
-    const tabs = ['dashboard', 'products', 'orders', 'settings'];
-    tabs.forEach(t => {
-    const el = document.getElementById(t + 'Tab');
-    if(el) el.style.display = t === tab ? 'block' : 'none';
-    });
+        window.checkAuth = () => {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === adminSettings.password) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                initDashboard();
+            } else {
+                alert('Wrong password!');
+            }
+        };
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.innerText.toLowerCase() === tab);
-    });
-    };
+        const sForm = document.getElementById('settingsForm');
+        if (sForm) {
+            sForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const waNumber = document.getElementById('settingWA').value;
+                const password = document.getElementById('settingPass').value;
+                set(ref(database, '69store/settings'), { waNumber, password })
+                    .then(() => alert('Settings updated successfully!'));
+            });
+        }
 
-    // --- DASHBOARD ANALYTICS ---
-    let salesChart;
-    const initDashboard = () => {
-    // Stats & Chart
-    onValue(ref(database, '69store'), (snapshot) => {
-    const data = snapshot.val();
-    if(!data) return;
+        // --- TABS ---
+        window.showTab = (tab) => {
+            const tabs = ['dashboard', 'products', 'orders', 'settings'];
+            tabs.forEach(t => {
+                const el = document.getElementById(t + 'Tab');
+                if (el) el.style.display = t === tab ? 'block' : 'none';
+            });
 
-    const products = data.products ? Object.keys(data.products).length : 0;
-    const orders = data.orders ? Object.values(data.orders) : [];
-    const visitors = data.visitors || 0;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase() === tab);
+            });
+        };
 
-    let revenue = 0;
-    let dailySales = {};
+        // --- DASHBOARD ANALYTICS ---
+        let salesChart;
+        const initDashboard = () => {
+            // Stats & Chart
+            onValue(ref(database, '69store'), (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
 
-    orders.forEach(o => {
-    revenue += o.total;
-    const date = o.timestamp.split('T')[0];
-    dailySales[date] = (dailySales[date] || 0) + o.total;
-    });
+                const products = data.products ? Object.keys(data.products).length : 0;
+                const orders = data.orders ? Object.values(data.orders) : [];
+                const visitors = data.visitors || 0;
 
-    document.getElementById('statProducts').textContent = products;
-    document.getElementById('statOrders').textContent = orders.length;
-    document.getElementById('statVisitors').textContent = visitors;
-    document.getElementById('statRevenue').textContent = `LKR ${revenue.toLocaleString()}`;
+                let revenue = 0;
+                let dailySales = {};
 
-    // Update Chart
-    updateChart(dailySales);
-    });
-    };
+                orders.forEach(o => {
+                    revenue += o.total;
+                    const date = o.timestamp.split('T')[0];
+                    dailySales[date] = (dailySales[date] || 0) + o.total;
+                });
 
-    const updateChart = (dailySales) => {
-    const ctx = document.getElementById('salesChart').getContext('2d');
-    const labels = Object.keys(dailySales).sort().slice(-7); // Last 7 days
-    const data = labels.map(l => dailySales[l]);
+                document.getElementById('statProducts').textContent = products;
+                document.getElementById('statOrders').textContent = orders.length;
+                document.getElementById('statVisitors').textContent = visitors;
+                document.getElementById('statRevenue').textContent = `LKR ${revenue.toLocaleString()}`;
 
-    if (salesChart) salesChart.destroy();
+                // Update Chart
+                updateChart(dailySales);
+            });
+        };
 
-    salesChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-    labels: labels,
-    datasets: [{
-    label: 'Daily Sales (LKR)',
-    data: data,
-    borderColor: '#ff3e3e',
-    backgroundColor: 'rgba(255, 62, 62, 0.1)',
-    borderWidth: 3,
-    tension: 0.4,
-    fill: true
-    }]
-    },
-    options: {
-    responsive: true,
-    scales: {
-    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-    x: { grid: { color: 'rgba(255,255,255,0.05)' } }
-    },
-    plugins: {
-    legend: { labels: { color: '#ffffff' } }
-    }
-    }
-    });
-    };
+        const updateChart = (dailySales) => {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const labels = Object.keys(dailySales).sort().slice(-7); // Last 7 days
+            const data = labels.map(l => dailySales[l]);
 
-    // --- PRODUCTS MANAGEMENT ---
-    const pForm = document.getElementById('productForm');
-    pForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('pName').value;
-    const price = parseFloat(document.getElementById('pPrice').value);
-    const image = document.getElementById('pImage').value;
+            if (salesChart) salesChart.destroy();
 
-    push(ref(database, '69store/products'), { name, price, image });
-    pForm.reset();
-    alert('Product added!');
-    });
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Sales (LKR)',
+                        data: data,
+                        borderColor: '#ff3e3e',
+                        backgroundColor: 'rgba(255, 62, 62, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    }
+                }
+            });
+        };
 
-    document.getElementById('pFile').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-    document.getElementById('pImage').value = reader.result;
-    };
-    reader.readAsDataURL(file);
-    });
+        // --- PRODUCTS MANAGEMENT ---
+        const pForm = document.getElementById('productForm');
+        pForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('pName').value;
+            const price = parseFloat(document.getElementById('pPrice').value);
+            const image = document.getElementById('pImage').value;
 
-    onValue(ref(database, '69store/products'), (snapshot) => {
-    const data = snapshot.val();
-    const tbody = document.getElementById('productsTableBody');
-    tbody.innerHTML = '';
-    if (data) {
-    Object.keys(data).forEach(key => {
-    const p = data[key];
-    tbody.innerHTML += `
+            push(ref(database, '69store/products'), { name, price, image });
+            pForm.reset();
+            alert('Product added!');
+        });
+
+        document.getElementById('pFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                document.getElementById('pImage').value = reader.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        onValue(ref(database, '69store/products'), (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '';
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const p = data[key];
+                    tbody.innerHTML += `
     <tr>
         <td><img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover;"></td>
         <td>${p.name}</td>
@@ -430,23 +445,23 @@
         </td>
     </tr>
     `;
-    });
-    }
-    });
+                });
+            }
+        });
 
-    window.deleteProduct = (key) => {
-    if (confirm('Delete product?')) remove(ref(database, `69store/products/${key}`));
-    };
+        window.deleteProduct = (key) => {
+            if (confirm('Delete product?')) remove(ref(database, `69store/products/${key}`));
+        };
 
-    // --- ORDERS MANAGEMENT ---
-    onValue(ref(database, '69store/orders'), (snapshot) => {
-    const data = snapshot.val();
-    const tbody = document.getElementById('ordersTableBody');
-    tbody.innerHTML = '';
-    if (data) {
-    Object.keys(data).reverse().forEach(key => {
-    const o = data[key];
-    tbody.innerHTML += `
+        // --- ORDERS MANAGEMENT ---
+        onValue(ref(database, '69store/orders'), (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            if (data) {
+                Object.keys(data).reverse().forEach(key => {
+                    const o = data[key];
+                    tbody.innerHTML += `
     <tr>
         <td>${o.timestamp ? new Date(o.timestamp).toLocaleDateString() : 'N/A'}</td>
         <td>${o.customer.name}<br><small>${o.customer.phone}</small></td>
@@ -459,21 +474,21 @@
         </td>
     </tr>
     `;
-    });
-    }
-    });
+                });
+            }
+        });
 
-    window.toggleOrder = (key, current) => {
-    const newStatus = current === 'New' ? 'Completed' : 'New';
-    update(ref(database, `69store/orders/${key}`), { status: newStatus });
-    };
+        window.toggleOrder = (key, current) => {
+            const newStatus = current === 'New' ? 'Completed' : 'New';
+            update(ref(database, `69store/orders/${key}`), { status: newStatus });
+        };
 
-    window.deleteOrder = (key) => {
-    if (confirm('Delete order?')) remove(ref(database, `69store/orders/${key}`));
-    };
+        window.deleteOrder = (key) => {
+            if (confirm('Delete order?')) remove(ref(database, `69store/orders/${key}`));
+        };
 
-    // Auto-login during development (optional)
-    // document.getElementById('adminPass').value = '69admin';
+        // Auto-login during development (optional)
+        // document.getElementById('adminPass').value = '69admin';
     </script>
 </body>
 
