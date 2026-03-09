@@ -252,7 +252,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK & Store Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
@@ -271,12 +271,87 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
+        // Global access for cart Sidebar (non-module)
         window.firebaseDB = database;
         window.firebaseRef = ref;
         window.firebasePush = push;
-        window.firebaseOnValue = onValue;
-        window.firebaseSet = set;
-        window.firebaseRemove = remove;
+
+        // --- LOAD PRODUCTS ---
+        const loadProducts = () => {
+            const productGrid = document.getElementById('productGrid');
+            if (!productGrid) return;
+
+            onValue(ref(database, '69store/products'), (snapshot) => {
+                const data = snapshot.val();
+                productGrid.innerHTML = '';
+
+                const renderProduct = (product) => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card animate-up';
+                    card.innerHTML = `
+                        <div class="product-img">
+                            <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                            <div class="product-overlay">
+                                <button class="btn btn-primary" style="width: 100%;" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p>LKR ${product.price.toLocaleString()}.00</p>
+                        </div>
+                    `;
+                    productGrid.appendChild(card);
+                };
+
+                if (data && Object.keys(data).length > 0) {
+                    Object.keys(data).forEach(key => renderProduct(data[key]));
+                } else {
+                    const fallbacks = [
+                        { name: "69 Stealth Hoodie", price: 8500, image: "assets/hoodie.png" },
+                        { name: "69 Core Boxy Tee", price: 4900, image: "assets/tee.png" },
+                        { name: "69 Crimson Pulse Hoodie", price: 9200, image: "assets/hoodie.png" }
+                    ];
+                    fallbacks.forEach(renderProduct);
+                }
+            });
+        };
+
+        // --- LOAD REVIEWS ---
+        const loadReviews = () => {
+            const reviewsContainer = document.getElementById('reviewsContainer');
+            if (!reviewsContainer) return;
+
+            onValue(ref(database, '69store/reviews'), (snapshot) => {
+                const data = snapshot.val();
+                reviewsContainer.innerHTML = '';
+                if (data) {
+                    Object.keys(data).reverse().slice(0, 6).forEach(key => {
+                        const r = data[key];
+                        const card = document.createElement('div');
+                        card.className = 'admin-card animate-up';
+                        card.style.margin = "0";
+                        card.innerHTML = `
+                            <p style="font-style: italic; color: var(--text-dim); margin-bottom: 15px;">"${r.msg}"</p>
+                            <h4 style="color: var(--primary-color); font-size: 0.9rem;">- ${r.name}</h4>
+                        `;
+                        reviewsContainer.appendChild(card);
+                    });
+                } else {
+                    reviewsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">No reviews yet. Be the first!</p>';
+                }
+            });
+        };
+
+        // --- INITIALIZE ---
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadProducts();
+                loadReviews();
+            });
+        } else {
+            loadProducts();
+            loadReviews();
+        }
 
         window.dispatchEvent(new Event('firebaseStoreLoaded'));
     </script>
