@@ -217,14 +217,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- DYNAMIC PRODUCTS ---
-    const productGrid = document.getElementById('productGrid') || document.querySelector('.product-grid');
     const loadProducts = () => {
-        if (!window.firebaseDB) return;
+        console.log("Loading products from Firebase...");
+        if (!window.firebaseDB) {
+            console.error("Firebase DB not initialized in script.js");
+            return;
+        }
+
+        const productGrid = document.getElementById('productGrid') || document.querySelector('.product-grid');
+        if (!productGrid) {
+            console.error("Product grid container not found");
+            return;
+        }
 
         const productsRef = window.firebaseRef(window.firebaseDB, '69store/products');
         window.firebaseOnValue(productsRef, (snapshot) => {
             const data = snapshot.val();
-            if (!productGrid) return;
+            console.log("Product data received:", data);
+
             productGrid.innerHTML = '';
 
             const renderProduct = (product) => {
@@ -232,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.className = 'product-card animate-up';
                 card.innerHTML = `
                     <div class="product-img">
-                        <img src="${product.image}" alt="${product.name}">
+                        <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x400?text=Product'">
                         <div class="product-overlay">
                             <button class="btn btn-primary" style="width: 100%;" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
                         </div>
@@ -245,10 +255,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 productGrid.appendChild(card);
             };
 
-            if (data) {
+            if (data && Object.keys(data).length > 0) {
                 Object.keys(data).forEach(key => renderProduct(data[key]));
             } else {
-                // FALLBACK PRODUCTS
+                console.log("No dynamic products found, using fallbacks.");
                 const fallbacks = [
                     { name: "69 Stealth Hoodie", price: 8500, image: "assets/hoodie.png" },
                     { name: "69 Core Boxy Tee", price: 4900, image: "assets/tee.png" },
@@ -304,10 +314,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    window.addEventListener('firebaseStoreLoaded', () => {
+    const initFirebaseData = () => {
         loadProducts();
         loadReviews();
-    });
+    };
+
+    if (window.firebaseDB) {
+        initFirebaseData();
+    } else {
+        window.addEventListener('firebaseStoreLoaded', initFirebaseData);
+    }
 
     // Initial UI Update
     updateCartUI();
