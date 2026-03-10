@@ -196,6 +196,12 @@ nav ul li a>i {
 }
 
 /* Feature Tiles */
+.featured-departments-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
 .feature-tile {
     position: relative;
     height: 600px;
@@ -605,6 +611,11 @@ footer {
         grid-template-columns: repeat(3, 1fr);
     }
 
+    .featured-departments-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* Wrap to 2 at tablet */
+    }
+
     .hero-content h1 {
         font-size: 4.5rem;
     }
@@ -613,6 +624,17 @@ footer {
 @media (max-width: 768px) {
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .featured-departments-grid {
+        grid-template-columns: 1fr;
+        /* Stack vertically on phones */
+        gap: 20px;
+    }
+
+    .feature-tile {
+        height: 400px;
+        /* Shorter height on phones to look better */
     }
 
     .nav-container {

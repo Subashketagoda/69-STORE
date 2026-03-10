@@ -76,23 +76,6 @@
             font-weight: 600;
         }
 
-        .afterpay-text {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .afterpay-badge {
-            background: #b2fce4;
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 800;
-            font-size: 0.7rem;
-        }
 
         .variant-title {
             font-size: 0.85rem;
@@ -143,28 +126,7 @@
             width: 100%;
             padding: 18px;
             font-size: 1.1rem;
-            margin-bottom: 15px;
-        }
-
-        .buy-it-now-btn {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.1rem;
-            background: #5a31f4;
-            /* Koko color or generic purple */
-            color: white;
-            border: none;
-            border-radius: var(--pill-radius);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: opacity 0.3s;
             margin-bottom: 40px;
-        }
-
-        .buy-it-now-btn:hover {
-            opacity: 0.9;
         }
 
         .accordion {
@@ -255,10 +217,7 @@
                     </div>
 
                     <h1 class="product-title" id="productTitle">Loading...</h1>
-                    <div class="product-price" id="productPrice">LKR 0.00</div>
-                    <div class="afterpay-text">
-                        Pay in 3 interest-free payments with <span class="afterpay-badge">Koko</span>
-                    </div>
+                    <div class="product-price" id="productPrice" style="margin-bottom: 30px;">LKR 0.00</div>
 
                     <div style="margin-bottom: 30px;">
                         <span class="variant-title">Size</span>
@@ -273,7 +232,6 @@
                     </div>
 
                     <button class="btn btn-black add-to-cart-btn" id="addToCartBtn">Add to Cart</button>
-                    <button class="buy-it-now-btn" id="buyNowBtn">Buy with Koko</button>
 
                     <div class="accordion">
                         <div class="accordion-item">
@@ -395,10 +353,6 @@
                     alert(`${name} added to cart! Check your sidebar.`);
                     window.location.reload(); // rudimentary UI update
                 }
-            });
-
-            document.getElementById('buyNowBtn').addEventListener('click', () => {
-                alert('Redirecting to Koko Payment Gateway...');
             });
         });
 

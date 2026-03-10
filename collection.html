@@ -108,6 +108,34 @@
             cursor: pointer;
         }
 
+        /* Mobile specific select dropdown */
+        .mobile-category-select {
+            display: none;
+            /* hidden on desktop */
+            width: 100%;
+            padding: 16px 20px;
+            background-color: var(--bg-light, #111);
+            color: white;
+            border: 1px solid var(--border-light, #333);
+            border-radius: 8px;
+            /* Rounded corners like screenshot */
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            margin-bottom: 20px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 20px auto;
+            cursor: pointer;
+        }
+
+        .mobile-category-select:focus {
+            outline: none;
+            border-color: white;
+        }
+
         @media (max-width: 1024px) {
             .filter-sidebar {
                 position: fixed;
@@ -132,6 +160,14 @@
             .mobile-filter-bar {
                 display: block;
                 text-align: center;
+            }
+
+            .desktop-hide-mobile {
+                display: none !important;
+            }
+
+            .mobile-category-select {
+                display: block !important;
             }
         }
     </style>
@@ -256,8 +292,20 @@
                     </div>
 
                     <div class="filter-section" id="section-mens">
-                        <div class="filter-title">Men's Categories</div>
-                        <div class="filter-options">
+                        <select class="mobile-category-select" id="mobile-mens-select">
+                            <option value="">Select Sub-category</option>
+                            <option value="shop-all">Shop All</option>
+                            <option value="t-shirts">T-Shirts</option>
+                            <option value="tanks">Tanks</option>
+                            <option value="compressions">Compressions</option>
+                            <option value="hoodies">Hoodies & Jackets</option>
+                            <option value="shorts">Shorts</option>
+                            <option value="jeans">Jeans</option>
+                            <option value="joggers">Joggers & Pants</option>
+                            <option value="underwear">Underwear</option>
+                        </select>
+                        <div class="filter-title desktop-hide-mobile">Men's Categories</div>
+                        <div class="filter-options desktop-hide-mobile">
                             <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
                             <label class="filter-checkbox"><input type="radio" name="type"> T-Shirts</label>
                             <label class="filter-checkbox"><input type="radio" name="type"> Tanks</label>
@@ -271,8 +319,23 @@
                     </div>
 
                     <div class="filter-section" id="section-womens" style="display: none;">
-                        <div class="filter-title">Women's Categories</div>
-                        <div class="filter-options">
+                        <select class="mobile-category-select" id="mobile-womens-select">
+                            <option value="">Select Sub-category</option>
+                            <option value="shop-all">Shop All</option>
+                            <option value="t-shirts">T-Shirts</option>
+                            <option value="crop-tops">Crop Tops</option>
+                            <option value="tanks">Tanks</option>
+                            <option value="leggings">Leggings</option>
+                            <option value="skirts">Skirts</option>
+                            <option value="shorts">Shorts</option>
+                            <option value="hoodies">Hoodies & Jackets</option>
+                            <option value="joggers">Joggers & Pants</option>
+                            <option value="one-piece">One Piece</option>
+                            <option value="sports-bra">Sports Bra</option>
+                            <option value="underwear">Underwear</option>
+                        </select>
+                        <div class="filter-title desktop-hide-mobile">Women's Categories</div>
+                        <div class="filter-options desktop-hide-mobile">
                             <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
                             <label class="filter-checkbox"><input type="radio" name="type"> T-Shirts</label>
                             <label class="filter-checkbox"><input type="radio" name="type"> Crop Tops</label>
@@ -289,8 +352,21 @@
                     </div>
 
                     <div class="filter-section" id="section-accessories" style="display: none;">
-                        <div class="filter-title">Accessories</div>
-                        <div class="filter-options">
+                        <select class="mobile-category-select" id="mobile-accessories-select">
+                            <option value="">Select Sub-category</option>
+                            <option value="shop-all">Shop All</option>
+                            <option value="hats">Hats & Caps</option>
+                            <option value="shoes">Shoes</option>
+                            <option value="slides">Slides</option>
+                            <option value="jewellery">Jewellery</option>
+                            <option value="socks">Socks</option>
+                            <option value="bottles">Bottles & Tumblers</option>
+                            <option value="bags">Bags</option>
+                            <option value="merch">Merch</option>
+                            <option value="lifting">Lifting Accessories</option>
+                        </select>
+                        <div class="filter-title desktop-hide-mobile">Accessories</div>
+                        <div class="filter-options desktop-hide-mobile">
                             <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
                             <label class="filter-checkbox"><input type="radio" name="type"> Hats & Caps</label>
                             <label class="filter-checkbox"><input type="radio" name="type"> Shoes</label>
