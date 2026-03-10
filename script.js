@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cursor = document.querySelector('.cursor');
     const follower = document.querySelector('.cursor-follower');
 
-    // Disable cursor on mobile/touch devices
     if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
         if (cursor) cursor.style.display = 'none';
         if (follower) follower.style.display = 'none';
@@ -37,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mobile Menu Toggle
+    // Mobile Menu Toggle (Integrated in Incarnage style if needed, but for now standard)
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('navMenu');
 
@@ -47,52 +46,47 @@ document.addEventListener('DOMContentLoaded', () => {
             menuToggle.querySelector('i').classList.toggle('fa-bars-staggered');
             menuToggle.querySelector('i').classList.toggle('fa-xmark');
         });
-
-        // Close menu when clicking a link
-        navMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
-                menuToggle.querySelector('i').classList.remove('fa-xmark');
-                menuToggle.querySelector('i').classList.add('fa-bars-staggered');
-            });
-        });
     }
 
     // --- CART SYSTEM ---
     let cart = JSON.parse(localStorage.getItem('69store_cart')) || [];
     const cartSidebar = document.getElementById('cartSidebar');
     const cartOverlay = document.getElementById('cartOverlay');
-    const cartTrigger = document.getElementById('cartTrigger');
+    const cartToggle = document.getElementById('cartToggle');
     const closeCart = document.getElementById('closeCart');
     const cartItemsContainer = document.getElementById('cartItems');
-    const cartTotalAmount = document.getElementById('cartTotalAmount');
-    const cartBadge = document.querySelector('.cart-count');
+    const cartTotalAmount = document.getElementById('cartTotal');
+    const cartBadgeMobile = document.getElementById('cartCountMobile');
+    const cartBadgeSidebar = document.getElementById('cartCount');
 
     const updateCartUI = () => {
+        if (!cartItemsContainer) return;
         cartItemsContainer.innerHTML = '';
         let total = 0;
 
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<div class="cart-empty-msg">Your bag is empty</div>';
+            cartItemsContainer.innerHTML = '<div style="text-align: center; color: #666; margin-top: 50px;">Your bag is empty</div>';
         } else {
             cart.forEach((item, index) => {
                 total += item.price * (item.quantity || 1);
                 const itemEl = document.createElement('div');
                 itemEl.className = 'cart-item';
+                itemEl.style = "display: flex; gap: 20px; align-items: center; margin-bottom: 25px;";
                 itemEl.innerHTML = `
-                    <img src="${item.image}" class="cart-item-img">
-                    <div class="cart-item-info">
-                        <h4>${item.name}</h4>
-                        <p>LKR ${item.price.toLocaleString()}</p>
-                        <span class="remove-item" onclick="removeFromCart(${index})">Remove</span>
+                    <img src="${item.image}" style="width: 80px; height: 100px; object-fit: cover; background: #f2f2f2;">
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">${item.name}</h4>
+                        <p style="font-size: 0.9rem; font-weight: 800; margin: 5px 0;">LKR ${item.price.toLocaleString()}</p>
+                        <span style="font-size: 0.75rem; color: #ff3e3e; cursor: pointer; text-transform: uppercase; font-weight: 600;" onclick="removeFromCart(${index})">Remove</span>
                     </div>
                 `;
                 cartItemsContainer.appendChild(itemEl);
             });
         }
 
-        cartTotalAmount.textContent = `LKR ${total.toLocaleString()}.00`;
-        cartBadge.textContent = cart.reduce((acc, item) => acc + (item.quantity || 1), 0);
+        if (cartTotalAmount) cartTotalAmount.textContent = `LKR ${total.toLocaleString()}.00`;
+        if (cartBadgeMobile) cartBadgeMobile.textContent = cart.length;
+        if (cartBadgeSidebar) cartBadgeSidebar.textContent = `(${cart.length})`;
         localStorage.setItem('69store_cart', JSON.stringify(cart));
     };
 
@@ -100,18 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cart.push({ name, price, image, quantity: 1 });
         updateCartUI();
         openCart();
-
-        // Notification
-        const btn = event.target;
-        if (btn.classList.contains('btn')) {
-            const originalText = btn.textContent;
-            btn.textContent = 'Added!';
-            btn.style.background = '#28a745';
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '';
-            }, 2000);
-        }
     };
 
     window.removeFromCart = (index) => {
@@ -129,21 +111,19 @@ document.addEventListener('DOMContentLoaded', () => {
         cartOverlay.classList.remove('active');
     };
 
-    if (cartTrigger) cartTrigger.addEventListener('click', openCart);
+    if (cartToggle) cartToggle.addEventListener('click', openCart);
     if (closeCart) closeCart.addEventListener('click', closeCartFn);
     if (cartOverlay) cartOverlay.addEventListener('click', closeCartFn);
 
     // --- CHECKOUT LOGIC ---
     let waNumber = '94701234567'; // Default
 
-    // Fetch Settings
     window.addEventListener('firebaseStoreLoaded', () => {
         if (window.firebaseDB) {
             // Visitor Counter
             const vRef = window.firebaseRef(window.firebaseDB, '69store/visitors');
             window.firebaseOnValue(vRef, (snap) => {
                 const count = snap.val() || 0;
-                // Use a flag to only increment once per session
                 if (!sessionStorage.getItem('69v')) {
                     window.firebaseSet(vRef, count + 1);
                     sessionStorage.setItem('69v', '1');
@@ -166,16 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', () => {
             if (cart.length === 0) return alert('Your cart is empty!');
-            checkoutModal.classList.add('active');
+            checkoutModal.style.display = 'flex';
         });
     }
 
-    if (closeCheckout) closeCheckout.addEventListener('click', () => checkoutModal.classList.remove('active'));
+    if (closeCheckout) closeCheckout.addEventListener('click', () => checkoutModal.style.display = 'none');
 
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', (e) => {
             e.preventDefault();
-
             const name = document.getElementById('custName').value;
             const address = document.getElementById('custAddress').value;
             const phone = document.getElementById('custPhone').value;
@@ -188,11 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 status: 'New'
             };
 
-            // Save to Firebase
             if (window.firebaseDB) {
                 const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
                 window.firebasePush(ordersRef, orderData).then(() => {
-                    // Send WhatsApp Message
                     const message = encodeURIComponent(
                         `*NEW ORDER - 69 STORE*\n\n` +
                         `*Customer:* ${name}\n` +
@@ -203,15 +180,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
                     window.open(`https://wa.me/${waNumber}?text=${message}`);
 
-                    // Clear Cart
                     cart = [];
                     updateCartUI();
-                    checkoutModal.classList.remove('active');
+                    checkoutModal.style.display = 'none';
                     closeCartFn();
-                    alert('Order placed successfully! Redirecting to WhatsApp for confirmation.');
+                    alert('Order placed successfully! Redirecting to WhatsApp...');
                 });
-            } else {
-                alert('Database connection failed. Please try again.');
             }
         });
     }

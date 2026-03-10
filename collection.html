@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Men's Wear - 69 STORE</title>
+    <link rel="icon" type="image/png" href="assets/app-logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .collection-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .filter-sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .filter-section {
+            border-bottom: 1px solid var(--border-light);
+            padding: 20px 0;
+        }
+
+        .filter-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-checkbox:hover {
+            color: var(--text-main);
+        }
+
+        .filter-checkbox input {
+            accent-color: var(--primary-color);
+        }
+
+        .collection-grid {
+            flex: 1;
+        }
+
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: var(--pill-radius);
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        /* Mobile Filter Toggle */
+        .mobile-filter-bar {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: black;
+            color: white;
+            padding: 15px 30px;
+            border-radius: var(--pill-radius);
+            z-index: 1000;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .filter-sidebar {
+                display: none;
+            }
+
+            .mobile-filter-bar {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">69<span>STORE</span></a>
+            <nav id="navMenu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="collection.html?cat=men" class="active">Men's Wear</a></li>
+                    <li><a href="index.html#reviews">Reviews</a></li>
+                </ul>
+            </nav>
+            <div class="header-tools">
+                <div class="search-pill">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search Collection...">
+                </div>
+                <div class="tool-icon" id="cartToggle">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="cartCountMobile"
+                        style="position: absolute; top: -10px; right: -10px; background: #000; color: #fff; font-size: 0.75rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container">
+            <!-- Breadcrumbs -->
+            <div
+                style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 20px;">
+                Home / Collections / <span style="color: var(--text-main);">Men's Wear</span>
+            </div>
+
+            <div class="collection-header">
+                <div>
+                    <h1 style="font-size: 3rem;">Men's Wear</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px;" id="productCount">Loading
+                        products...</p>
+                </div>
+                <div style="display: flex; gap: 20px;">
+                    <select id="sortOrder"
+                        style="padding: 10px 20px; border-radius: var(--pill-radius); border: 1px solid var(--border-light); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; outline: none; background: var(--bg-light); color: white;">
+                        <option value="newest">Newest Arrivals</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="collection-container">
+                <!-- Sidebar -->
+                <aside class="filter-sidebar">
+                    <div class="filter-section">
+                        <div class="filter-title">Availability</div>
+                        <div class="filter-options">
+                            <label class="filter-checkbox"><input type="checkbox" checked> In Stock</label>
+                            <label class="filter-checkbox"><input type="checkbox"> Out of Stock</label>
+                        </div>
+                    </div>
+                    <div class="filter-section">
+                        <div class="filter-title">Price Range</div>
+                        <div class="filter-options">
+                            <input type="range" min="0" max="20000" value="20000"
+                                style="width: 100%; accent-color: var(--primary-color);">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+                                <span>LKR 0</span>
+                                <span>LKR 20,000+</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Grid -->
+                <div class="collection-grid">
+                    <div class="product-grid" id="collectionGrid">
+                        <!-- Products from Firebase -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="mobile-filter-bar">Sort & Filter +</div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Cart <span id="cartCount">(0)</span></h3>
+            <div class="tool-icon" id="closeCart">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div id="cartItems" style="flex: 1; overflow-y: auto;"></div>
+        <div class="cart-footer" style="padding-top: 30px; border-top: 1px solid var(--border-light);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
+                <h4 style="color: var(--text-muted);">Subtotal</h4>
+                <h3 id="cartTotal">LKR 0.00</h3>
+            </div>
+            <button id="checkoutBtn" class="btn btn-black" style="width: 100%;">Checkout via WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal (reused from index) -->
+    <div id="checkoutModal" class="cart-overlay" style="display: none; align-items: center; justify-content: center;">
+        <div class="admin-card"
+            style="background: var(--bg-light); width: 95%; max-width: 500px; padding: 40px; border-radius: 25px; position: relative; color: white; border: 1px solid var(--border-light);">
+            <div id="closeCheckout"
+                style="position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer;"><i
+                    class="fa-solid fa-xmark"></i></div>
+            <h2>Shipping <span class="accent-text">Details</span></h2>
+            <form id="checkoutForm">
+                <input type="text" id="custName" placeholder="Full Name" required
+                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
+                <input type="text" id="custPhone" placeholder="Mobile Number" required
+                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
+                <textarea id="custAddress" placeholder="Delivery Address" required
+                    style="width: 100%; padding: 15px; margin-bottom: 25px; background: var(--bg-light); border: none; border-radius: 10px; min-height: 100px;"></textarea>
+                <button type="submit" class="btn btn-black" style="width: 100%;">Confirm & Send Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="index.html" class="logo"
+                        style="color: white; margin-bottom: 25px; display: block;">69<span>STORE</span></a>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">Engineered for movement. Designed for
+                        the streets.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="collection.html">New Arrivals</a></li>
+                        <li><a href="collection.html">Collections</a></li>
+                        <li><a href="collection.html">Best Sellers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#" onclick="alert('Feature coming soon!')">Order Tracking</a></li>
+                        <li><a href="#" onclick="alert('Feature coming soon!')">Returns & Exchanges</a></li>
+                        <li><a href="#" onclick="alert('Feature coming soon!')">Size Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Newsletter</h4>
+                    <p style="color: #666; font-size: 0.85rem; margin-bottom: 20px;">Get exclusive access to the next
+                        drop.</p>
+                    <div class="search-pill" style="background: #111; padding: 15px;">
+                        <input type="email" id="newsletterEmailColl" placeholder="Your Email"
+                            style="color: white; width: 100%; border: none; background: transparent; outline: none;">
+                        <i class="fa-solid fa-arrow-right" style="color: var(--primary-color); cursor: pointer;"
+                            onclick="if(document.getElementById('newsletterEmailColl').value) { alert('Thank you for subscribing!'); document.getElementById('newsletterEmailColl').value=''; } else { alert('Please enter your email'); }"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 69 STORE. All Rights Reserved.</p>
+                <div style="display: flex; gap: 20px;">
+                    <a href="#" style="color: #666;"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" style="color: #666;"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
+            authDomain: "studio-7cdf1.firebaseapp.com",
+            databaseURL: "https://studio-7cdf1-default-rtdb.firebaseio.com",
+            projectId: "studio-7cdf1",
+            storageBucket: "studio-7cdf1.firebasestorage.app",
+            messagingSenderId: "460661592780",
+            appId: "1:460661592780:web:dc8fd00cad5541141e6869",
+            measurementId: "G-Q8YJHFC1H1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        window.firebaseDB = database; // For script.js
+
+        const collectionGrid = document.getElementById('collectionGrid');
+        const countEl = document.getElementById('productCount');
+
+        let allProducts = [];
+        const sortOrderSelect = document.getElementById('sortOrder');
+
+        const renderProducts = (products) => {
+            collectionGrid.innerHTML = '';
+            countEl.textContent = `${products.length} Products`;
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card animate-up';
+                card.innerHTML = `
+                    <div class="product-img">
+                        ${p.price > 10000 ? '<div class="product-badge">Exclusive</div>' : ''}
+                        <img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                        <div class="product-overlay">
+                            <button class="btn btn-black" style="width: 100%;" onclick="addToCart('${p.name}', ${p.price}, '${p.image}')">Add to Cart</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <p>LKR ${p.price.toLocaleString()}.00</p>
+                    </div>
+                `;
+                collectionGrid.appendChild(card);
+            });
+        };
+
+        const applySortAndFilter = () => {
+            let filtered = [...allProducts];
+
+            // Sorting
+            const sort = sortOrderSelect.value;
+            if (sort === 'price-low') filtered.sort((a, b) => a.price - b.price);
+            if (sort === 'price-high') filtered.sort((a, b) => b.price - a.price);
+            if (sort === 'newest') filtered.reverse();
+
+            renderProducts(filtered);
+        };
+
+        onValue(ref(database, '69store/products'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                allProducts = Object.values(data);
+                applySortAndFilter();
+            } else {
+                countEl.textContent = '0 Products';
+            }
+        });
+
+        sortOrderSelect.addEventListener('change', applySortAndFilter);
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>
