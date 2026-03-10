@@ -1,12 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- UI HELPERS ---
+    // --- PRELOADER & ENTRANCE ---
     const preloader = document.querySelector('.preloader');
-    if (preloader) {
-        window.addEventListener('load', () => {
-            preloader.style.opacity = '0';
-            setTimeout(() => preloader.style.display = 'none', 500);
-        });
-    }
+
+    const finishLoading = () => {
+        if (preloader && !preloader.classList.contains('fade-out')) {
+            preloader.classList.add('fade-out');
+            document.body.classList.add('loaded');
+        }
+    };
+
+    // Safety timeout - don't keep them waiting too long
+    const loadingTimeout = setTimeout(finishLoading, 4000);
+
+    window.addEventListener('load', () => {
+        clearTimeout(loadingTimeout);
+        // Small delay for smooth visual transition
+        setTimeout(finishLoading, 800);
+    });
 
     // Custom Cursor
     const cursor = document.querySelector('.cursor');
