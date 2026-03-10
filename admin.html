@@ -145,14 +145,18 @@
 
     <div id="loginOverlay">
         <div class="admin-card" style="width: 400px; text-align: center;">
-            <h2 style="margin-bottom: 20px;">69 STORE ADMIN</h2>
+            <img src="assets/logo.png" alt="69 STORE LOGO" style="width: 150px; margin-bottom: 20px;">
+            <h2 style="margin-bottom: 20px; font-size: 1.2rem; color: var(--text-dim);">ADMIN ACCESS</h2>
             <input type="password" id="adminPass" placeholder="Enter Admin Password" style="margin-bottom: 20px;">
             <button class="btn btn-primary" onclick="checkAuth()" style="width: 100%;">Login</button>
         </div>
     </div>
 
     <div class="admin-nav">
-        <div class="logo">69<span>STORE</span> ADMIN</div>
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/logo.png" alt="69 STORE LOGO" style="height: 40px;">
+            <span style="font-size: 1.2rem; font-weight: 800;">ADMIN</span>
+        </div>
         <div>
             <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
             <button class="tab-btn" onclick="showTab('products')">Products</button>
