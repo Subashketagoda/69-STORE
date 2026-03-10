@@ -209,8 +209,31 @@
                         <input type="number" id="pPrice" placeholder="Price (LKR)" required>
                     </div>
                     <div class="form-row">
+                        <select id="pMainCat" onchange="updateSubCats()" required>
+                            <option value="">Select Main Category</option>
+                            <option value="Men">Men</option>
+                            <option value="Women">Women</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                        <select id="pSubCat" required>
+                            <option value="">Select Sub-category</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <select id="pCollection">
+                            <option value="">None (Standard Collection)</option>
+                            <option value="Premium">Premium</option>
+                            <option value="Oversize Tee">Oversize Tee</option>
+                            <option value="Essentials">Essentials</option>
+                            <option value="Seamless">Seamless</option>
+                        </select>
                         <input type="text" id="pImage" placeholder="Image URL (or upload below)" required>
+                    </div>
+                    <div class="form-row">
                         <input type="file" id="pFile" accept="image/*">
+                        <div style="color: var(--text-dim); font-size: 0.8rem; display: flex; align-items: center;">
+                            * Image URL will be auto-filled if you upload a file.
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Save Product</button>
                 </form>
@@ -224,6 +247,7 @@
                             <tr>
                                 <th>Image</th>
                                 <th>Name</th>
+                                <th>Category</th>
                                 <th>Price</th>
                                 <th>Action</th>
                             </tr>
@@ -296,6 +320,23 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+
+        const subCats = {
+            "Men": ["T-Shirts", "Tanks", "Compressions", "Hoodies & Jackets", "Shorts", "Jeans", "Joggers & Pants", "Underwear"],
+            "Women": ["T-Shirts", "Crop Tops", "Tanks", "Leggings", "Skirts", "Shorts", "Hoodies & Jackets", "Joggers & Pants", "One Piece", "Sports Bra", "Underwear"],
+            "Accessories": ["Hats & Caps", "Shoes", "Slides", "Jewellery", "Socks", "Bottles & Tumblers", "Bags", "Merch", "Lifting Accessories"]
+        };
+
+        window.updateSubCats = () => {
+            const main = document.getElementById('pMainCat').value;
+            const sub = document.getElementById('pSubCat');
+            sub.innerHTML = '<option value="">Select Sub-category</option>';
+            if (subCats[main]) {
+                subCats[main].forEach(c => {
+                    sub.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            }
+        };
 
         // --- AUTH & SETTINGS ---
         let adminSettings = { password: '69admin', waNumber: '94701234567' };
@@ -414,9 +455,21 @@
             const name = document.getElementById('pName').value;
             const price = parseFloat(document.getElementById('pPrice').value);
             const image = document.getElementById('pImage').value;
+            const mainCat = document.getElementById('pMainCat').value;
+            const subCat = document.getElementById('pSubCat').value;
+            const collection = document.getElementById('pCollection').value;
 
-            push(ref(database, '69store/products'), { name, price, image });
+            push(ref(database, '69store/products'), {
+                name,
+                price,
+                image,
+                mainCat,
+                subCat,
+                collection,
+                timestamp: new Date().toISOString()
+            });
             pForm.reset();
+            document.getElementById('pSubCat').innerHTML = '<option value="">Select Sub-category</option>';
             alert('Product added!');
         });
 
@@ -437,13 +490,13 @@
                 Object.keys(data).forEach(key => {
                     const p = data[key];
                     tbody.innerHTML += `
-    <tr>
-        <td><img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover;"></td>
-        <td>${p.name}</td>
-        <td>LKR ${p.price.toLocaleString()}</td>
-        <td><button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteProduct('${key}')">Delete</button>
-        </td>
-    </tr>
+                    <tr>
+                        <td><img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
+                        <td>${p.name}<br><small style="color: var(--primary-color)">${p.collection || ''}</small></td>
+                        <td><small>${p.mainCat || 'Uncategorized'} > ${p.subCat || '-'}</small></td>
+                        <td>LKR ${p.price.toLocaleString()}</td>
+                        <td><button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteProduct('${key}')">Delete</button></td>
+                    </tr>
     `;
                 });
             }

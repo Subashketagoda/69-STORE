@@ -127,9 +127,58 @@
             <a href="index.html" class="logo">69<span>STORE</span></a>
             <nav id="navMenu">
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="collection.html?cat=men" class="active">Men's Wear</a></li>
-                    <li><a href="index.html#reviews">Reviews</a></li>
+                    <li class="nav-item"><a href="index.html">Home</a></li>
+                    <li class="nav-item">
+                        <a href="collection.html?gender=men" class="active">Men <i class="fa-solid fa-chevron-down"
+                                style="font-size: 0.7rem;"></i></a>
+                        <div class="dropdown">
+                            <ul>
+                                <li><a href="collection.html">Shop All</a></li>
+                                <li><a href="collection.html">T-Shirts</a></li>
+                                <li><a href="collection.html">Tanks</a></li>
+                                <li><a href="collection.html">Compressions</a></li>
+                                <li><a href="collection.html">Hoodies & Jackets</a></li>
+                                <li><a href="collection.html">Shorts</a></li>
+                                <li><a href="collection.html">Jeans</a></li>
+                                <li><a href="collection.html">Joggers & Pants</a></li>
+                                <li><a href="collection.html">Underwear</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="collection.html?gender=women">Women <i class="fa-solid fa-chevron-down"
+                                style="font-size: 0.7rem;"></i></a>
+                        <div class="dropdown">
+                            <ul>
+                                <li><a href="collection.html">Shop All</a></li>
+                                <li><a href="collection.html">T-Shirts</a></li>
+                                <li><a href="collection.html">Crop Tops</a></li>
+                                <li><a href="collection.html">Tanks</a></li>
+                                <li><a href="collection.html">Leggings</a></li>
+                                <li><a href="collection.html">Skirts</a></li>
+                                <li><a href="collection.html">Shorts</a></li>
+                                <li><a href="collection.html">Hoodies & Jackets</a></li>
+                                <li><a href="collection.html">Sports Bra</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="collection.html?cat=accessories">Accessories <i class="fa-solid fa-chevron-down"
+                                style="font-size: 0.7rem;"></i></a>
+                        <div class="dropdown">
+                            <ul>
+                                <li><a href="collection.html">Shop All</a></li>
+                                <li><a href="collection.html">Hats & Caps</a></li>
+                                <li><a href="collection.html">Shoes</a></li>
+                                <li><a href="collection.html">Slides</a></li>
+                                <li><a href="collection.html">Jewellery</a></li>
+                                <li><a href="collection.html">Socks</a></li>
+                                <li><a href="collection.html">Bags</a></li>
+                                <li><a href="collection.html">Lifting Gear</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item"><a href="index.html#reviews">Reviews</a></li>
                 </ul>
             </nav>
             <div class="header-tools">
@@ -174,22 +223,77 @@
                 <!-- Sidebar -->
                 <aside class="filter-sidebar">
                     <div class="filter-section">
+                        <div class="filter-title">Department</div>
+                        <div class="filter-options">
+                            <label class="filter-checkbox"><input type="radio" name="gender" checked> Men</label>
+                            <label class="filter-checkbox"><input type="radio" name="gender"> Women</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-title">Men's Categories</div>
+                        <div class="filter-options">
+                            <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> T-Shirts</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Tanks</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Compressions</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Hoodies & Jackets</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Shorts</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Jeans</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Joggers & Pants</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Underwear</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-title">Women's Categories</div>
+                        <div class="filter-options">
+                            <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> T-Shirts</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Crop Tops</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Tanks</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Leggings</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Skirts</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Shorts</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Hoodies & Jackets</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Joggers & Pants</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> One Piece</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Sports Bra</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Underwear</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-title">Accessories</div>
+                        <div class="filter-options">
+                            <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Hats & Caps</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Shoes</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Slides</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Jewellery</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Socks</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Bottles & Tumblers</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Bags</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Merch</label>
+                            <label class="filter-checkbox"><input type="radio" name="type"> Lifting Accessories</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-title">Collections</div>
+                        <div class="filter-options">
+                            <label class="filter-checkbox"><input type="checkbox"> Premium</label>
+                            <label class="filter-checkbox"><input type="checkbox"> Oversize Tee</label>
+                            <label class="filter-checkbox"><input type="checkbox"> Essentials</label>
+                            <label class="filter-checkbox"><input type="checkbox"> Seamless</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
                         <div class="filter-title">Availability</div>
                         <div class="filter-options">
                             <label class="filter-checkbox"><input type="checkbox" checked> In Stock</label>
                             <label class="filter-checkbox"><input type="checkbox"> Out of Stock</label>
-                        </div>
-                    </div>
-                    <div class="filter-section">
-                        <div class="filter-title">Price Range</div>
-                        <div class="filter-options">
-                            <input type="range" min="0" max="20000" value="20000"
-                                style="width: 100%; accent-color: var(--primary-color);">
-                            <div
-                                style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
-                                <span>LKR 0</span>
-                                <span>LKR 20,000+</span>
-                            </div>
                         </div>
                     </div>
                 </aside>

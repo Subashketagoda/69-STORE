@@ -119,6 +119,64 @@ nav ul li a.active::after {
     width: 100%;
 }
 
+/* Dropdown Styles */
+.nav-item {
+    position: relative;
+    padding: 10px 0;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #111;
+    min-width: 200px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-light);
+    display: none;
+    z-index: 1000;
+}
+
+.nav-item:hover .dropdown {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown ul {
+    flex-direction: column;
+    gap: 15px;
+}
+
+.dropdown ul li a {
+    text-transform: none;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding-bottom: 0;
+}
+
+.dropdown ul li a:hover {
+    color: var(--primary-color);
+}
+
+.dropdown ul li a::after {
+    display: none;
+}
+
 .header-tools {
     display: flex;
     align-items: center;
