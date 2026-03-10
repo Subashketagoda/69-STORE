@@ -216,8 +216,8 @@ nav ul li a.active::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000 url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop') no-repeat center center;
-    background-size: cover;
+    background: #000;
+    overflow: hidden;
     overflow: hidden;
 }
 
