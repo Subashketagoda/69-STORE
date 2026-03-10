@@ -105,37 +105,35 @@ nav ul li a {
     letter-spacing: 1.5px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    /* Space between text and arrow */
+    gap: 6px;
     position: relative;
-    padding-bottom: 5px;
-}
-
-nav ul li a .nav-text {
-    position: relative;
-    padding-bottom: 5px;
-}
-
-nav ul li a .nav-text::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 3px;
-    /* Slightly thicker line */
-    background: #ff3333;
-    /* Carnage style red red */
     transition: var(--transition);
 }
 
-nav ul li a:hover .nav-text::after,
-nav ul li a.active .nav-text::after {
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--primary-color);
+    transition: var(--transition);
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+    color: var(--text-main);
+}
+
+nav ul li a:hover::after,
+nav ul li a.active::after {
     width: 100%;
 }
 
 nav ul li a>i {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
     margin-top: 1px;
 }
 
@@ -199,10 +197,10 @@ nav ul li a>i {
 }
 
 .dropdown ul li a:hover {
-    color: white;
+    color: var(--primary-color);
 }
 
-.dropdown ul li a .nav-text::after {
+.dropdown ul li a::after {
     display: none;
 }
 

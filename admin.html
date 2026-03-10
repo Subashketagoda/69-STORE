@@ -211,7 +211,10 @@
                 <form id="productForm" style="margin-top: 20px;">
                     <div class="form-row">
                         <input type="text" id="pName" placeholder="Product Name" required>
-                        <input type="number" id="pPrice" placeholder="Price (LKR)" required>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="pPrice" placeholder="Price (LKR)" required>
+                            <input type="number" id="pStock" placeholder="Stock Qty" required>
+                        </div>
                     </div>
                     <div class="form-row">
                         <select id="pMainCat" onchange="updateSubCats()" required>
@@ -254,6 +257,7 @@
                                 <th>Name</th>
                                 <th>Category</th>
                                 <th>Price</th>
+                                <th>Stock</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -463,10 +467,12 @@
             const mainCat = document.getElementById('pMainCat').value;
             const subCat = document.getElementById('pSubCat').value;
             const collection = document.getElementById('pCollection').value;
+            const stock = parseInt(document.getElementById('pStock').value) || 0;
 
             push(ref(database, '69store/products'), {
                 name,
                 price,
+                stock,
                 image,
                 mainCat,
                 subCat,
@@ -500,6 +506,11 @@
                         <td>${p.name}<br><small style="color: var(--primary-color)">${p.collection || ''}</small></td>
                         <td><small>${p.mainCat || 'Uncategorized'} > ${p.subCat || '-'}</small></td>
                         <td>LKR ${p.price.toLocaleString()}</td>
+                        <td>
+                            <input type="number" value="${p.stock || 0}" 
+                                   style="width: 60px; background: #000; border: 1px solid ${p.stock > 10 ? '#28a745' : p.stock > 0 ? '#ffc107' : '#ff3e3e'}; color: #fff; padding: 5px; border-radius: 4px; text-align: center; font-weight: 800;"
+                                   onchange="updateStock('${key}', this.value)">
+                        </td>
                         <td><button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteProduct('${key}')">Delete</button></td>
                     </tr>
     `;
@@ -509,6 +520,11 @@
 
         window.deleteProduct = (key) => {
             if (confirm('Delete product?')) remove(ref(database, `69store/products/${key}`));
+        };
+
+        window.updateStock = (key, val) => {
+            const stock = parseInt(val) || 0;
+            update(ref(database, `69store/products/${key}`), { stock });
         };
 
         // --- ORDERS MANAGEMENT ---

@@ -75,6 +75,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- DYNAMIC NAVIGATION ACTIVE STATE ---
+    const updateNavActive = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const path = window.location.pathname;
+        const gender = urlParams.get('gender');
+        const cat = urlParams.get('cat');
+        const hash = window.location.hash;
+
+        // Reset all active states
+        document.querySelectorAll('nav ul li a').forEach(a => a.classList.remove('active'));
+
+        if (hash === '#reviews') {
+            const reviewsLink = document.querySelector('nav ul li a[href*="#reviews"]');
+            if (reviewsLink) reviewsLink.classList.add('active');
+        } else if (path.includes('collection.html')) {
+            if (gender === 'men') {
+                const link = document.querySelector('nav ul li a[href*="gender=men"]');
+                if (link) link.classList.add('active');
+            } else if (gender === 'women') {
+                const link = document.querySelector('nav ul li a[href*="gender=women"]');
+                if (link) link.classList.add('active');
+            } else if (cat === 'accessories') {
+                const link = document.querySelector('nav ul li a[href*="cat=accessories"]');
+                if (link) link.classList.add('active');
+            }
+        } else if (path.includes('index.html') || path === '/' || path === '' || path.endsWith('/')) {
+            const homeLink = document.querySelector('nav ul li a[href="index.html"]');
+            if (homeLink) homeLink.classList.add('active');
+        }
+    };
+
+    updateNavActive();
+    window.addEventListener('hashchange', updateNavActive);
+
     // --- CART SYSTEM ---
     let cart = JSON.parse(localStorage.getItem('69store_cart')) || [];
     const cartSidebar = document.getElementById('cartSidebar');
