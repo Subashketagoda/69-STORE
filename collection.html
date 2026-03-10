@@ -624,7 +624,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -639,7 +639,11 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        window.firebaseDB = database; // For script.js
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+        window.firebaseSet = set;
 
         const collectionGrid = document.getElementById('collectionGrid');
         const countEl = document.getElementById('productCount');
@@ -802,6 +806,8 @@
                 applySortAndFilter();
             });
         });
+
+        window.dispatchEvent(new Event('firebaseStoreLoaded'));
     </script>
     <script src="script.js"></script>
 </body>
