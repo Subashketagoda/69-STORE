@@ -25,10 +25,10 @@
 
             <nav id="navMenu">
                 <ul>
-                    <li class="nav-item"><a href="index.html" class="active">Home</a></li>
+                    <li class="nav-item"><a href="index.html" class="active"><span class="nav-text">Home</span></a></li>
                     <li class="nav-item">
-                        <a href="collection.html?gender=men">Men <i class="fa-solid fa-chevron-down"
-                                style="font-size: 0.7rem;"></i></a>
+                        <a href="collection.html?gender=men"><span class="nav-text">Men</span> <i
+                                class="fa-solid fa-chevron-down"></i></a>
                         <div class="dropdown">
                             <ul>
                                 <li><a href="collection.html">Shop All</a></li>
@@ -44,8 +44,8 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a href="collection.html?gender=women">Women <i class="fa-solid fa-chevron-down"
-                                style="font-size: 0.7rem;"></i></a>
+                        <a href="collection.html?gender=women"><span class="nav-text">Women</span> <i
+                                class="fa-solid fa-chevron-down"></i></a>
                         <div class="dropdown">
                             <ul>
                                 <li><a href="collection.html">Shop All</a></li>
@@ -61,8 +61,8 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a href="collection.html?cat=accessories">Accessories <i class="fa-solid fa-chevron-down"
-                                style="font-size: 0.7rem;"></i></a>
+                        <a href="collection.html?cat=accessories"><span class="nav-text">Accessories</span> <i
+                                class="fa-solid fa-chevron-down"></i></a>
                         <div class="dropdown">
                             <ul>
                                 <li><a href="collection.html">Shop All</a></li>
@@ -76,7 +76,7 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item"><a href="index.html#reviews">Reviews</a></li>
+                    <li class="nav-item"><a href="index.html#reviews"><span class="nav-text">Reviews</span></a></li>
                 </ul>
             </nav>
 
@@ -134,65 +134,40 @@
                     style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
 
                     <!-- Mens -->
-                    <a href="collection.html?gender=men" class="feature-tile"
-                        style="position: relative; height: 600px; overflow: hidden; display: block;">
-                        <img src="assets/mens_69_store_featured.png"
-                            style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
-                        <div
-                            style="position: absolute; bottom: 30px; left: 30px; display: flex; align-items: center; justify-content: space-between; width: calc(100% - 60px);">
-                            <h2
-                                style="color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
-                                Mens</h2>
-                            <div
-                                style="width: 35px; height: 35px; border: 1px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+                    <a href="collection.html?gender=men" class="feature-tile">
+                        <img src="assets/mens_69_store_featured.png" alt="Mens Collection">
+                        <div class="feature-tile-content">
+                            <h2>Mens</h2>
+                            <div class="feature-tile-btn">
+                                <i class="fa-solid fa-arrow-right"></i>
                             </div>
                         </div>
-                        <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);">
-                        </div>
+                        <div class="feature-tile-gradient"></div>
                     </a>
 
                     <!-- Womens -->
-                    <a href="collection.html?gender=women" class="feature-tile"
-                        style="position: relative; height: 600px; overflow: hidden; display: block;">
-                        <img src="assets/womens_featured_custom.png"
-                            style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
-                        <div
-                            style="position: absolute; bottom: 30px; left: 30px; display: flex; align-items: center; justify-content: space-between; width: calc(100% - 60px);">
-                            <h2
-                                style="color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
-                                Womens</h2>
-                            <div
-                                style="width: 35px; height: 35px; border: 1px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+                    <a href="collection.html?gender=women" class="feature-tile">
+                        <img src="assets/womens_featured_custom.png" alt="Womens Collection">
+                        <div class="feature-tile-content">
+                            <h2>Womens</h2>
+                            <div class="feature-tile-btn">
+                                <i class="fa-solid fa-arrow-right"></i>
                             </div>
                         </div>
-                        <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);">
-                        </div>
+                        <div class="feature-tile-gradient"></div>
                     </a>
 
                     <!-- Accessories -->
-                    <a href="collection.html?cat=accessories" class="feature-tile"
-                        style="position: relative; height: 600px; overflow: hidden; display: block;">
-                        <img src="assets/accessories_featured_custom.png"
-                            style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
-                        <div
-                            style="position: absolute; bottom: 30px; left: 30px; display: flex; align-items: center; justify-content: space-between; width: calc(100% - 60px);">
-                            <h2
-                                style="color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
-                                Accessories</h2>
-                            <div
-                                style="width: 35px; height: 35px; border: 1px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+                    <a href="collection.html?cat=accessories" class="feature-tile">
+                        <img src="assets/accessories_featured_custom.png" alt="Accessories Collection">
+                        <div class="feature-tile-content">
+                            <h2>Accessories</h2>
+                            <div class="feature-tile-btn">
+                                <i class="fa-solid fa-arrow-right"></i>
                             </div>
                         </div>
-                        <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);">
-                        </div>
+                        <div class="feature-tile-gradient"></div>
                     </a>
-
                 </div>
             </div>
         </section>
@@ -379,13 +354,17 @@
                     card.className = 'product-card animate-up';
                     card.innerHTML = `
                         <div class="product-img">
-                            <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                            <a href="product.html?name=${encodeURIComponent(product.name)}&price=${product.price}&img=${encodeURIComponent(product.image)}">
+                                <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                            </a>
                             <div class="product-overlay">
                                 <button class="btn btn-black" style="width: 100%;" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
                             </div>
                         </div>
                         <div class="product-info">
-                            <h3>${product.name}</h3>
+                            <a href="product.html?name=${encodeURIComponent(product.name)}&price=${product.price}&img=${encodeURIComponent(product.image)}" style="text-decoration: none; color: inherit;">
+                                <h3>${product.name}</h3>
+                            </a>
                             <p>LKR ${product.price.toLocaleString()}.00</p>
                         </div>
                     `;

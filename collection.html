@@ -110,11 +110,28 @@
 
         @media (max-width: 1024px) {
             .filter-sidebar {
-                display: none;
+                position: fixed;
+                top: 0;
+                left: -100vw;
+                width: 85vw;
+                max-width: 350px;
+                height: 100vh;
+                background: var(--bg-dark, #0a0a0a);
+                z-index: 2000;
+                padding: 30px;
+                overflow-y: auto;
+                transition: left 0.4s ease;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.9);
+                border-right: 1px solid var(--border-light);
+            }
+
+            .filter-sidebar.active {
+                left: 0;
             }
 
             .mobile-filter-bar {
                 display: block;
+                text-align: center;
             }
         }
     </style>
@@ -127,10 +144,10 @@
             <a href="index.html" class="logo">69<span>STORE</span></a>
             <nav id="navMenu">
                 <ul>
-                    <li class="nav-item"><a href="index.html">Home</a></li>
+                    <li class="nav-item"><a href="index.html"><span class="nav-text">Home</span></a></li>
                     <li class="nav-item">
-                        <a href="collection.html?gender=men" class="active">Men <i class="fa-solid fa-chevron-down"
-                                style="font-size: 0.7rem;"></i></a>
+                        <a href="collection.html?gender=men" class="active"><span class="nav-text">Men</span> <i
+                                class="fa-solid fa-chevron-down"></i></a>
                         <div class="dropdown">
                             <ul>
                                 <li><a href="collection.html">Shop All</a></li>
@@ -146,8 +163,8 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a href="collection.html?gender=women">Women <i class="fa-solid fa-chevron-down"
-                                style="font-size: 0.7rem;"></i></a>
+                        <a href="collection.html?gender=women"><span class="nav-text">Women</span> <i
+                                class="fa-solid fa-chevron-down"></i></a>
                         <div class="dropdown">
                             <ul>
                                 <li><a href="collection.html">Shop All</a></li>
@@ -163,8 +180,8 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a href="collection.html?cat=accessories">Accessories <i class="fa-solid fa-chevron-down"
-                                style="font-size: 0.7rem;"></i></a>
+                        <a href="collection.html?cat=accessories"><span class="nav-text">Accessories</span> <i
+                                class="fa-solid fa-chevron-down"></i></a>
                         <div class="dropdown">
                             <ul>
                                 <li><a href="collection.html">Shop All</a></li>
@@ -178,7 +195,7 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item"><a href="index.html#reviews">Reviews</a></li>
+                    <li class="nav-item"><a href="index.html#reviews"><span class="nav-text">Reviews</span></a></li>
                 </ul>
             </nav>
             <div class="header-tools">
@@ -221,16 +238,24 @@
 
             <div class="collection-container">
                 <!-- Sidebar -->
-                <aside class="filter-sidebar">
+                <aside class="filter-sidebar" id="filterSidebar">
+                    <div id="closeMobileFilter"
+                        style="display: none; text-align: right; margin-bottom: 20px; cursor: pointer;">
+                        <i class="fa-solid fa-xmark" style="font-size: 1.5rem;"></i>
+                    </div>
                     <div class="filter-section">
                         <div class="filter-title">Department</div>
                         <div class="filter-options">
-                            <label class="filter-checkbox"><input type="radio" name="gender" checked> Men</label>
-                            <label class="filter-checkbox"><input type="radio" name="gender"> Women</label>
+                            <label class="filter-checkbox"><input type="radio" name="gender" id="dept-men" value="men"
+                                    checked> Men</label>
+                            <label class="filter-checkbox"><input type="radio" name="gender" id="dept-women"
+                                    value="women"> Women</label>
+                            <label class="filter-checkbox"><input type="radio" name="gender" id="dept-accessories"
+                                    value="accessories"> Accessories</label>
                         </div>
                     </div>
 
-                    <div class="filter-section">
+                    <div class="filter-section" id="section-mens">
                         <div class="filter-title">Men's Categories</div>
                         <div class="filter-options">
                             <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
@@ -245,7 +270,7 @@
                         </div>
                     </div>
 
-                    <div class="filter-section">
+                    <div class="filter-section" id="section-womens" style="display: none;">
                         <div class="filter-title">Women's Categories</div>
                         <div class="filter-options">
                             <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
@@ -263,7 +288,7 @@
                         </div>
                     </div>
 
-                    <div class="filter-section">
+                    <div class="filter-section" id="section-accessories" style="display: none;">
                         <div class="filter-title">Accessories</div>
                         <div class="filter-options">
                             <label class="filter-checkbox"><input type="radio" name="type"> Shop All</label>
@@ -278,6 +303,36 @@
                             <label class="filter-checkbox"><input type="radio" name="type"> Lifting Accessories</label>
                         </div>
                     </div>
+
+                    <script>
+                        document.querySelectorAll('input[name="gender"]').forEach(radio => {
+                            radio.addEventListener('change', (e) => {
+                                document.getElementById('section-mens').style.display = e.target.value === 'men' ? 'block' : 'none';
+                                document.getElementById('section-womens').style.display = e.target.value === 'women' ? 'block' : 'none';
+                                document.getElementById('section-accessories').style.display = e.target.value === 'accessories' ? 'block' : 'none';
+
+                                let title = e.target.value === 'men' ? "Men's Wear" : e.target.value === 'women' ? "Women's Wear" : "Accessories";
+                                const h1 = document.querySelector('.collection-header h1');
+                                const breadcrumbSpan = document.querySelector('.container > div[style*="font-size: 0.8rem"] span');
+                                if (h1) h1.textContent = title;
+                                if (breadcrumbSpan) breadcrumbSpan.textContent = title;
+                            });
+                        });
+
+                        // Set initial state from URL parameters
+                        window.addEventListener('DOMContentLoaded', () => {
+                            const params = new URLSearchParams(window.location.search);
+                            let activeDept = 'men';
+                            if (params.get('gender') === 'women') activeDept = 'women';
+                            if (params.get('cat') === 'accessories') activeDept = 'accessories';
+
+                            const radio = document.getElementById('dept-' + activeDept);
+                            if (radio) {
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change'));
+                            }
+                        });
+                    </script>
 
                     <div class="filter-section">
                         <div class="filter-title">Collections</div>
@@ -308,7 +363,48 @@
         </div>
     </main>
 
-    <div class="mobile-filter-bar">Sort & Filter +</div>
+    <div class="mobile-filter-bar" id="mobileFilterToggle">Sort & Filter +</div>
+
+    <!-- Filter Overlay -->
+    <div class="cart-overlay" id="filterOverlay"></div>
+
+    <script>
+        // Mobile Filter Logic
+        const filterSidebar = document.getElementById('filterSidebar');
+        const filterToggleBtn = document.getElementById('mobileFilterToggle');
+        const closeMobileFilterBtn = document.getElementById('closeMobileFilter');
+        const filterOverlay = document.getElementById('filterOverlay');
+
+        // Verify if on mobile layout to show close button
+        const checkMobileCloseBtn = () => {
+            if (window.innerWidth <= 1024) {
+                closeMobileFilterBtn.style.display = 'block';
+            } else {
+                closeMobileFilterBtn.style.display = 'none';
+                filterSidebar.classList.remove('active');
+                filterOverlay.style.display = 'none';
+            }
+        };
+
+        window.addEventListener('resize', checkMobileCloseBtn);
+        checkMobileCloseBtn();
+
+        filterToggleBtn.addEventListener('click', () => {
+            filterSidebar.classList.add('active');
+            filterOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // stop background scrolling
+        });
+
+        const closeFilterMenu = () => {
+            filterSidebar.classList.remove('active');
+            filterOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+
+        closeMobileFilterBtn.addEventListener('click', closeFilterMenu);
+        filterOverlay.addEventListener('click', closeFilterMenu);
+
+    </script>
 
     <!-- Cart Sidebar -->
     <div class="cart-overlay" id="cartOverlay"></div>
@@ -431,13 +527,17 @@
                 card.innerHTML = `
                     <div class="product-img">
                         ${p.price > 10000 ? '<div class="product-badge">Exclusive</div>' : ''}
-                        <img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                        <a href="product.html?name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.image)}">
+                            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                        </a>
                         <div class="product-overlay">
                             <button class="btn btn-black" style="width: 100%;" onclick="addToCart('${p.name}', ${p.price}, '${p.image}')">Add to Cart</button>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3>${p.name}</h3>
+                        <a href="product.html?name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.image)}" style="text-decoration: none; color: inherit;">
+                            <h3>${p.name}</h3>
+                        </a>
                         <p>LKR ${p.price.toLocaleString()}.00</p>
                     </div>
                 `;

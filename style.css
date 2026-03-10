@@ -95,28 +95,45 @@ nav ul {
 nav ul li a {
     text-decoration: none;
     color: var(--text-main);
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 800;
+    /* Bolder to match image */
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Space between text and arrow */
     position: relative;
     padding-bottom: 5px;
 }
 
-nav ul li a::after {
+nav ul li a .nav-text {
+    position: relative;
+    padding-bottom: 5px;
+}
+
+nav ul li a .nav-text::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
     width: 0;
-    height: 2px;
-    background: var(--primary-color);
+    height: 3px;
+    /* Slightly thicker line */
+    background: #ff3333;
+    /* Carnage style red red */
     transition: var(--transition);
 }
 
-nav ul li a:hover::after,
-nav ul li a.active::after {
+nav ul li a:hover .nav-text::after,
+nav ul li a.active .nav-text::after {
     width: 100%;
+}
+
+nav ul li a>i {
+    font-size: 0.7rem;
+    margin-top: 1px;
 }
 
 /* Dropdown Styles */
@@ -167,14 +184,89 @@ nav ul li a.active::after {
     color: var(--text-muted);
     font-weight: 500;
     padding-bottom: 0;
+    display: inline-block;
 }
 
 .dropdown ul li a:hover {
-    color: var(--primary-color);
+    color: white;
 }
 
-.dropdown ul li a::after {
+.dropdown ul li a .nav-text::after {
     display: none;
+}
+
+/* Feature Tiles */
+.feature-tile {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    display: block;
+    border-radius: 4px;
+    /* Optional slight rounding */
+}
+
+.feature-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.feature-tile:hover img {
+    transform: scale(1.08);
+    /* Carnage smooth scale */
+}
+
+.feature-tile-content {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 60px);
+    z-index: 5;
+    /* Keep above gradient */
+}
+
+.feature-tile h2 {
+    color: white;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.feature-tile-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.feature-tile:hover .feature-tile-btn {
+    border-color: white;
+    background: white;
+    color: black;
+    transform: translateX(5px);
+}
+
+.feature-tile-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    /* Only gradient bottom half */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    z-index: 2;
+    pointer-events: none;
 }
 
 .header-tools {

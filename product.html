@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - 69 STORE</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/app-logo.jpg">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="style.css?v=2.6">
+    <style>
+        .product-container {
+            display: flex;
+            gap: 50px;
+            padding: 40px 0;
+            margin-top: 60px;
+            min-height: calc(100vh - 400px);
+        }
+
+        .product-gallery {
+            flex: 1.2;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            align-content: start;
+        }
+
+        .product-gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            object-fit: cover;
+            aspect-ratio: 3/4;
+        }
+
+        .product-gallery img.full {
+            grid-column: 1 / -1;
+            aspect-ratio: auto;
+            max-height: 800px;
+        }
+
+        .product-details-sidebar {
+            flex: 0.8;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .breadcrumb {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb span {
+            color: var(--text-main);
+        }
+
+        .product-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .afterpay-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .afterpay-badge {
+            background: #b2fce4;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.7rem;
+        }
+
+        .variant-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .size-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .size-box {
+            border: 1px solid var(--border-light);
+            padding: 12px 0;
+            text-align: center;
+            border-radius: var(--pill-radius);
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .size-box:hover,
+        .size-box.active {
+            background: white;
+            color: black;
+            border-color: white;
+        }
+
+        .size-guide-link {
+            display: block;
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: underline;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .buy-it-now-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1rem;
+            background: #5a31f4;
+            /* Koko color or generic purple */
+            color: white;
+            border: none;
+            border-radius: var(--pill-radius);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            margin-bottom: 40px;
+        }
+
+        .buy-it-now-btn:hover {
+            opacity: 0.9;
+        }
+
+        .accordion {
+            border-top: 1px solid var(--border-light);
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid var(--border-light);
+            padding: 20px 0;
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .accordion-content {
+            display: none;
+            padding-top: 15px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1024px) {
+            .product-container {
+                flex-direction: column;
+                margin-top: 20px;
+                padding: 20px 0;
+            }
+
+            .product-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .product-details-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">69<span>STORE</span></a>
+            <nav id="navMenu">
+                <ul>
+                    <li class="nav-item"><a href="index.html"><span class="nav-text">Home</span></a></li>
+                    <li class="nav-item"><a href="collection.html?gender=men"><span class="nav-text">Men</span></a></li>
+                    <li class="nav-item"><a href="collection.html?gender=women"><span class="nav-text">Women</span></a>
+                    </li>
+                    <li class="nav-item"><a href="collection.html?cat=accessories"><span
+                                class="nav-text">Accessories</span></a></li>
+                </ul>
+            </nav>
+            <div class="header-tools">
+                <div class="tool-icon" id="cartToggle">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="cartCountMobile"
+                        style="position: absolute; top: -10px; right: -10px; background: #000; color: #fff; font-size: 0.75rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container">
+            <div class="product-container">
+                <!-- Gallery -->
+                <div class="product-gallery">
+                    <img id="mainProductImage" src="" alt="Product Image" class="full">
+                    <img id="subProductImage1" src="" alt="Product Image">
+                    <img id="subProductImage2" src="" alt="Product Image">
+                </div>
+
+                <!-- Details Sidebar -->
+                <div class="product-details-sidebar">
+                    <div class="breadcrumb">
+                        Home / Catalog / <span id="breadcrumbName">Loading...</span>
+                    </div>
+
+                    <h1 class="product-title" id="productTitle">Loading...</h1>
+                    <div class="product-price" id="productPrice">LKR 0.00</div>
+                    <div class="afterpay-text">
+                        Pay in 3 interest-free payments with <span class="afterpay-badge">Koko</span>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <span class="variant-title">Size</span>
+                        <div class="size-options">
+                            <div class="size-box" onclick="selectSize(this)">S</div>
+                            <div class="size-box active" onclick="selectSize(this)">M</div>
+                            <div class="size-box" onclick="selectSize(this)">L</div>
+                            <div class="size-box" onclick="selectSize(this)">XL</div>
+                            <div class="size-box" onclick="selectSize(this)">XXL</div>
+                        </div>
+                        <span class="size-guide-link" onclick="alert('Size guide coming soon!')">Size Guide</span>
+                    </div>
+
+                    <button class="btn btn-black add-to-cart-btn" id="addToCartBtn">Add to Cart</button>
+                    <button class="buy-it-now-btn" id="buyNowBtn">Buy with Koko</button>
+
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <div class="accordion-header" onclick="toggleAccordion(this)">
+                                Product Details <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <p>• Premium heavyweight cotton blend.</p>
+                                <p>• Oversized dropped shoulder fit.</p>
+                                <p>• High-density 69 STORE authentic logos.</p>
+                                <p>• Designed for movement and street aesthetics.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header" onclick="toggleAccordion(this)">
+                                Shipping & Returns <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <p>Island-wide delivery available. Expect your package within 2-4 working days. Returns
+                                    accepted within 14 days of purchase in original condition.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Cart <span id="cartCount">(0)</span></h3>
+            <div class="tool-icon" id="closeCart">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div id="cartItems" style="flex: 1; overflow-y: auto;"></div>
+        <div class="cart-footer" style="padding-top: 30px; border-top: 1px solid var(--border-light);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
+                <h4 style="color: var(--text-muted);">Subtotal</h4>
+                <h3 id="cartTotal">LKR 0.00</h3>
+            </div>
+            <button id="checkoutBtn" class="btn btn-black" style="width: 100%;">Checkout via WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal (reused from index) -->
+    <div id="checkoutModal" class="cart-overlay" style="display: none; align-items: center; justify-content: center;">
+        <div class="admin-card"
+            style="background: var(--bg-light); width: 95%; max-width: 500px; padding: 40px; border-radius: 25px; position: relative; color: white; border: 1px solid var(--border-light);">
+            <div id="closeCheckout"
+                style="position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer;"><i
+                    class="fa-solid fa-xmark"></i></div>
+            <h2>Shipping <span class="accent-text">Details</span></h2>
+            <form id="checkoutForm">
+                <input type="text" id="custName" placeholder="Full Name" required
+                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
+                <input type="text" id="custPhone" placeholder="Mobile Number" required
+                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
+                <textarea id="custAddress" placeholder="Delivery Address" required
+                    style="width: 100%; padding: 15px; margin-bottom: 25px; background: var(--bg-light); border: none; border-radius: 10px; min-height: 100px;"></textarea>
+                <button type="submit" class="btn btn-black" style="width: 100%;">Confirm & Send Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="index.html" class="logo"
+                        style="color: white; margin-bottom: 25px; display: block;">69<span>STORE</span></a>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">Engineered for movement. Designed for
+                        the streets.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="collection.html">New Arrivals</a></li>
+                        <li><a href="collection.html">Collections</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 69 STORE. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize Product Data -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name') || '69 Default Tee';
+            const price = parseFloat(params.get('price')) || 5500;
+            const img = params.get('img') || 'assets/mens_69_store_featured.png';
+
+            document.title = name + " - 69 STORE";
+            document.getElementById('breadcrumbName').textContent = name;
+            document.getElementById('productTitle').textContent = name;
+            document.getElementById('productPrice').textContent = `LKR ${price.toLocaleString()}.00`;
+
+            // Set images (using the same image for subgallery for now to fill space)
+            document.getElementById('mainProductImage').src = img;
+            document.getElementById('subProductImage1').src = img;
+            document.getElementById('subProductImage2').src = img;
+
+            // Handle Add To Cart 
+            document.getElementById('addToCartBtn').addEventListener('click', () => {
+                if (typeof addToCart === 'function') {
+                    addToCart(name, price, img);
+                } else {
+                    // Fallback to local script if global not available yet
+                    let cart = JSON.parse(localStorage.getItem('69store_cart')) || [];
+                    cart.push({ name, price, image: img });
+                    localStorage.setItem('69store_cart', JSON.stringify(cart));
+                    alert(`${name} added to cart! Check your sidebar.`);
+                    window.location.reload(); // rudimentary UI update
+                }
+            });
+
+            document.getElementById('buyNowBtn').addEventListener('click', () => {
+                alert('Redirecting to Koko Payment Gateway...');
+            });
+        });
+
+        // Size Box Logic
+        function selectSize(element) {
+            document.querySelectorAll('.size-box').forEach(box => box.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Accordion Logic
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                icon.classList.remove('fa-minus');
+                icon.classList.add('fa-plus');
+            } else {
+                content.style.display = 'block';
+                icon.classList.remove('fa-plus');
+                icon.classList.add('fa-minus');
+            }
+        }
+    </script>
+    <script src="script.js?v=2.2"></script>
+</body>
+
+</html>
