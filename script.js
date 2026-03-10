@@ -1,14 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI HELPERS ---
     const preloader = document.querySelector('.preloader');
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            if (preloader) {
-                preloader.style.opacity = '0';
-                setTimeout(() => preloader.style.display = 'none', 500);
-            }
-        }, 1500);
-    });
+    if (preloader) {
+        window.addEventListener('load', () => {
+            preloader.style.opacity = '0';
+            setTimeout(() => preloader.style.display = 'none', 500);
+        });
+    }
 
     // Custom Cursor
     const cursor = document.querySelector('.cursor');
@@ -47,15 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000); // Change slide every 5 seconds
     }
 
-    // Mobile Menu Toggle (Integrated in Incarnage style if needed, but for now standard)
+    // New Mobile Menu Logic
     const menuToggle = document.getElementById('menuToggle');
-    const navMenu = document.getElementById('navMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const closeMenu = document.getElementById('closeMenu');
+    const navOverlay = document.createElement('div');
+    navOverlay.className = 'cart-overlay';
+    document.body.appendChild(navOverlay);
 
-    if (menuToggle && navMenu) {
+    if (menuToggle && mobileMenu) {
         menuToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            menuToggle.querySelector('i').classList.toggle('fa-bars-staggered');
-            menuToggle.querySelector('i').classList.toggle('fa-xmark');
+            mobileMenu.classList.add('active');
+            navOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        const closeMobileMenu = () => {
+            mobileMenu.classList.remove('active');
+            navOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        if (closeMenu) closeMenu.addEventListener('click', closeMobileMenu);
+        navOverlay.addEventListener('click', closeMobileMenu);
+
+        // Close menu on link click
+        mobileMenu.querySelectorAll('ul li a').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
         });
     }
 
@@ -84,11 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemEl.className = 'cart-item';
                 itemEl.style = "display: flex; gap: 20px; align-items: center; margin-bottom: 25px;";
                 itemEl.innerHTML = `
-                    <img src="${item.image}" style="width: 80px; height: 100px; object-fit: cover; background: #f2f2f2;">
-                    <div style="flex: 1;">
-                        <h4 style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">${item.name}</h4>
-                        <p style="font-size: 0.9rem; font-weight: 800; margin: 5px 0;">LKR ${item.price.toLocaleString()}</p>
-                        <span style="font-size: 0.75rem; color: #ff3e3e; cursor: pointer; text-transform: uppercase; font-weight: 600;" onclick="removeFromCart(${index})">Remove</span>
+                    <div style="width: 70px; height: 90px; border-radius: 8px; overflow: hidden; background: #1a1a1a; flex-shrink: 0;">
+                        <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <h4 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
+                        <p style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted); margin-bottom: 8px;">LKR ${item.price.toLocaleString()}</p>
+                        <span style="font-size: 0.7rem; color: #ff3e3e; cursor: pointer; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;" onclick="removeFromCart(${index})">Remove</span>
                     </div>
                 `;
                 cartItemsContainer.appendChild(itemEl);

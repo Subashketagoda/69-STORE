@@ -5,10 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details - 69 STORE</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/app-logo.jpg">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    </noscript>
     <!-- Style CSS -->
     <link rel="stylesheet" href="style.css?v=2.6">
     <style>
@@ -179,6 +187,9 @@
     <!-- Header -->
     <header id="header">
         <div class="nav-container">
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </div>
             <a href="index.html" class="logo">69<span>STORE</span></a>
             <nav id="navMenu">
                 <ul>
@@ -197,6 +208,23 @@
                         style="position: absolute; top: -10px; right: -10px; background: #000; color: #fff; font-size: 0.75rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</span>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                <a href="index.html" class="logo">69<span>STORE</span></a>
+                <div class="tool-icon" id="closeMenu">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            </div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="collection.html?gender=men">Men</a></li>
+                <li><a href="collection.html?gender=women">Women</a></li>
+                <li><a href="collection.html?cat=accessories">Accessories</a></li>
+                <li><a href="index.html#reviews">Reviews</a></li>
+            </ul>
         </div>
     </header>
 
