@@ -474,42 +474,68 @@ nav ul li a>i {
     text-transform: uppercase;
 }
 
+.hero-btn-group {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+@media (max-width: 600px) {
+    .hero-btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-btn-group .btn {
+        width: 100%;
+    }
+}
+
 /* --- Buttons --- */
 .btn {
     padding: 18px 45px;
-    border-radius: var(--pill-radius);
+    border-radius: 4px;
+    /* Sharper, more premium look */
     text-transform: uppercase;
-    font-weight: 600;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
     text-decoration: none;
     display: inline-block;
-    transition: var(--transition);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     border: none;
     cursor: pointer;
+    text-align: center;
 }
 
 .btn-primary {
     background: var(--primary-color);
     color: white;
-    box-shadow: 0 4px 15px rgba(255, 62, 62, 0.3);
+    box-shadow: 0 10px 20px rgba(255, 62, 62, 0.2);
+    border: 1px solid var(--primary-color);
 }
 
 .btn-primary:hover {
-    background: #ff5555;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 62, 62, 0.5);
+    background: #ff4d4d;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(255, 62, 62, 0.4);
+    border-color: #ff6666;
 }
 
 .btn-black {
-    background: var(--primary-color);
+    background: rgba(255, 255, 255, 0.05);
     color: white;
-    box-shadow: 0 4px 15px rgba(255, 62, 62, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 .btn-black:hover {
-    background: #ff5555;
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* --- Sections --- */
