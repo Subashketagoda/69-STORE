@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     </noscript>
     <!-- Style CSS -->
-    <link rel="stylesheet" href="style.css?v=2.6">
+    <link rel="stylesheet" href="style.css?v=2.7">
     <style>
         .product-container {
             display: flex;
@@ -248,9 +248,44 @@
             </div>
             <ul>
                 <li><a href="index.html">Home</a></li>
-                <li><a href="collection.html?gender=men">Men</a></li>
-                <li><a href="collection.html?gender=women">Women</a></li>
-                <li><a href="collection.html?cat=accessories">Accessories</a></li>
+                <li class="has-submenu">
+                    <div class="submenu-header">
+                        <a href="collection.html?gender=men">Men</a>
+                        <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <ul class="mobile-submenu">
+                        <li><a href="collection.html?gender=men">Shop All</a></li>
+                        <li><a href="collection.html?gender=men&sub=T-Shirts">T-Shirts</a></li>
+                        <li><a href="collection.html?gender=men&sub=Hoodies & Jackets">Hoodies & Jackets</a></li>
+                        <li><a href="collection.html?gender=men&sub=Shorts">Shorts</a></li>
+                        <li><a href="collection.html?gender=men&sub=Joggers & Pants">Joggers & Pants</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <div class="submenu-header">
+                        <a href="collection.html?gender=women">Women</a>
+                        <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <ul class="mobile-submenu">
+                        <li><a href="collection.html?gender=women">Shop All</a></li>
+                        <li><a href="collection.html?gender=women&sub=T-Shirts">T-Shirts</a></li>
+                        <li><a href="collection.html?gender=women&sub=Crop Tops">Crop Tops</a></li>
+                        <li><a href="collection.html?gender=women&sub=Hoodies & Jackets">Hoodies & Jackets</a></li>
+                        <li><a href="collection.html?gender=women&sub=Joggers & Pants">Joggers & Pants</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <div class="submenu-header">
+                        <a href="collection.html?cat=accessories">Accessories</a>
+                        <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <ul class="mobile-submenu">
+                        <li><a href="collection.html?cat=accessories">Shop All</a></li>
+                        <li><a href="collection.html?cat=accessories&sub=Hats & Caps">Hats & Caps</a></li>
+                        <li><a href="collection.html?cat=accessories&sub=Jewellery">Jewellery</a></li>
+                        <li><a href="collection.html?cat=accessories&sub=Bags">Bags</a></li>
+                    </ul>
+                </li>
                 <li><a href="index.html#reviews">Reviews</a></li>
             </ul>
         </div>

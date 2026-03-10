@@ -74,14 +74,37 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileMenu.classList.remove('active');
             navOverlay.classList.remove('active');
             document.body.style.overflow = '';
+            // Also close any open submenus
+            document.querySelectorAll('.has-submenu').forEach(sub => sub.classList.remove('active'));
         };
 
         if (closeMenu) closeMenu.addEventListener('click', closeMobileMenu);
         navOverlay.addEventListener('click', closeMobileMenu);
 
-        // Close menu on link click
-        mobileMenu.querySelectorAll('ul li a').forEach(link => {
-            link.addEventListener('click', closeMobileMenu);
+        // Close menu on link click only for final destination links
+        mobileMenu.querySelectorAll('ul li a:not(.has-submenu > .submenu-header > a)').forEach(link => {
+            if (!link.closest('.submenu-header')) {
+                link.addEventListener('click', closeMobileMenu);
+            }
+        });
+
+        // Mobile Submenu Accordion Logic
+        const subheaders = mobileMenu.querySelectorAll('.submenu-header');
+        subheaders.forEach(header => {
+            header.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const parent = header.parentElement;
+                const isOpen = parent.classList.contains('active');
+
+                // Close other submenus for cleaner UI
+                mobileMenu.querySelectorAll('.has-submenu').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                if (!isOpen) {
+                    parent.classList.add('active');
+                }
+            });
         });
     }
 
