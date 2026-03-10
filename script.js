@@ -36,6 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Hero Image Slider
+    const slides = document.querySelectorAll('.hero-slide');
+    if (slides.length > 0) {
+        let currentSlide = 0;
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 5000); // Change slide every 5 seconds
+    }
+
     // Mobile Menu Toggle (Integrated in Incarnage style if needed, but for now standard)
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('navMenu');
