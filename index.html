@@ -119,82 +119,73 @@
         <section id="categories" class="section" style="padding-top: 60px;">
             <div class="container">
                 <div class="section-title">
-                    <p>Browse by</p>
-                    <h2>Style <span class="accent-text">Categories</span></h2>
+                    <p>Shop by</p>
+                    <h2>Featured <span class="accent-text">Departments</span></h2>
                 </div>
-                <div class="product-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                    <!-- Category 1: Oversized Tees -->
-                    <a href="collection.html?cat=oversized" class="product-card"
-                        style="height: 450px; overflow: hidden; position: relative; border-radius: 12px; margin-bottom: 20px;">
-                        <img src="https://images.unsplash.com/photo-1558304970-abd589baebe5?q=80&w=1000&auto=format&fit=crop"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; bottom: 30px; left: 30px; z-index: 10;">
-                            <h2 style="color: white; font-size: 1.8rem; margin-bottom: 10px;">Oversized Tees</h2>
+                <!-- 3 Column Carnage-Style Grid -->
+                <div class="featured-departments-grid"
+                    style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+
+                    <!-- Mens -->
+                    <a href="collection.html?gender=men" class="feature-tile"
+                        style="position: relative; height: 650px; overflow: hidden; display: block;">
+                        <img src="assets/mens_activewear_featured_1773154481828.png"
+                            style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                        <div
+                            style="position: absolute; bottom: 30px; left: 30px; display: flex; align-items: center; justify-content: space-between; width: calc(100% - 60px);">
+                            <h2
+                                style="color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
+                                Mens</h2>
+                            <div
+                                style="width: 35px; height: 35px; border: 1px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+                            </div>
                         </div>
                         <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);">
                         </div>
                     </a>
-                    <!-- Category 2: Hoodies -->
-                    <a href="collection.html?cat=hoodies" class="product-card"
-                        style="height: 450px; overflow: hidden; position: relative; border-radius: 12px; margin-bottom: 20px;">
-                        <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; bottom: 30px; left: 30px; z-index: 10;">
-                            <h2 style="color: white; font-size: 1.8rem; margin-bottom: 10px;">Graphic Hoodies</h2>
+
+                    <!-- Womens -->
+                    <a href="collection.html?gender=women" class="feature-tile"
+                        style="position: relative; height: 650px; overflow: hidden; display: block;">
+                        <img src="assets/womens_activewear_featured_1773154524851.png"
+                            style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                        <div
+                            style="position: absolute; bottom: 30px; left: 30px; display: flex; align-items: center; justify-content: space-between; width: calc(100% - 60px);">
+                            <h2
+                                style="color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
+                                Womens</h2>
+                            <div
+                                style="width: 35px; height: 35px; border: 1px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+                            </div>
                         </div>
                         <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);">
                         </div>
                     </a>
-                    <!-- Category 3: Pants -->
-                    <a href="collection.html?cat=pants" class="product-card"
-                        style="height: 450px; overflow: hidden; position: relative; border-radius: 12px; margin-bottom: 20px;">
-                        <img src="https://images.unsplash.com/photo-1506152983158-b4a74a01c721?q=80&w=1000&auto=format&fit=crop"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; bottom: 30px; left: 30px; z-index: 10;">
-                            <h2 style="color: white; font-size: 1.8rem; margin-bottom: 10px;">Cargo Pants</h2>
+
+                    <!-- Accessories -->
+                    <a href="collection.html?cat=accessories" class="feature-tile"
+                        style="position: relative; height: 650px; overflow: hidden; display: block;">
+                        <img src="assets/accessories_performance_featured_1773154564437.png"
+                            style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                        <div
+                            style="position: absolute; bottom: 30px; left: 30px; display: flex; align-items: center; justify-content: space-between; width: calc(100% - 60px);">
+                            <h2
+                                style="color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
+                                Accessories</h2>
+                            <div
+                                style="width: 35px; height: 35px; border: 1px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+                            </div>
                         </div>
                         <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);">
                         </div>
                     </a>
-                    <!-- Category 4: Outerwear -->
-                    <a href="collection.html?cat=outerwear" class="product-card"
-                        style="height: 450px; overflow: hidden; position: relative; border-radius: 12px;">
-                        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1000&auto=format&fit=crop"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; bottom: 30px; left: 30px; z-index: 10;">
-                            <h2 style="color: white; font-size: 1.8rem; margin-bottom: 10px;">Outerwear</h2>
-                        </div>
-                        <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
-                        </div>
-                    </a>
-                    <!-- Category 5: Accessories -->
-                    <a href="collection.html?cat=accessories" class="product-card"
-                        style="height: 450px; overflow: hidden; position: relative; border-radius: 12px;">
-                        <img src="https://images.unsplash.com/photo-1523206489230-c012c64b2b48?q=80&w=1000&auto=format&fit=crop"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; bottom: 30px; left: 30px; z-index: 10;">
-                            <h2 style="color: white; font-size: 1.8rem; margin-bottom: 10px;">Accessories</h2>
-                        </div>
-                        <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
-                        </div>
-                    </a>
-                    <!-- Category 6: Best Sellers -->
-                    <a href="collection.html?sort=bestseller" class="product-card"
-                        style="height: 450px; overflow: hidden; position: relative; border-radius: 12px;">
-                        <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; bottom: 30px; left: 30px; z-index: 10;">
-                            <h2 style="color: white; font-size: 1.8rem; margin-bottom: 10px;">Best Sellers</h2>
-                        </div>
-                        <div
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
-                        </div>
-                    </a>
+
                 </div>
             </div>
         </section>
