@@ -9,11 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Safety timeout - don't keep them waiting too long
-    const loadingTimeout = setTimeout(finishLoading, 4000);
-
     window.addEventListener('load', () => {
-        clearTimeout(loadingTimeout);
         // Small delay for smooth visual transition
         setTimeout(finishLoading, 800);
     });
@@ -311,4 +307,119 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial UI Update
     updateCartUI();
+
+    // --- BACKGROUND MOTIVATIONAL MUSIC ---
+    const audioSrc = 'assets/motivation.mp3';
+
+    // Create audio element
+    const audioEl = document.createElement('audio');
+    audioEl.id = 'bgMusic';
+    audioEl.src = audioSrc;
+    audioEl.loop = true;
+    document.body.appendChild(audioEl);
+
+    // Create premium floating sound toggle button
+    const soundBtn = document.createElement('div');
+    soundBtn.className = 'sound-toggle-btn';
+    soundBtn.innerHTML = '<i class="fa-solid fa-volume-xmark" style="font-size: 1.1rem;"></i>';
+
+    // Floating style properties
+    Object.assign(soundBtn.style, {
+        position: 'fixed',
+        bottom: '30px',
+        left: '30px',
+        width: '50px',
+        height: '50px',
+        background: 'rgba(15, 15, 15, 0.7)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '50%',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        zIndex: '9998',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        transition: 'all 0.3s ease'
+    });
+
+    // Hover effects via JS for safety
+    soundBtn.onmouseover = () => { soundBtn.style.background = 'rgba(35, 35, 35, 0.9)'; soundBtn.style.transform = 'scale(1.05)'; };
+    soundBtn.onmouseout = () => { soundBtn.style.background = 'rgba(15, 15, 15, 0.7)'; soundBtn.style.transform = 'scale(1)'; };
+
+    document.body.appendChild(soundBtn);
+
+    // Sync button icon with audio state
+    const updateSoundIcon = () => {
+        soundBtn.innerHTML = audioEl.paused
+            ? '<i class="fa-solid fa-volume-xmark" style="font-size: 1.1rem; color: #666;"></i>'
+            : '<i class="fa-solid fa-volume-high" style="font-size: 1.1rem; color: var(--primary-color, white);"></i>';
+    };
+
+    // State management via local storage for permanent cross-tab muted state
+    // Default to 'playing' unless explicitly 'paused' by the user.
+    const isMusicAllowed = localStorage.getItem('zenvora_music') !== 'paused';
+
+    if (isMusicAllowed) {
+        // Aggressively attempt to play
+        const playPromise = audioEl.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                localStorage.setItem('zenvora_music', 'playing');
+                updateSoundIcon();
+            }).catch(() => {
+                // Browser blocked autoplay (needs interaction). Icon shows muted state.
+                updateSoundIcon();
+            });
+        }
+    } else {
+        updateSoundIcon();
+    }
+
+    // Toggle logic via user click
+    soundBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (audioEl.paused) {
+            audioEl.play().then(() => {
+                localStorage.setItem('zenvora_music', 'playing');
+                updateSoundIcon();
+            });
+        } else {
+            audioEl.pause();
+            localStorage.setItem('zenvora_music', 'paused');
+            updateSoundIcon();
+        }
+    });
+
+    // Start audio on first interaction anywhere if it hasn't been explicitly paused and was blocked
+    const startAudioOnInteract = () => {
+        if (localStorage.getItem('zenvora_music') !== 'paused') {
+            const playPromise = audioEl.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    localStorage.setItem('zenvora_music', 'playing');
+                    updateSoundIcon();
+                    // Successfully played, remove listeners
+                    window.removeEventListener('click', startAudioOnInteract, true);
+                    window.removeEventListener('scroll', startAudioOnInteract, true);
+                    window.removeEventListener('keydown', startAudioOnInteract, true);
+                    window.removeEventListener('touchstart', startAudioOnInteract, true);
+                }).catch(() => {
+                    // Still blocked, keep trying on next interaction
+                });
+            }
+        }
+    };
+
+    if (isMusicAllowed) {
+        // Attach varied listeners to window with 'capture: true' to catch the absolute earliest interaction
+        window.addEventListener('click', startAudioOnInteract, true);
+        window.addEventListener('scroll', startAudioOnInteract, true);
+        window.addEventListener('keydown', startAudioOnInteract, true);
+        window.addEventListener('touchstart', startAudioOnInteract, true);
+
+        // Try immediately once just in case the browser allows it (e.g. they clicked from another site)
+        setTimeout(startAudioOnInteract, 500);
+    }
 });

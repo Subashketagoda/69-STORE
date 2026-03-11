@@ -472,6 +472,10 @@
             document.getElementById('productTitle').textContent = window.currentProductName;
             document.getElementById('productPrice').textContent = `LKR ${window.currentProductPrice.toLocaleString()}.00`;
 
+            // Set a loader or placeholder for images initial state
+            document.getElementById('mainProductImage').src = 'assets/logo.png'; // Placeholder
+            document.getElementById('mainProductImage').style.opacity = '0.5';
+
             // Handle Add To Cart 
             document.getElementById('addToCartBtn').addEventListener('click', () => {
                 if (typeof addToCart === 'function') {
@@ -653,7 +657,7 @@
 
         window.dispatchEvent(new Event('firebaseStoreLoaded'));
     </script>
-    <script src="script.js?v=2.2"></script>
+    <script src="script.js?v=2.4"></script>
 </body>
 
 </html>
