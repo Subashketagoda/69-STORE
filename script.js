@@ -402,11 +402,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateSoundIcon();
                     // Successfully played, remove listeners
                     window.removeEventListener('click', startAudioOnInteract, true);
-                    window.removeEventListener('scroll', startAudioOnInteract, true);
                     window.removeEventListener('keydown', startAudioOnInteract, true);
                     window.removeEventListener('touchstart', startAudioOnInteract, true);
-                }).catch(() => {
-                    // Still blocked, keep trying on next interaction
+                }).catch((e) => {
+                    // Still blocked, keep trying on next valid interaction
                 });
             }
         }
@@ -414,12 +413,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isMusicAllowed) {
         // Attach varied listeners to window with 'capture: true' to catch the absolute earliest interaction
+        // Note: Chrome only considers 'click', 'touchstart', and 'keydown' as valid user gestures for audio unblocking. 'scroll' will fail and might cause permanent blocking if spammed.
         window.addEventListener('click', startAudioOnInteract, true);
-        window.addEventListener('scroll', startAudioOnInteract, true);
         window.addEventListener('keydown', startAudioOnInteract, true);
         window.addEventListener('touchstart', startAudioOnInteract, true);
-
-        // Try immediately once just in case the browser allows it (e.g. they clicked from another site)
-        setTimeout(startAudioOnInteract, 500);
     }
 });
