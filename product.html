@@ -591,14 +591,39 @@
         const targetId = params.get('id');
         const targetName = params.get('name');
 
+        // 1. Instantly load from cache
+        const cached = localStorage.getItem('zenvora_products');
+        if (cached) {
+            try {
+                const data = JSON.parse(cached);
+                let cachedProduct = null;
+                if (targetId && data[targetId]) {
+                    cachedProduct = data[targetId];
+                } else if (targetName) {
+                    cachedProduct = Object.values(data).find(p => p.name === targetName);
+                }
+                if (cachedProduct) {
+                    updateProductUI(cachedProduct);
+                }
+            } catch (e) { }
+        }
+
+        // 2. Fetch/Sync latest from Firebase
         if (targetId) {
-            // Direct fetch by ID is most efficient
             onValue(ref(database, `69store/products/${targetId}`), (snapshot) => {
                 const product = snapshot.val();
                 if (product) {
                     updateProductUI(product);
+
+                    // Update cache for this single item
+                    if (cached) {
+                        try {
+                            const data = JSON.parse(cached);
+                            data[targetId] = product;
+                            localStorage.setItem('zenvora_products', JSON.stringify(data));
+                        } catch (e) { }
+                    }
                 } else if (targetName) {
-                    // If ID fails but we have a name, try name search
                     searchByName(targetName);
                 }
             }, { onlyOnce: true });
@@ -610,6 +635,7 @@
             onValue(ref(database, '69store/products'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    localStorage.setItem('zenvora_products', JSON.stringify(data)); // update full cache
                     const products = Object.values(data);
                     const found = products.find(p => p.name === name);
                     if (found) {
