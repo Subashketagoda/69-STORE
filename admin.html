@@ -399,6 +399,7 @@
             if (pass === adminSettings.password) {
                 document.getElementById('loginOverlay').style.display = 'none';
                 initDashboard();
+                showTab('dashboard'); // Ensure dashboard is visible after login
             } else {
                 alert('Wrong password!');
             }
@@ -421,11 +422,14 @@
             const tabs = ['dashboard', 'products', 'orders', 'settings'];
             tabs.forEach(t => {
                 const el = document.getElementById(t + 'Tab');
-                if (el) el.style.display = t === tab ? 'block' : 'none';
+                if (el) {
+                    el.style.display = t === tab ? 'block' : 'none';
+                }
             });
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText.toLowerCase() === tab);
+                const btnText = btn.innerText.toLowerCase();
+                btn.classList.toggle('active', btnText === tab);
             });
         };
 
