@@ -204,11 +204,11 @@
                 style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%); z-index: 2;">
             </div>
             <div class="hero-content">
-                <p>Engineered for Movement</p>
-                <h1>PERFORMANCE &<br>ZENVORA GYM</h1>
+                <p>Elevated Essentials for the Daily Grind</p>
+                <h1>NEXT LEVEL<br>EVERYDAY WEAR</h1>
                 <div class="hero-btn-group">
-                    <a href="collection.html" class="btn btn-primary">Shop Gym Wear</a>
-                    <a href="collection.html" class="btn btn-black">Explore Performance</a>
+                    <a href="collection.html" class="btn btn-primary">Shop Collection</a>
+                    <a href="collection.html" class="btn btn-black">Explore Now</a>
                 </div>
             </div>
         </section>
@@ -367,8 +367,8 @@
                     <a href="#" class="logo" style="margin-bottom: 25px; display: block;">
                         <img src="assets/logo.png" alt="ZENVORA" style="height: 40px;">
                     </a>
-                    <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">Engineered for movement. Designed for
-                        the streets.</p>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">Premium everyday essentials. Designed
+                        for the streets, engineered for life.</p>
                 </div>
                 <div class="footer-col">
                     <h4>Shop</h4>
@@ -471,10 +471,10 @@
                     Object.keys(data).forEach(key => renderProduct(data[key], key));
                 } else {
                     const fallbacks = [
-                        { name: "Zenvora Apex Stringer", price: 3900, image: "assets/gym_stringer.png" },
-                        { name: "Zenvora Shield Compression", price: 5500, image: "assets/compression_shirt.png" },
-                        { name: "Zenvora Stealth Hoodie", price: 8500, image: "assets/hero_slide_2_zenvora.png" },
-                        { name: "Zenvora Pulse Leggings", price: 6200, image: "assets/gym_leggings.png" }
+                        { name: "Zenvora Apex Stringer", price: 3900, image: "assets/gym_stringer.png", mainCat: "Men" },
+                        { name: "Zenvora Shield Compression", price: 5500, image: "assets/compression_shirt.png", mainCat: "Men" },
+                        { name: "Zenvora Stealth Hoodie", price: 8500, image: "assets/hero_slide_2_zenvora.png", mainCat: "Men" },
+                        { name: "Zenvora Pulse Leggings", price: 6200, image: "assets/gym_leggings.png", mainCat: "Women" }
                     ];
                     fallbacks.forEach(renderProduct);
                 }

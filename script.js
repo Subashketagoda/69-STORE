@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CART SYSTEM ---
     let cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
+    let deliveryCharge = 0;
     const cartSidebar = document.getElementById('cartSidebar');
     const cartOverlay = document.getElementById('cartOverlay');
     const cartToggle = document.getElementById('cartToggle');
@@ -178,6 +179,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 cartItemsContainer.appendChild(itemEl);
             });
+
+            // Add Delivery Charge Row if cart not empty
+            if (deliveryCharge > 0) {
+                total += deliveryCharge;
+                const deliveryEl = document.createElement('div');
+                deliveryEl.className = 'cart-item';
+                deliveryEl.style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-top: 15px; border-top: 1px dashed var(--border-light);";
+                deliveryEl.innerHTML = `
+                    <div style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: 800;">Delivery Fee</div>
+                    <div style="font-weight: 600; font-size: 0.9rem;">LKR ${deliveryCharge.toLocaleString()}.00</div>
+                `;
+                cartItemsContainer.appendChild(deliveryEl);
+            }
         }
 
         if (cartTotalAmount) cartTotalAmount.textContent = `LKR ${total.toLocaleString()}.00`;
@@ -226,10 +240,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, { onlyOnce: true });
 
-            // WA Number
-            const sRef = window.firebaseRef(window.firebaseDB, '69store/settings/waNumber');
+            // Brand Settings (WA & Delivery)
+            const sRef = window.firebaseRef(window.firebaseDB, '69store/settings');
             window.firebaseOnValue(sRef, (snap) => {
-                if (snap.val()) waNumber = snap.val();
+                const data = snap.val();
+                if (data) {
+                    if (data.waNumber) waNumber = data.waNumber;
+                    if (data.deliveryCharge) {
+                        deliveryCharge = parseFloat(data.deliveryCharge);
+                        updateCartUI();
+                    }
+                }
             });
         }
     });
@@ -271,8 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         `*Customer:* ${name}\n` +
                         `*Phone:* ${phone}\n` +
                         `*Address:* ${address}\n\n` +
-                        `*Items:*\n${cart.map(i => `- ${i.name} (LKR ${i.price})`).join('\n')}\n\n` +
-                        `*Total:* LKR ${orderData.total.toLocaleString()}.00`
+                        `*Items:*\n${cart.map(i => `- ${i.name} (LKR ${i.price})`).join('\n')}\n` +
+                        (deliveryCharge > 0 ? `*Delivery Fee:* LKR ${deliveryCharge.toLocaleString()}\n` : '') + `\n` +
+                        `*Total:* LKR ${(orderData.total + (deliveryCharge || 0)).toLocaleString()}.00`
                     );
                     window.open(`https://wa.me/${waNumber}?text=${message}`);
 
