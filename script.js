@@ -350,6 +350,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.appendChild(soundBtn);
 
+    // Create premium popup message
+    const soundPopup = document.createElement('div');
+    soundPopup.innerHTML = 'Motivational track playing. <br>Click here to mute.';
+
+    Object.assign(soundPopup.style, {
+        position: 'fixed',
+        bottom: '85px',
+        left: '30px',
+        background: 'rgba(15, 15, 15, 0.85)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '12px',
+        color: 'white',
+        padding: '12px 15px',
+        fontSize: '0.85rem',
+        fontFamily: 'var(--font-primary, sans-serif)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+        zIndex: '9998',
+        opacity: '0',
+        transform: 'translateY(10px)',
+        transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+        pointerEvents: 'none',
+        lineHeight: '1.4'
+    });
+
+    // Add a small triangle pointing to the button
+    const popupArrow = document.createElement('div');
+    Object.assign(popupArrow.style, {
+        position: 'absolute',
+        bottom: '-6px',
+        left: '20px',
+        width: '12px',
+        height: '12px',
+        background: 'rgba(15, 15, 15, 0.85)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+        transform: 'rotate(45deg)',
+        zIndex: '-1'
+    });
+    soundPopup.appendChild(popupArrow);
+    document.body.appendChild(soundPopup);
+
+    const showSoundPopup = () => {
+        // Only show once per session so it's not annoying
+        if (!sessionStorage.getItem('zenvora_popup_shown')) {
+            soundPopup.style.opacity = '1';
+            soundPopup.style.transform = 'translateY(0)';
+            sessionStorage.setItem('zenvora_popup_shown', 'true');
+
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                soundPopup.style.opacity = '0';
+                soundPopup.style.transform = 'translateY(10px)';
+            }, 5000);
+        }
+    };
+
     // Sync button icon with audio state
     const updateSoundIcon = () => {
         soundBtn.innerHTML = audioEl.paused
@@ -380,6 +437,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Toggle logic via user click
     soundBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+
+        // Hide popup immediately if they click the button
+        soundPopup.style.opacity = '0';
+        soundPopup.style.transform = 'translateY(10px)';
+        sessionStorage.setItem('zenvora_popup_shown', 'true');
+
         if (audioEl.paused) {
             audioEl.play().then(() => {
                 localStorage.setItem('zenvora_music', 'playing');
@@ -400,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 playPromise.then(() => {
                     localStorage.setItem('zenvora_music', 'playing');
                     updateSoundIcon();
+                    showSoundPopup(); // Show the message
                     // Successfully played, remove listeners
                     window.removeEventListener('click', startAudioOnInteract, true);
                     window.removeEventListener('scroll', startAudioOnInteract, true);
