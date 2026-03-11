@@ -29,24 +29,55 @@
 
         .product-gallery {
             flex: 1.2;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 15px;
-            align-content: start;
         }
 
-        .product-gallery img {
+        .main-image-wrapper {
             width: 100%;
-            height: auto;
-            border-radius: 10px;
-            object-fit: cover;
+            border-radius: 15px;
+            overflow: hidden;
+            background: var(--bg-grey);
             aspect-ratio: 3/4;
         }
 
-        .product-gallery img.full {
-            grid-column: 1 / -1;
-            aspect-ratio: auto;
-            max-height: 800px;
+        #mainProductImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+
+        .thumbnail-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .thumbnail-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .thumb {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            opacity: 0.6;
+        }
+
+        .thumb:hover {
+            opacity: 1;
+        }
+
+        .thumb.active {
+            border-color: var(--primary-color);
+            opacity: 1;
         }
 
         .product-details-sidebar {
@@ -296,9 +327,15 @@
             <div class="product-container">
                 <!-- Gallery -->
                 <div class="product-gallery">
-                    <img id="mainProductImage" src="" alt="Product Image" class="full">
-                    <img id="subProductImage1" src="" alt="Product Image">
-                    <img id="subProductImage2" src="" alt="Product Image">
+                    <div class="main-image-wrapper">
+                        <img id="mainProductImage" src="" alt="Product Image">
+                    </div>
+                    <div class="thumbnail-container" id="thumbContainer">
+                        <img id="thumb0" class="thumb active" src="" alt="Thumbnail"
+                            onclick="changeMainImage(this.src, 0)">
+                        <img id="thumb1" class="thumb" src="" alt="Thumbnail" onclick="changeMainImage(this.src, 1)">
+                        <img id="thumb2" class="thumb" src="" alt="Thumbnail" onclick="changeMainImage(this.src, 2)">
+                    </div>
                 </div>
 
                 <!-- Details Sidebar -->
@@ -465,14 +502,42 @@
             mainImg.src = product.image;
             mainImg.style.opacity = '1';
 
-            document.getElementById('subProductImage1').src = product.image;
-            document.getElementById('subProductImage2').src = product.image;
+            // Set Thumbnails
+            const t0 = document.getElementById('thumb0');
+            const t1 = document.getElementById('thumb1');
+            const t2 = document.getElementById('thumb2');
 
-            // If the product has a description in Firebase, we could update that too
-            if (product.description) {
-                // Find description container if it exists
+            t0.src = product.image;
+
+            if (product.image2) {
+                t1.src = product.image2;
+                t1.style.display = 'block';
+            } else {
+                t1.style.display = 'none';
+            }
+
+            if (product.image3) {
+                t2.src = product.image3;
+                t2.style.display = 'block';
+            } else {
+                t2.style.display = 'none';
             }
         };
+
+        window.changeMainImage = (src, index) => {
+            const mainImg = document.getElementById('mainProductImage');
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = src;
+                window.currentProductImg = src; // Update current image for cart
+                mainImg.style.opacity = '1';
+            }, 200);
+
+            // Update active state
+            document.querySelectorAll('.thumb').forEach((t, i) => {
+                t.classList.toggle('active', i === index);
+            });
+        }
 
         // Size Box Logic
         function selectSize(element) {
@@ -555,8 +620,8 @@
                         if (mainImg.style.opacity === '0.5') {
                             mainImg.src = window.currentProductImg;
                             mainImg.style.opacity = '1';
-                            document.getElementById('subProductImage1').src = window.currentProductImg;
-                            document.getElementById('subProductImage2').src = window.currentProductImg;
+                            document.getElementById('subProductImage1').style.display = 'none';
+                            document.getElementById('subProductImage2').style.display = 'none';
                         }
                     }
                 }

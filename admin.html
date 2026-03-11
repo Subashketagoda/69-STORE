@@ -235,15 +235,30 @@
                             <option value="Essentials">Essentials</option>
                             <option value="Seamless">Seamless</option>
                         </select>
-                        <input type="text" id="pImage" placeholder="Image URL (or upload below)" required>
-                    </div>
-                    <div class="form-row">
-                        <input type="file" id="pFile" accept="image/*">
-                        <div style="color: var(--text-dim); font-size: 0.8rem; display: flex; align-items: center;">
-                            * Image URL will be auto-filled if you upload a file.
+                        <div class="form-row">
+                            <div style="flex: 1;">
+                                <label
+                                    style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 5px; display: block;">Primary
+                                    Image</label>
+                                <input type="text" id="pImage" placeholder="Image URL 1" required>
+                                <input type="file" id="pFile" accept="image/*" style="margin-top: 5px;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label
+                                    style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 5px; display: block;">Image
+                                    2</label>
+                                <input type="text" id="pImage2" placeholder="Image URL 2">
+                                <input type="file" id="pFile2" accept="image/*" style="margin-top: 5px;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label
+                                    style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 5px; display: block;">Image
+                                    3</label>
+                                <input type="text" id="pImage3" placeholder="Image URL 3">
+                                <input type="file" id="pFile3" accept="image/*" style="margin-top: 5px;">
+                            </div>
                         </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Product</button>
+                        <button type="submit" class="btn btn-primary">Save Product</button>
                 </form>
             </div>
 
@@ -464,6 +479,8 @@
             const name = document.getElementById('pName').value;
             const price = parseFloat(document.getElementById('pPrice').value);
             const image = document.getElementById('pImage').value;
+            const image2 = document.getElementById('pImage2').value || '';
+            const image3 = document.getElementById('pImage3').value || '';
             const mainCat = document.getElementById('pMainCat').value;
             const subCat = document.getElementById('pSubCat').value;
             const collection = document.getElementById('pCollection').value;
@@ -474,6 +491,8 @@
                 price,
                 stock,
                 image,
+                image2,
+                image3,
                 mainCat,
                 subCat,
                 collection,
@@ -484,14 +503,19 @@
             alert('Product added!');
         });
 
-        document.getElementById('pFile').addEventListener('change', (e) => {
+        document.getElementById('pFile').addEventListener('change', (e) => handleUpload(e, 'pImage'));
+        document.getElementById('pFile2').addEventListener('change', (e) => handleUpload(e, 'pImage2'));
+        document.getElementById('pFile3').addEventListener('change', (e) => handleUpload(e, 'pImage3'));
+
+        function handleUpload(e, targetId) {
             const file = e.target.files[0];
+            if (!file) return;
             const reader = new FileReader();
             reader.onloadend = () => {
-                document.getElementById('pImage').value = reader.result;
+                document.getElementById(targetId).value = reader.result;
             };
             reader.readAsDataURL(file);
-        });
+        }
 
         onValue(ref(database, '69store/products'), (snapshot) => {
             const data = snapshot.val();
@@ -502,7 +526,13 @@
                     const p = data[key];
                     tbody.innerHTML += `
                     <tr>
-                        <td><img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
+                        <td>
+                            <div style="display: flex; gap: 2px;">
+                                <img src="${p.image}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 2px;">
+                                ${p.image2 ? `<img src="${p.image2}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 2px;">` : ''}
+                                ${p.image3 ? `<img src="${p.image3}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 2px;">` : ''}
+                            </div>
+                        </td>
                         <td>${p.name}<br><small style="color: var(--primary-color)">${p.collection || ''}</small></td>
                         <td><small>${p.mainCat || 'Uncategorized'} > ${p.subCat || '-'}</small></td>
                         <td>LKR ${p.price.toLocaleString()}</td>
