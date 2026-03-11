@@ -728,6 +728,7 @@
 
         const collectionGrid = document.getElementById('collectionGrid');
         const countEl = document.getElementById('productCount');
+        countEl.textContent = 'Curating Collection...';
 
         let allProducts = [];
         const sortOrderSelect = document.getElementById('sortOrder');
@@ -837,6 +838,7 @@
 
                 applySortAndFilter();
             } else {
+                collectionGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px 20px; color: #666;"><h3>No products found in this section</h3><p>Try resetting filters</p></div>';
                 countEl.textContent = '0 Products';
             }
         });
