@@ -620,8 +620,9 @@
                         if (mainImg.style.opacity === '0.5') {
                             mainImg.src = window.currentProductImg;
                             mainImg.style.opacity = '1';
-                            document.getElementById('subProductImage1').style.display = 'none';
-                            document.getElementById('subProductImage2').style.display = 'none';
+                            document.getElementById('thumb0').src = window.currentProductImg;
+                            document.getElementById('thumb1').style.display = 'none';
+                            document.getElementById('thumb2').style.display = 'none';
                         }
                     }
                 }

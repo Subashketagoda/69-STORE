@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CART SYSTEM ---
     let cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
-    let deliveryCharge = 0;
+    let deliveryCharge = parseFloat(localStorage.getItem('zenvora_delivery')) || 0;
     const cartSidebar = document.getElementById('cartSidebar');
     const cartOverlay = document.getElementById('cartOverlay');
     const cartToggle = document.getElementById('cartToggle');
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 deliveryEl.className = 'cart-item';
                 deliveryEl.style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-top: 15px; border-top: 1px dashed var(--border-light);";
                 deliveryEl.innerHTML = `
-                    <div style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: 800;">Delivery Fee</div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Delivery Fee</div>
                     <div style="font-weight: 600; font-size: 0.9rem;">LKR ${deliveryCharge.toLocaleString()}.00</div>
                 `;
                 cartItemsContainer.appendChild(deliveryEl);
@@ -246,8 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = snap.val();
                 if (data) {
                     if (data.waNumber) waNumber = data.waNumber;
-                    if (data.deliveryCharge) {
+                    if (data.deliveryCharge !== undefined) {
                         deliveryCharge = parseFloat(data.deliveryCharge);
+                        localStorage.setItem('zenvora_delivery', deliveryCharge);
                         updateCartUI();
                     }
                 }
