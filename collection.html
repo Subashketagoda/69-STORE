@@ -728,7 +728,6 @@
 
         const collectionGrid = document.getElementById('collectionGrid');
         const countEl = document.getElementById('productCount');
-        countEl.textContent = 'Curating Collection...';
 
         let allProducts = [];
         const sortOrderSelect = document.getElementById('sortOrder');
@@ -802,8 +801,7 @@
             document.querySelector('.active-category').textContent = title;
         };
 
-        onValue(ref(database, '69store/products'), (snapshot) => {
-            const data = snapshot.val();
+        const handleData = (data) => {
             if (data) {
                 allProducts = Object.keys(data).map(key => ({
                     ...data[key],
@@ -833,14 +831,22 @@
                 if (sub) {
                     const radio = document.querySelector(`input[name="type"][value="${sub}"]`);
                     if (radio) radio.checked = true;
-
                 }
 
                 applySortAndFilter();
             } else {
-                collectionGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px 20px; color: #666;"><h3>No products found in this section</h3><p>Try resetting filters</p></div>';
                 countEl.textContent = '0 Products';
+                collectionGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">No products found in this category.</p>';
             }
+        };
+
+        const cached = localStorage.getItem('zenvora_products');
+        if (cached) handleData(JSON.parse(cached));
+
+        onValue(ref(database, '69store/products'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) localStorage.setItem('zenvora_products', JSON.stringify(data));
+            handleData(data);
         });
 
         sortOrderSelect.addEventListener('change', applySortAndFilter);

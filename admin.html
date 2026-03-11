@@ -592,24 +592,16 @@
             if (data) {
                 Object.keys(data).forEach(key => {
                     const p = data[key];
-                    const dataSize = JSON.stringify(p).length / 1024; // KB
-                    const isHeavy = dataSize > 150; // 150KB limit for optimization warning
-
                     tbody.innerHTML += `
-                    <tr style="${isHeavy ? 'border-left: 4px solid #ffc107; background: rgba(255,193,7,0.05);' : ''}">
+                    <tr>
                         <td>
-                            <div style="display: flex; gap: 2px; position: relative;">
+                            <div style="display: flex; gap: 2px;">
                                 <img src="${p.image}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 2px;">
                                 ${p.image2 ? `<img src="${p.image2}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 2px;">` : ''}
                                 ${p.image3 ? `<img src="${p.image3}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 2px;">` : ''}
-                                ${isHeavy ? `<div title="Heavy Product - Please delete and re-add for speed" style="position: absolute; -10px; right: -10px; background: #ffc107; color: #000; font-size: 10px; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">!</div>` : ''}
                             </div>
                         </td>
-                        <td>
-                            ${p.name}<br>
-                            <small style="color: var(--primary-color)">${p.collection || ''}</small>
-                            ${isHeavy ? `<br><small style="color: #ffc107;">Heavy: ${Math.round(dataSize)}KB (Slow Loading)</small>` : ''}
-                        </td>
+                        <td>${p.name}<br><small style="color: var(--primary-color)">${p.collection || ''}</small></td>
                         <td><small>${p.mainCat || 'Uncategorized'} > ${p.subCat || '-'}</small></td>
                         <td>LKR ${p.price.toLocaleString()}</td>
                         <td>

@@ -434,7 +434,7 @@
     <!-- Firebase SDK & Store Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set, remove, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -457,40 +457,37 @@
         window.firebaseOnValue = onValue;
         window.firebaseSet = set;
 
+        // --- LOAD PRODUCTS ---
         const loadProducts = () => {
             const productGrid = document.getElementById('productGrid');
             if (!productGrid) return;
 
-            const recentQuery = query(ref(database, '69store/products'), limitToLast(8));
+            const renderProduct = (product, id) => {
+                const isBase64 = product.image && product.image.startsWith('data:');
+                const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
+                const card = document.createElement('div');
+                card.className = 'product-card animate-up';
+                card.innerHTML = `
+                    <div class="product-img">
+                        <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}">
+                            <img src="${product.image}" alt="${product.name}" loading="lazy" style="background: #111;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                        </a>
+                        <div class="product-overlay">
+                            <button class="btn btn-black" style="width: 100%;" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}" style="text-decoration: none; color: inherit;">
+                            <h3>${product.name}</h3>
+                        </a>
+                        <p>LKR ${product.price.toLocaleString()}.00</p>
+                    </div>
+                `;
+                productGrid.appendChild(card);
+            };
 
-            onValue(recentQuery, (snapshot) => {
-                const data = snapshot.val();
+            const renderData = (data) => {
                 productGrid.innerHTML = '';
-
-                const renderProduct = (product, id) => {
-                    const isBase64 = product.image && product.image.startsWith('data:');
-                    const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
-                    const card = document.createElement('div');
-                    card.className = 'product-card animate-up';
-                    card.innerHTML = `
-                        <div class="product-img">
-                            <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}">
-                                <img src="${product.image}" alt="${product.name}" loading="lazy" style="background: #111;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
-                            </a>
-                            <div class="product-overlay">
-                                <button class="btn btn-black" style="width: 100%;" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info">
-                            <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}" style="text-decoration: none; color: inherit;">
-                                <h3>${product.name}</h3>
-                            </a>
-                            <p>LKR ${product.price.toLocaleString()}.00</p>
-                        </div>
-                    `;
-                    productGrid.appendChild(card);
-                };
-
                 if (data && Object.keys(data).length > 0) {
                     Object.keys(data).forEach(key => renderProduct(data[key], key));
                 } else {
@@ -500,8 +497,17 @@
                         { name: "Zenvora Stealth Hoodie", price: 8500, image: "assets/hero_slide_2_zenvora.png", mainCat: "Men" },
                         { name: "Zenvora Pulse Leggings", price: 6200, image: "assets/gym_leggings.png", mainCat: "Women" }
                     ];
-                    fallbacks.forEach(renderProduct);
+                    fallbacks.forEach(p => renderProduct(p, ''));
                 }
+            };
+
+            const cached = localStorage.getItem('zenvora_products');
+            if (cached) renderData(JSON.parse(cached));
+
+            onValue(ref(database, '69store/products'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) localStorage.setItem('zenvora_products', JSON.stringify(data));
+                renderData(data);
             });
         };
 

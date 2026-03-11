@@ -10,12 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Safety timeout - don't keep them waiting too long
-    const loadingTimeout = setTimeout(finishLoading, 2000);
+    const loadingTimeout = setTimeout(finishLoading, 4000);
 
     window.addEventListener('load', () => {
         clearTimeout(loadingTimeout);
         // Small delay for smooth visual transition
-        setTimeout(finishLoading, 300);
+        setTimeout(finishLoading, 800);
     });
 
     // Custom Cursor
