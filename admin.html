@@ -270,7 +270,8 @@
                                 <input type="file" id="pFile3" accept="image/*" style="margin-top: 5px;">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Save Product</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
                 </form>
             </div>
 
@@ -449,9 +450,11 @@
                 let dailySales = {};
 
                 orders.forEach(o => {
-                    revenue += o.total;
-                    const date = o.timestamp.split('T')[0];
-                    dailySales[date] = (dailySales[date] || 0) + o.total;
+                    if (o && o.total) revenue += o.total;
+                    if (o && o.timestamp) {
+                        const date = o.timestamp.split('T')[0];
+                        dailySales[date] = (dailySales[date] || 0) + (o.total || 0);
+                    }
                 });
 
                 document.getElementById('statProducts').textContent = products;
@@ -591,19 +594,20 @@
             if (data) {
                 Object.keys(data).reverse().forEach(key => {
                     const o = data[key];
+                    if (!o || !o.customer) return; // Skip malformed orders
                     tbody.innerHTML += `
-    <tr>
-        <td>${o.timestamp ? new Date(o.timestamp).toLocaleDateString() : 'N/A'}</td>
-        <td>${o.customer.name}<br><small>${o.customer.phone}</small></td>
-        <td>${o.items.map(i => i.name).join(', ')}</td>
-        <td>LKR ${o.total.toLocaleString()}</td>
-        <td><span class="badge-status ${o.status === 'New' ? 'status-new' : 'status-done'}">${o.status}</span></td>
-        <td>
-            <button class="btn btn-outline" onclick="toggleOrder('${key}', '${o.status}')">Toggle Status</button>
-            <button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteOrder('${key}')">Delete</button>
-        </td>
-    </tr>
-    `;
+                    <tr>
+                        <td>${o.timestamp ? new Date(o.timestamp).toLocaleDateString() : 'N/A'}</td>
+                        <td>${o.customer.name || 'Unknown'}<br><small>${o.customer.phone || ''}</small></td>
+                        <td>${o.items ? o.items.map(i => i.name).join(', ') : 'No items'}</td>
+                        <td>LKR ${o.total ? o.total.toLocaleString() : '0'}</td>
+                        <td><span class="badge-status ${o.status === 'New' ? 'status-new' : 'status-done'}">${o.status || 'New'}</span></td>
+                        <td>
+                            <button class="btn btn-outline" onclick="toggleOrder('${key}', '${o.status || 'New'}')">Toggle Status</button>
+                            <button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteOrder('${key}')">Delete</button>
+                        </td>
+                    </tr>
+                    `;
                 });
             }
         });
