@@ -434,7 +434,7 @@
     <!-- Firebase SDK & Store Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, remove, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -457,12 +457,13 @@
         window.firebaseOnValue = onValue;
         window.firebaseSet = set;
 
-        // --- LOAD PRODUCTS ---
         const loadProducts = () => {
             const productGrid = document.getElementById('productGrid');
             if (!productGrid) return;
 
-            onValue(ref(database, '69store/products'), (snapshot) => {
+            const recentQuery = query(ref(database, '69store/products'), limitToLast(8));
+
+            onValue(recentQuery, (snapshot) => {
                 const data = snapshot.val();
                 productGrid.innerHTML = '';
 
