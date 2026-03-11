@@ -102,6 +102,40 @@ body {
     }
 }
 
+/* --- Skeleton Loading --- */
+.skeleton {
+    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.product-card.is-loading .product-img {
+    height: 350px;
+    background: #1a1a1a;
+}
+
+.product-card.is-loading .product-info h3 {
+    height: 20px;
+    width: 80%;
+    margin-bottom: 10px;
+}
+
+.product-card.is-loading .product-info p {
+    height: 15px;
+    width: 40%;
+}
+
 @keyframes loadProgress {
     0% {
         left: -100%;

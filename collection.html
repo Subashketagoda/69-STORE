@@ -125,28 +125,6 @@
             white-space: nowrap;
         }
 
-        /* Mobile specific select dropdown */
-        .mobile-category-select {
-            display: none;
-            /* hidden on desktop */
-            width: 100%;
-            padding: 16px 20px;
-            background-color: var(--bg-light, #111);
-            color: white;
-            border: 1px solid var(--border-light, #333);
-            border-radius: 8px;
-            /* Rounded corners like screenshot */
-            font-size: 0.95rem;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            margin-bottom: 20px;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px top 50%;
-            background-size: 20px auto;
-            cursor: pointer;
-        }
 
         .mobile-category-select:focus {
             outline: none;
@@ -184,9 +162,6 @@
                 display: none !important;
             }
 
-            .mobile-category-select {
-                display: block !important;
-            }
 
             .collection-container {
                 gap: 0;
@@ -431,30 +406,18 @@
                     <div class="filter-section">
                         <div class="filter-title">Department</div>
                         <div class="filter-options">
-                            <label class="filter-checkbox"><input type="radio" name="gender" id="dept-men" value="men"
-                                    checked> Men</label>
-                            <label class="filter-checkbox"><input type="radio" name="gender" id="dept-women"
-                                    value="women"> Women</label>
-                            <label class="filter-checkbox"><input type="radio" name="gender" id="dept-accessories"
-                                    value="accessories"> Accessories</label>
+                            <label class="filter-checkbox"><input type="radio" name="gender" value="men" id="dept-men">
+                                Men</label>
+                            <label class="filter-checkbox"><input type="radio" name="gender" value="women"
+                                    id="dept-women"> Women</label>
+                            <label class="filter-checkbox"><input type="radio" name="gender" value="accessories"
+                                    id="dept-accessories"> Accessories</label>
                         </div>
                     </div>
 
                     <div class="filter-section" id="section-mens">
-                        <select class="mobile-category-select" id="mobile-mens-select">
-                            <option value="">Select Sub-category</option>
-                            <option value="shop-all">Shop All</option>
-                            <option value="t-shirts">T-Shirts</option>
-                            <option value="tanks">Tanks</option>
-                            <option value="compressions">Compressions</option>
-                            <option value="hoodies">Hoodies & Jackets</option>
-                            <option value="shorts">Shorts</option>
-                            <option value="jeans">Jeans</option>
-                            <option value="joggers">Joggers & Pants</option>
-                            <option value="underwear">Underwear</option>
-                        </select>
-                        <div class="filter-title desktop-hide-mobile">Men's Categories</div>
-                        <div class="filter-options desktop-hide-mobile">
+                        <div class="filter-title">Men's Categories</div>
+                        <div class="filter-options">
                             <label class="filter-checkbox"><input type="radio" name="type" value="shop-all" checked>
                                 Shop All</label>
                             <label class="filter-checkbox"><input type="radio" name="type" value="T-Shirts">
@@ -475,23 +438,8 @@
                     </div>
 
                     <div class="filter-section" id="section-womens" style="display: none;">
-                        <select class="mobile-category-select" id="mobile-womens-select">
-                            <option value="">Select Sub-category</option>
-                            <option value="shop-all">Shop All</option>
-                            <option value="t-shirts">T-Shirts</option>
-                            <option value="crop-tops">Crop Tops</option>
-                            <option value="tanks">Tanks</option>
-                            <option value="leggings">Leggings</option>
-                            <option value="skirts">Skirts</option>
-                            <option value="shorts">Shorts</option>
-                            <option value="hoodies">Hoodies & Jackets</option>
-                            <option value="joggers">Joggers & Pants</option>
-                            <option value="one-piece">One Piece</option>
-                            <option value="sports-bra">Sports Bra</option>
-                            <option value="underwear">Underwear</option>
-                        </select>
-                        <div class="filter-title desktop-hide-mobile">Women's Categories</div>
-                        <div class="filter-options desktop-hide-mobile">
+                        <div class="filter-title">Women's Categories</div>
+                        <div class="filter-options">
                             <label class="filter-checkbox"><input type="radio" name="type" value="shop-all" checked>
                                 Shop All</label>
                             <label class="filter-checkbox"><input type="radio" name="type" value="T-Shirts">
@@ -519,21 +467,8 @@
                     </div>
 
                     <div class="filter-section" id="section-accessories" style="display: none;">
-                        <select class="mobile-category-select" id="mobile-accessories-select">
-                            <option value="">Select Sub-category</option>
-                            <option value="shop-all">Shop All</option>
-                            <option value="hats">Hats & Caps</option>
-                            <option value="shoes">Shoes</option>
-                            <option value="slides">Slides</option>
-                            <option value="jewellery">Jewellery</option>
-                            <option value="socks">Socks</option>
-                            <option value="bottles">Bottles & Tumblers</option>
-                            <option value="bags">Bags</option>
-                            <option value="merch">Merch</option>
-                            <option value="lifting">Lifting Accessories</option>
-                        </select>
-                        <div class="filter-title desktop-hide-mobile">Accessories</div>
-                        <div class="filter-options desktop-hide-mobile">
+                        <div class="filter-title">Accessories</div>
+                        <div class="filter-options">
                             <label class="filter-checkbox"><input type="radio" name="type" value="shop-all" checked>
                                 Shop All</label>
                             <label class="filter-checkbox"><input type="radio" name="type" value="Hats & Caps"> Hats &
@@ -586,10 +521,14 @@
                     <div class="filter-section">
                         <div class="filter-title">Collections</div>
                         <div class="filter-options">
-                            <label class="filter-checkbox"><input type="checkbox"> Premium</label>
-                            <label class="filter-checkbox"><input type="checkbox"> Oversize Tee</label>
-                            <label class="filter-checkbox"><input type="checkbox"> Essentials</label>
-                            <label class="filter-checkbox"><input type="checkbox"> Seamless</label>
+                            <label class="filter-checkbox"><input type="checkbox" name="coll" value="Premium">
+                                Premium</label>
+                            <label class="filter-checkbox"><input type="checkbox" name="coll" value="Oversize Tee">
+                                Oversize Tee</label>
+                            <label class="filter-checkbox"><input type="checkbox" name="coll" value="Essentials">
+                                Essentials</label>
+                            <label class="filter-checkbox"><input type="checkbox" name="coll" value="Seamless">
+                                Seamless</label>
                         </div>
                     </div>
 
@@ -605,7 +544,28 @@
                 <!-- Grid -->
                 <div class="collection-grid">
                     <div class="product-grid" id="collectionGrid">
-                        <!-- Products from Firebase -->
+                        <!-- Skeletons while loading -->
+                        <div class="product-card is-loading">
+                            <div class="product-img skeleton"></div>
+                            <div class="product-info">
+                                <h3 class="skeleton"></h3>
+                                <p class="skeleton"></p>
+                            </div>
+                        </div>
+                        <div class="product-card is-loading">
+                            <div class="product-img skeleton"></div>
+                            <div class="product-info">
+                                <h3 class="skeleton"></h3>
+                                <p class="skeleton"></p>
+                            </div>
+                        </div>
+                        <div class="product-card is-loading">
+                            <div class="product-img skeleton"></div>
+                            <div class="product-info">
+                                <h3 class="skeleton"></h3>
+                                <p class="skeleton"></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -806,29 +766,25 @@
         };
 
         const applySortAndFilter = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const genderFilter = urlParams.get('gender')?.toLowerCase();
-            const catFilter = urlParams.get('cat')?.toLowerCase();
-            const subFilter = urlParams.get('sub');
+            const activeGender = document.querySelector('input[name="gender"]:checked')?.value;
+            const activeType = document.querySelector('input[name="type"]:checked')?.value;
+            const selectedColls = Array.from(document.querySelectorAll('input[name="coll"]:checked')).map(cb => cb.value);
 
             let filtered = [...allProducts];
 
-            // Gender/Main Category Filter
-            if (genderFilter) {
-                filtered = filtered.filter(p => p.mainCat?.toLowerCase() === genderFilter);
-            } else if (catFilter === 'accessories') {
-                filtered = filtered.filter(p => p.mainCat?.toLowerCase() === 'accessories');
+            // Department (Main Category) Filter
+            if (activeGender) {
+                filtered = filtered.filter(p => p.mainCat?.toLowerCase() === activeGender);
             }
 
             // Sub-category Filter
-            if (subFilter) {
-                filtered = filtered.filter(p => p.subCat === subFilter);
+            if (activeType && activeType !== 'shop-all') {
+                filtered = filtered.filter(p => p.subCat === activeType);
             }
 
-            // Sidebar Filter Logic (if clicked)
-            const activeGender = document.querySelector('input[name="gender"]:checked')?.value;
-            if (activeGender && !genderFilter && !catFilter) {
-                filtered = filtered.filter(p => p.mainCat?.toLowerCase() === activeGender);
+            // Collections Filter (Multi-checkbox)
+            if (selectedColls.length > 0) {
+                filtered = filtered.filter(p => selectedColls.includes(p.collection));
             }
 
             // Sorting
@@ -838,6 +794,11 @@
             if (sort === 'newest') filtered.reverse();
 
             renderProducts(filtered);
+
+            // Update Header/Breadcrumbs
+            let title = activeGender === 'men' ? "Men's Wear" : activeGender === 'women' ? "Women's Wear" : "Accessories";
+            document.querySelector('.collection-title').textContent = title;
+            document.querySelector('.active-category').textContent = title;
         };
 
         onValue(ref(database, '69store/products'), (snapshot) => {
@@ -872,16 +833,6 @@
                     const radio = document.querySelector(`input[name="type"][value="${sub}"]`);
                     if (radio) radio.checked = true;
 
-                    // Also set mobile select
-                    const selects = document.querySelectorAll('.mobile-category-select');
-                    selects.forEach(sel => {
-                        for (let i = 0; i < sel.options.length; i++) {
-                            if (sel.options[i].text === sub) {
-                                sel.selectedIndex = i;
-                                break;
-                            }
-                        }
-                    });
                 }
 
                 applySortAndFilter();
@@ -892,45 +843,31 @@
 
         sortOrderSelect.addEventListener('change', applySortAndFilter);
 
-        // Sidebar and Mobile Filter Listeners
+        // Sidebar Listeners
         document.querySelectorAll('input[name="gender"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 const val = e.target.value;
                 document.getElementById('section-mens').style.display = val === 'men' ? 'block' : 'none';
                 document.getElementById('section-womens').style.display = val === 'women' ? 'block' : 'none';
                 document.getElementById('section-accessories').style.display = val === 'accessories' ? 'block' : 'none';
+
+                // Reset sub-category to Shop All when changing department
+                const currentSection = document.querySelector(`.filter-section[id="section-${val}s"]`);
+                if (currentSection) {
+                    const shopAll = currentSection.querySelector('input[value="shop-all"]');
+                    if (shopAll) shopAll.checked = true;
+                }
+
                 applySortAndFilter();
             });
         });
 
         document.querySelectorAll('input[name="type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const sub = e.target.value;
-                const params = new URLSearchParams(window.location.search);
-                if (sub && sub !== 'shop-all') {
-                    params.set('sub', sub);
-                } else {
-                    params.delete('sub');
-                }
-                window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
-                applySortAndFilter();
-            });
+            radio.addEventListener('change', applySortAndFilter);
         });
 
-        document.querySelectorAll('.mobile-category-select').forEach(select => {
-            select.addEventListener('change', (e) => {
-                const sub = e.target.value;
-                if (sub && sub !== 'shop-all') {
-                    const params = new URLSearchParams(window.location.search);
-                    params.set('sub', e.target.options[e.target.selectedIndex].text);
-                    window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
-                } else {
-                    const params = new URLSearchParams(window.location.search);
-                    params.delete('sub');
-                    window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
-                }
-                applySortAndFilter();
-            });
+        document.querySelectorAll('input[name="coll"]').forEach(cb => {
+            cb.addEventListener('change', applySortAndFilter);
         });
 
         window.dispatchEvent(new Event('firebaseStoreLoaded'));
