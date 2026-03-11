@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('hashchange', updateNavActive);
 
     // --- CART SYSTEM ---
-    let cart = JSON.parse(localStorage.getItem('69store_cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
     const cartSidebar = document.getElementById('cartSidebar');
     const cartOverlay = document.getElementById('cartOverlay');
     const cartToggle = document.getElementById('cartToggle');
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cartTotalAmount) cartTotalAmount.textContent = `LKR ${total.toLocaleString()}.00`;
         if (cartBadgeMobile) cartBadgeMobile.textContent = cart.length;
         if (cartBadgeSidebar) cartBadgeSidebar.textContent = `(${cart.length})`;
-        localStorage.setItem('69store_cart', JSON.stringify(cart));
+        localStorage.setItem('zenvora_cart', JSON.stringify(cart));
     };
 
     window.addToCart = (name, price, image) => {
@@ -220,9 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const vRef = window.firebaseRef(window.firebaseDB, '69store/visitors');
             window.firebaseOnValue(vRef, (snap) => {
                 const count = snap.val() || 0;
-                if (!sessionStorage.getItem('69v')) {
+                if (!sessionStorage.getItem('zenvora_v')) {
                     window.firebaseSet(vRef, count + 1);
-                    sessionStorage.setItem('69v', '1');
+                    sessionStorage.setItem('zenvora_v', '1');
                 }
             }, { onlyOnce: true });
 
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
                 window.firebasePush(ordersRef, orderData).then(() => {
                     const message = encodeURIComponent(
-                        `*NEW ORDER - 69 STORE*\n\n` +
+                        `*NEW ORDER - ZENVORA*\n\n` +
                         `*Customer:* ${name}\n` +
                         `*Phone:* ${phone}\n` +
                         `*Address:* ${address}\n\n` +
