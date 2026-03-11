@@ -716,13 +716,15 @@
             collectionGrid.innerHTML = '';
             countEl.textContent = `${products.length} Products`;
             products.forEach(p => {
+                const isBase64 = p.image && p.image.startsWith('data:');
+                const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(p.image)}`;
                 const card = document.createElement('div');
                 card.className = 'product-card animate-up';
                 card.innerHTML = `
                     <div class="product-img">
                         ${p.price > 10000 ? '<div class="product-badge">Exclusive</div>' : ''}
                         ${p.stock <= 0 ? '<div class="product-badge" style="background: #333; left: auto; right: 15px;">OUT OF STOCK</div>' : ''}
-                        <a href="product.html?name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.image)}">
+                        <a href="product.html?id=${p.id || ''}&name=${encodeURIComponent(p.name)}&price=${p.price}${imgParam}">
                             <img src="${p.image}" alt="${p.name}" loading="lazy" style="${p.stock <= 0 ? 'filter: grayscale(1); opacity: 0.6;' : ''}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
                         </a>
                         <div class="product-overlay">
@@ -733,7 +735,7 @@
                         </div>
                     </div>
                     <div class="product-info">
-                        <a href="product.html?name=${encodeURIComponent(p.name)}&price=${p.price}&img=${encodeURIComponent(p.image)}" style="text-decoration: none; color: inherit;">
+                        <a href="product.html?id=${p.id || ''}&name=${encodeURIComponent(p.name)}&price=${p.price}${imgParam}" style="text-decoration: none; color: inherit;">
                             <h3>${p.name}</h3>
                         </a>
                         <p>LKR ${p.price.toLocaleString()}.00</p>
@@ -781,7 +783,10 @@
         onValue(ref(database, '69store/products'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                allProducts = Object.values(data);
+                allProducts = Object.keys(data).map(key => ({
+                    ...data[key],
+                    id: key
+                }));
 
                 // Initialize filters based on URL
                 const urlParams = new URLSearchParams(window.location.search);

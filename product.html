@@ -417,36 +417,62 @@
 
     <!-- Initialize Product Data -->
     <script>
+        // Global variables for product data
+        window.currentProductName = "";
+        window.currentProductPrice = 0;
+        window.currentProductImg = "";
+
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
-            const name = params.get('name') || 'Zenvora Default Tee';
-            const price = parseFloat(params.get('price')) || 5500;
-            const img = params.get('img') || 'assets/mens_69_store_featured.png';
+            window.currentProductName = params.get('name') || 'Zenvora Default Tee';
+            window.currentProductPrice = parseFloat(params.get('price')) || 5500;
+            // Initially, we might have a long URL in 'img' if coming from an old link, 
+            // but we'll prioritize Firebase.
+            window.currentProductImg = params.get('img') || 'assets/placeholder_product.png';
 
-            document.title = name + " - ZENVORA";
-            document.getElementById('breadcrumbName').textContent = name;
-            document.getElementById('productTitle').textContent = name;
-            document.getElementById('productPrice').textContent = `LKR ${price.toLocaleString()}.00`;
+            document.title = window.currentProductName + " - ZENVORA";
+            document.getElementById('breadcrumbName').textContent = window.currentProductName;
+            document.getElementById('productTitle').textContent = window.currentProductName;
+            document.getElementById('productPrice').textContent = `LKR ${window.currentProductPrice.toLocaleString()}.00`;
 
-            // Set images (using the same image for subgallery for now to fill space)
-            document.getElementById('mainProductImage').src = img;
-            document.getElementById('subProductImage1').src = img;
-            document.getElementById('subProductImage2').src = img;
+            // Set a loader or placeholder for images initial state
+            document.getElementById('mainProductImage').src = 'assets/logo.png'; // Placeholder
+            document.getElementById('mainProductImage').style.opacity = '0.5';
 
             // Handle Add To Cart 
             document.getElementById('addToCartBtn').addEventListener('click', () => {
                 if (typeof addToCart === 'function') {
-                    addToCart(name, price, img);
+                    addToCart(window.currentProductName, window.currentProductPrice, window.currentProductImg);
                 } else {
-                    // Fallback to local script if global not available yet
-                    let cart = JSON.parse(localStorage.getItem('69store_cart')) || [];
-                    cart.push({ name, price, image: img });
-                    localStorage.setItem('69store_cart', JSON.stringify(cart));
-                    alert(`${name} added to cart! Check your sidebar.`);
-                    window.location.reload(); // rudimentary UI update
+                    let cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
+                    cart.push({ name: window.currentProductName, price: window.currentProductPrice, image: window.currentProductImg });
+                    localStorage.setItem('zenvora_cart', JSON.stringify(cart));
+                    alert(`${window.currentProductName} added to cart!`);
+                    window.location.reload();
                 }
             });
         });
+
+        const updateProductUI = (product) => {
+            window.currentProductName = product.name;
+            window.currentProductPrice = product.price;
+            window.currentProductImg = product.image;
+
+            document.getElementById('productTitle').textContent = product.name;
+            document.getElementById('productPrice').textContent = `LKR ${product.price.toLocaleString()}.00`;
+
+            const mainImg = document.getElementById('mainProductImage');
+            mainImg.src = product.image;
+            mainImg.style.opacity = '1';
+
+            document.getElementById('subProductImage1').src = product.image;
+            document.getElementById('subProductImage2').src = product.image;
+
+            // If the product has a description in Firebase, we could update that too
+            if (product.description) {
+                // Find description container if it exists
+            }
+        };
 
         // Size Box Logic
         function selectSize(element) {
@@ -494,6 +520,48 @@
         window.firebasePush = push;
         window.firebaseOnValue = onValue;
         window.firebaseSet = set;
+
+        // Fetch Product Data from Firebase based on ID or Name
+        const params = new URLSearchParams(window.location.search);
+        const targetId = params.get('id');
+        const targetName = params.get('name');
+
+        if (targetId) {
+            // Direct fetch by ID is most efficient
+            onValue(ref(database, `69store/products/${targetId}`), (snapshot) => {
+                const product = snapshot.val();
+                if (product) {
+                    updateProductUI(product);
+                } else if (targetName) {
+                    // If ID fails but we have a name, try name search
+                    searchByName(targetName);
+                }
+            }, { onlyOnce: true });
+        } else if (targetName) {
+            searchByName(targetName);
+        }
+
+        function searchByName(name) {
+            onValue(ref(database, '69store/products'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const products = Object.values(data);
+                    const found = products.find(p => p.name === name);
+                    if (found) {
+                        updateProductUI(found);
+                    } else {
+                        // Final fallback: use URL params values already set
+                        const mainImg = document.getElementById('mainProductImage');
+                        if (mainImg.style.opacity === '0.5') {
+                            mainImg.src = window.currentProductImg;
+                            mainImg.style.opacity = '1';
+                            document.getElementById('subProductImage1').src = window.currentProductImg;
+                            document.getElementById('subProductImage2').src = window.currentProductImg;
+                        }
+                    }
+                }
+            }, { onlyOnce: true });
+        }
 
         window.dispatchEvent(new Event('firebaseStoreLoaded'));
     </script>

@@ -443,12 +443,14 @@
                 const data = snapshot.val();
                 productGrid.innerHTML = '';
 
-                const renderProduct = (product) => {
+                const renderProduct = (product, id) => {
+                    const isBase64 = product.image && product.image.startsWith('data:');
+                    const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
                     const card = document.createElement('div');
                     card.className = 'product-card animate-up';
                     card.innerHTML = `
                         <div class="product-img">
-                            <a href="product.html?name=${encodeURIComponent(product.name)}&price=${product.price}&img=${encodeURIComponent(product.image)}">
+                            <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}">
                                 <img src="${product.image}" alt="${product.name}" loading="lazy" style="background: #111;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
                             </a>
                             <div class="product-overlay">
@@ -456,7 +458,7 @@
                             </div>
                         </div>
                         <div class="product-info">
-                            <a href="product.html?name=${encodeURIComponent(product.name)}&price=${product.price}&img=${encodeURIComponent(product.image)}" style="text-decoration: none; color: inherit;">
+                            <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}" style="text-decoration: none; color: inherit;">
                                 <h3>${product.name}</h3>
                             </a>
                             <p>LKR ${product.price.toLocaleString()}.00</p>
@@ -466,7 +468,7 @@
                 };
 
                 if (data && Object.keys(data).length > 0) {
-                    Object.keys(data).forEach(key => renderProduct(data[key]));
+                    Object.keys(data).forEach(key => renderProduct(data[key], key));
                 } else {
                     const fallbacks = [
                         { name: "Zenvora Apex Stringer", price: 3900, image: "assets/gym_stringer.png" },
