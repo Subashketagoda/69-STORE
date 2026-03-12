@@ -322,12 +322,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!checkoutModal) return;
 
+    // Auto-fill checkout form with logged-in user data
+    function fillCheckoutFromUser() {
+        const userData = localStorage.getItem('zenvora_user');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                const nameField = document.getElementById('custName');
+                const phoneField = document.getElementById('custPhone');
+                const addressField = document.getElementById('custAddress');
+                if (nameField && user.firstName) nameField.value = (user.title ? user.title + ' ' : '') + user.firstName + ' ' + (user.lastName || '');
+                if (phoneField && user.phone) phoneField.value = user.phone;
+                if (addressField && user.address) addressField.value = user.address;
+            } catch(e) {}
+        }
+    }
+
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', () => {
             if (cart.length === 0) return showNotification('Your bag is empty! Add some heat first.', 'error');
+            
+            // Check if user is logged in
+            const userData = localStorage.getItem('zenvora_user');
+            if (!userData) {
+                // Not logged in — redirect to login page with return URL
+                showNotification('Please login to place your order.', 'info');
+                setTimeout(() => {
+                    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                    window.location.href = 'login.html?from=checkout&return=' + encodeURIComponent(currentPage);
+                }, 800);
+                return;
+            }
+            
+            // User is logged in — open checkout modal with auto-filled data
             checkoutModal.style.display = 'flex';
+            fillCheckoutFromUser();
         });
     }
+
+    // Auto-open checkout if returning from login
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('checkout') === 'true') {
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+            // Wait a bit for everything to load, then open checkout
+            setTimeout(() => {
+                if (cart.length > 0 && checkoutModal) {
+                    checkoutModal.style.display = 'flex';
+                    fillCheckoutFromUser();
+                    showNotification('Welcome! Your details are pre-filled. Confirm your order.', 'success');
+                }
+            }, 1200);
+        }
+    })();
 
     if (closeCheckout) closeCheckout.addEventListener('click', () => checkoutModal.style.display = 'none');
 
