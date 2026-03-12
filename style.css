@@ -183,6 +183,46 @@ header.scrolled {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
+/* --- Top Bar --- */
+.top-bar {
+    background: #2b1414; /* Premium Deep Burgundy */
+    color: white;
+    padding: 12px 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.top-bar-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-bar-content img {
+    height: 14px;
+    width: auto;
+    opacity: 0.9;
+}
+
+.top-bar-content i {
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    animation: flash 2s infinite;
+}
+
+@keyframes flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 .nav-container {
     max-width: 1440px;
     margin: 0 auto;
