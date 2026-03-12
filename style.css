@@ -169,68 +169,74 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    background: var(--bg-white);
-    padding: 20px 0;
+    background: rgba(10, 10, 10, 0.8);
+    /* Semi-transparent black */
+    backdrop-filter: blur(15px);
+    /* Glassmorphism */
+    -webkit-backdrop-filter: blur(15px);
+    padding: 0;
     z-index: 2000;
-    /* Increased to be above overlays */
-    transition: var(--transition);
-    border-bottom: 1px solid transparent;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 header.scrolled {
-    padding: 10px 0;
+    background: rgba(0, 0, 0, 0.95);
     border-bottom: 1px solid var(--border-light);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* --- Top Bar --- */
 .top-bar {
-    background: #2b1414; /* Premium Deep Burgundy */
+    background: linear-gradient(90deg, #2b1414 0%, #3d1a1a 50%, #2b1414 100%);
+    /* Subtle premium gradient */
     color: white;
-    padding: 12px 0;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 2px;
+    padding: 10px 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
     z-index: 3000;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .top-bar-content {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .top-bar-content img {
     height: 14px;
     width: auto;
-    opacity: 0.9;
+    filter: brightness(1.2);
+    /* Make logo pop */
 }
 
-.top-bar-content i {
-    color: var(--primary-color);
-    font-size: 0.8rem;
-    animation: flash 2s infinite;
-}
-
-@keyframes flash {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+header.scrolled .top-bar {
+    margin-top: -40px;
+    /* Smooth slide up instead of instant hide */
+    opacity: 0;
+    pointer-events: none;
 }
 
 .nav-container {
+    padding: 15px 40px;
+    /* Reduced vertical padding for a sleeker look */
     max-width: 1440px;
     margin: 0 auto;
-    padding: 0 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 100%;
+    transition: all 0.4s ease;
+}
+
+header.scrolled .nav-container {
+    padding: 10px 40px;
 }
 
 .logo {
