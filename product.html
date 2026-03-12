@@ -352,7 +352,8 @@
                     </div>
 
                     <h1 class="product-title" id="productTitle">Loading...</h1>
-                    <div class="product-price" id="productPrice" style="margin-bottom: 30px;">LKR 0.00</div>
+                    <div class="product-price" id="productPrice" style="margin-bottom: 10px;">LKR 0.00</div>
+                    <div id="productStockStatus" style="margin-bottom: 30px; font-size: 0.85rem; letter-spacing: 1px;"></div>
 
                     <div style="margin-bottom: 30px;">
                         <span class="variant-title">Size</span>
@@ -423,12 +424,9 @@
                     class="fa-solid fa-xmark"></i></div>
             <h2>Shipping <span class="accent-text">Details</span></h2>
             <form id="checkoutForm">
-                <input type="text" id="custName" placeholder="Full Name" required
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
-                <input type="text" id="custPhone" placeholder="Mobile Number" required
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
-                <textarea id="custAddress" placeholder="Delivery Address" required
-                    style="width: 100%; padding: 15px; margin-bottom: 25px; background: var(--bg-light); border: none; border-radius: 10px; min-height: 100px;"></textarea>
+                <input type="text" id="custName" class="checkout-input" placeholder="Full Name" required>
+                <input type="text" id="custPhone" class="checkout-input" placeholder="Mobile Number" required>
+                <textarea id="custAddress" class="checkout-input" placeholder="Delivery Address" required></textarea>
                 <button type="submit" class="btn btn-black" style="width: 100%;">Confirm & Send Order</button>
             </form>
         </div>
@@ -485,13 +483,23 @@
 
             // Handle Add To Cart 
             document.getElementById('addToCartBtn').addEventListener('click', () => {
+                const activeSizeBox = document.querySelector('.size-box.active');
+                const selectedSize = activeSizeBox ? activeSizeBox.textContent : 'M';
+                
                 if (typeof addToCart === 'function') {
-                    addToCart(window.currentProductName, window.currentProductPrice, window.currentProductImg);
+                    addToCart(targetId, window.currentProductName, window.currentProductPrice, window.currentProductImg, selectedSize);
                 } else {
                     let cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
-                    cart.push({ name: window.currentProductName, price: window.currentProductPrice, image: window.currentProductImg });
+                    cart.push({ 
+                        id: targetId,
+                        name: window.currentProductName, 
+                        price: window.currentProductPrice, 
+                        image: window.currentProductImg,
+                        size: selectedSize,
+                        quantity: 1
+                    });
                     localStorage.setItem('zenvora_cart', JSON.stringify(cart));
-                    alert(`${window.currentProductName} added to cart!`);
+                    showNotification(`${window.currentProductName} (${selectedSize}) added to bag!`, 'success');
                     window.location.reload();
                 }
             });
@@ -504,6 +512,26 @@
 
             document.getElementById('productTitle').textContent = product.name;
             document.getElementById('productPrice').textContent = `LKR ${product.price.toLocaleString()}.00`;
+
+            const stockEl = document.getElementById('productStockStatus');
+            const addBtn = document.getElementById('addToCartBtn');
+            const stock = product.stock !== undefined ? product.stock : 100;
+
+            if (stockEl) {
+                if (stock <= 0) {
+                    stockEl.innerHTML = '<span style="color: #ff3e3e; font-weight: 800;"><i class="fa-solid fa-circle-xmark"></i> SOLD OUT</span>';
+                    if (addBtn) {
+                        addBtn.disabled = true;
+                        addBtn.textContent = 'OUT OF STOCK';
+                        addBtn.style.opacity = '0.5';
+                        addBtn.style.cursor = 'not-allowed';
+                    }
+                } else if (stock <= 10) {
+                    stockEl.innerHTML = `<span style="color: var(--primary-color); font-weight: 800;"><i class="fa-solid fa-fire"></i> LOW STOCK: ONLY ${stock} LEFT</span>`;
+                } else {
+                    stockEl.innerHTML = '<span style="color: #28a745; font-weight: 800;"><i class="fa-solid fa-circle-check"></i> IN STOCK</span>';
+                }
+            }
 
             const mainImg = document.getElementById('mainProductImage');
             mainImg.src = product.image;
@@ -570,7 +598,7 @@
     <!-- Firebase SDK & Store Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -592,6 +620,7 @@
         window.firebasePush = push;
         window.firebaseOnValue = onValue;
         window.firebaseSet = set;
+        window.firebaseUpdate = update;
 
         // Fetch Product Data from Firebase based on ID or Name
         const params = new URLSearchParams(window.location.search);

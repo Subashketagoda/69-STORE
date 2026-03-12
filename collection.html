@@ -650,12 +650,9 @@
                     class="fa-solid fa-xmark"></i></div>
             <h2>Shipping <span class="accent-text">Details</span></h2>
             <form id="checkoutForm">
-                <input type="text" id="custName" placeholder="Full Name" required
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
-                <input type="text" id="custPhone" placeholder="Mobile Number" required
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
-                <textarea id="custAddress" placeholder="Delivery Address" required
-                    style="width: 100%; padding: 15px; margin-bottom: 25px; background: var(--bg-light); border: none; border-radius: 10px; min-height: 100px;"></textarea>
+                <input type="text" id="custName" class="checkout-input" placeholder="Full Name" required>
+                <input type="text" id="custPhone" class="checkout-input" placeholder="Mobile Number" required>
+                <textarea id="custAddress" class="checkout-input" placeholder="Delivery Address" required></textarea>
                 <button type="submit" class="btn btn-black" style="width: 100%;">Confirm & Send Order</button>
             </form>
         </div>
@@ -712,7 +709,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -732,6 +729,7 @@
         window.firebasePush = push;
         window.firebaseOnValue = onValue;
         window.firebaseSet = set;
+        window.firebaseUpdate = update;
 
         const collectionGrid = document.getElementById('collectionGrid');
         const countEl = document.getElementById('productCount');
@@ -745,20 +743,30 @@
             products.forEach(p => {
                 const isBase64 = p.image && p.image.startsWith('data:');
                 const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(p.image)}`;
+                
+                // Stock Warning Logic
+                let stockBadge = '';
+                const stock = p.stock !== undefined ? p.stock : 100;
+                if (stock <= 0) {
+                    stockBadge = '<div class="product-badge" style="background: #333; left: auto; right: 15px;">OUT OF STOCK</div>';
+                } else if (stock <= 10) {
+                    stockBadge = `<div class="product-badge" style="background: var(--primary-color); left: auto; right: 15px; font-size: 0.7rem;">ONLY ${stock} LEFT</div>`;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'product-card animate-up';
                 card.innerHTML = `
                     <div class="product-img">
                         ${p.price > 10000 ? '<div class="product-badge">Exclusive</div>' : ''}
-                        ${p.stock <= 0 ? '<div class="product-badge" style="background: #333; left: auto; right: 15px;">OUT OF STOCK</div>' : ''}
+                        ${stockBadge}
                         <a href="product.html?id=${p.id || ''}&name=${encodeURIComponent(p.name)}&price=${p.price}${imgParam}">
-                            <img src="${p.image}" alt="${p.name}" loading="lazy" style="${p.stock <= 0 ? 'filter: grayscale(1); opacity: 0.6;' : ''}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                            <img src="${p.image}" alt="${p.name}" loading="lazy" style="${stock <= 0 ? 'filter: grayscale(1); opacity: 0.6;' : ''}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
                         </a>
                         <div class="product-overlay">
-                            ${p.stock > 0
-                        ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart('${p.name}', ${p.price}, '${p.image}')">Add to Cart</button>`
-                        : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Out of Stock</button>`
-                    }
+                            ${stock > 0
+                                ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart('${p.id}', '${p.name}', ${p.price}, '${p.image}')">Add to Cart</button>`
+                                : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Sold Out</button>`
+                            }
                         </div>
                     </div>
                     <div class="product-info">

@@ -209,18 +209,25 @@ document.addEventListener('DOMContentLoaded', () => {
             cartItemsContainer.innerHTML = '<div style="text-align: center; color: #666; margin-top: 50px;">Your bag is empty</div>';
         } else {
             cart.forEach((item, index) => {
-                total += item.price * (item.quantity || 1);
+                const qty = item.quantity || 1;
+                total += item.price * qty;
                 const itemEl = document.createElement('div');
                 itemEl.className = 'cart-item';
-                itemEl.style = "display: flex; gap: 20px; align-items: center; margin-bottom: 25px;";
+                itemEl.style = "display: flex; gap: 15px; align-items: center; margin-bottom: 20px;";
                 itemEl.innerHTML = `
-                    <div style="width: 70px; height: 90px; border-radius: 8px; overflow: hidden; background: #1a1a1a; flex-shrink: 0;">
+                    <div style="width: 60px; height: 80px; border-radius: 6px; overflow: hidden; background: #1a1a1a; flex-shrink: 0;">
                         <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <h4 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
-                        <p style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted); margin-bottom: 8px;">LKR ${item.price.toLocaleString()}</p>
-                        <span style="font-size: 0.7rem; color: #ff3e3e; cursor: pointer; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;" onclick="removeFromCart(${index})">Remove</span>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <h4 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
+                            <span style="font-size: 0.7rem; color: #ff3e3e; cursor: pointer;" onclick="removeFromCart(${index})"><i class="fa-solid fa-trash"></i></span>
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">
+                            Size: <span style="color: #fff; font-weight: 800;">${item.size || 'N/A'}</span> | 
+                            Qty: <span style="color: #fff; font-weight: 800;">${qty}</span>
+                        </p>
+                        <p style="font-size: 0.85rem; font-weight: 600;">LKR ${(item.price * qty).toLocaleString()}</p>
                     </div>
                 `;
                 cartItemsContainer.appendChild(itemEl);
@@ -246,8 +253,14 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('zenvora_cart', JSON.stringify(cart));
     };
 
-    window.addToCart = (name, price, image) => {
-        cart.push({ name, price, image, quantity: 1 });
+    window.addToCart = (id, name, price, image, size = 'M') => {
+        // Check if item with same id and size exists
+        const existing = cart.find(i => i.id === id && i.size === size);
+        if (existing) {
+            existing.quantity = (existing.quantity || 1) + 1;
+        } else {
+            cart.push({ id, name, price, image, size, quantity: 1 });
+        }
         updateCartUI();
         openCart();
     };
@@ -272,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cartOverlay) cartOverlay.addEventListener('click', closeCartFn);
 
     // --- CHECKOUT LOGIC ---
-    let waNumber = '94701234567'; // Default
+    let waNumber = '94671210164'; // Default
 
     window.addEventListener('firebaseStoreLoaded', () => {
         if (window.firebaseDB) {
@@ -327,8 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const orderData = {
                 customer: { name, address, phone },
-                items: cart,
-                total: cart.reduce((acc, item) => acc + item.price, 0),
+                items: cart.map(i => ({ ...i })), // Create a clean copy
+                total: cart.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0),
                 timestamp: new Date().toISOString(),
                 status: 'New'
             };
@@ -336,14 +349,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.firebaseDB) {
                 const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
                 window.firebasePush(ordersRef, orderData).then(() => {
+                    // Update Stock in Firebase
+                    if (window.firebaseUpdate) {
+                        cart.forEach(item => {
+                            if (item.id) {
+                                const prodRef = window.firebaseRef(window.firebaseDB, `69store/products/${item.id}`);
+                                // Get current stock and decrement
+                                // Note: Simple decrement for now. Atomic increment(-qty) would be better.
+                                window.firebaseOnValue(prodRef, (snap) => {
+                                    const p = snap.val();
+                                    if (p && p.stock !== undefined) {
+                                        const newStock = Math.max(0, p.stock - (item.quantity || 1));
+                                        window.firebaseUpdate(prodRef, { stock: newStock });
+                                    }
+                                }, { onlyOnce: true });
+                            }
+                        });
+                    }
+
                     const message = encodeURIComponent(
                         `*NEW ORDER - ZENVORA*\n\n` +
                         `*Customer:* ${name}\n` +
                         `*Phone:* ${phone}\n` +
                         `*Address:* ${address}\n\n` +
-                        `*Items:*\n${cart.map(i => `- ${i.name} (LKR ${i.price})`).join('\n')}\n` +
+                        `*Items:*\n${cart.map(i => `- ${i.name} [Size: ${i.size || 'M'}] x${i.quantity || 1} (LKR ${(i.price * (i.quantity || 1)).toLocaleString()})`).join('\n')}\n` +
                         (deliveryCharge > 0 ? `*Delivery Fee:* LKR ${deliveryCharge.toLocaleString()}\n` : '') + `\n` +
-                        `*Total:* LKR ${(orderData.total + (deliveryCharge || 0)).toLocaleString()}.00`
+                        `*Total Bill:* LKR ${(orderData.total + (deliveryCharge || 0)).toLocaleString()}.00`
                     );
                     window.open(`https://wa.me/${waNumber}?text=${message}`);
 

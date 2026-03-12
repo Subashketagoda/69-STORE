@@ -127,10 +127,10 @@
                     <span id="cartCountMobile"
                         style="position: absolute; top: -10px; right: -10px; background: #000; color: #fff; font-size: 0.75rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</span>
                 </div>
-                <!-- Profile/Login dummy -->
-                <div class="tool-icon">
+                <!-- Profile/Login -->
+                <a href="login.html" class="tool-icon" style="text-decoration: none; color: inherit;">
                     <i class="fa-regular fa-user"></i>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -378,12 +378,9 @@
             <p style="color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">Please enter your delivery
                 details.</p>
             <form id="checkoutForm">
-                <input type="text" id="custName" placeholder="Full Name" required
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
-                <input type="text" id="custPhone" placeholder="Mobile Number" required
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; border-radius: 10px;">
-                <textarea id="custAddress" placeholder="Delivery Address" required
-                    style="width: 100%; padding: 15px; margin-bottom: 25px; background: var(--bg-light); border: none; border-radius: 10px; min-height: 100px;"></textarea>
+                <input type="text" id="custName" class="checkout-input" placeholder="Full Name" required>
+                <input type="text" id="custPhone" class="checkout-input" placeholder="Mobile Number" required>
+                <textarea id="custAddress" class="checkout-input" placeholder="Delivery Address" required></textarea>
                 <button type="submit" class="btn btn-black" style="width: 100%;">Confirm & Send Order</button>
             </form>
         </div>
@@ -441,7 +438,7 @@
     <!-- Firebase SDK & Store Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, remove, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -463,6 +460,7 @@
         window.firebasePush = push;
         window.firebaseOnValue = onValue;
         window.firebaseSet = set;
+        window.firebaseUpdate = update;
 
         // --- LOAD PRODUCTS ---
         const loadProducts = () => {
@@ -472,15 +470,29 @@
             const renderProduct = (product, id) => {
                 const isBase64 = product.image && product.image.startsWith('data:');
                 const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
+                
+                // Stock Warning Logic
+                let stockBadge = '';
+                const stock = product.stock !== undefined ? product.stock : 100;
+                if (stock <= 0) {
+                    stockBadge = '<div class="product-badge" style="background: #333; left: auto; right: 15px;">OUT OF STOCK</div>';
+                } else if (stock <= 10) {
+                    stockBadge = `<div class="product-badge" style="background: var(--primary-color); left: auto; right: 15px; font-size: 0.7rem;">ONLY ${stock} LEFT</div>`;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'product-card animate-up';
                 card.innerHTML = `
                     <div class="product-img">
+                        ${stockBadge}
                         <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}">
                             <img src="${product.image}" alt="${product.name}" loading="lazy" style="background: #111;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
                         </a>
                         <div class="product-overlay">
-                            <button class="btn btn-black" style="width: 100%;" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
+                            ${stock > 0 
+                                ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart('${id}', '${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>`
+                                : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Sold Out</button>`
+                            }
                         </div>
                     </div>
                     <div class="product-info">

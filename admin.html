@@ -384,7 +384,7 @@
         };
 
         // --- AUTH & SETTINGS ---
-        let adminSettings = { password: '69admin', waNumber: '94701234567' };
+        let adminSettings = { password: '69admin', waNumber: '94671210164' };
         onValue(ref(database, '69store/settings'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -633,17 +633,31 @@
             if (data) {
                 Object.keys(data).reverse().forEach(key => {
                     const o = data[key];
-                    if (!o || !o.customer) return; // Skip malformed orders
+                    if (!o || !o.customer) return;
+                    
+                    const itemsHtml = o.items ? o.items.map(i => `
+                        <div style="font-size: 0.8rem; margin-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 2px;">
+                            <strong>${i.name}</strong> 
+                            <br><span style="color: var(--primary-color);">Size: ${i.size || 'M'}</span> | Qty: ${i.quantity || 1}
+                        </div>
+                    `).join('') : 'No items';
+
                     tbody.innerHTML += `
                     <tr>
-                        <td>${o.timestamp ? new Date(o.timestamp).toLocaleDateString() : 'N/A'}</td>
-                        <td>${o.customer.name || 'Unknown'}<br><small>${o.customer.phone || ''}</small></td>
-                        <td>${o.items ? o.items.map(i => i.name).join(', ') : 'No items'}</td>
-                        <td>LKR ${o.total ? o.total.toLocaleString() : '0'}</td>
+                        <td style="font-size: 0.8rem; color: var(--text-dim);">${o.timestamp ? new Date(o.timestamp).toLocaleString() : 'N/A'}</td>
+                        <td>
+                            <strong style="color: #fff;">${o.customer.name || 'Unknown'}</strong><br>
+                            <small style="color: var(--text-dim);">${o.customer.phone || ''}</small><br>
+                            <small style="color: #666; font-size: 0.75rem;">${o.customer.address || ''}</small>
+                        </td>
+                        <td>${itemsHtml}</td>
+                        <td style="font-weight: 800; color: #fff;">LKR ${o.total ? o.total.toLocaleString() : '0'}</td>
                         <td><span class="badge-status ${o.status === 'New' ? 'status-new' : 'status-done'}">${o.status || 'New'}</span></td>
                         <td>
-                            <button class="btn btn-outline" onclick="toggleOrder('${key}', '${o.status || 'New'}')">Toggle Status</button>
-                            <button class="btn btn-outline" style="color: #ff3e3e;" onclick="deleteOrder('${key}')">Delete</button>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="toggleOrder('${key}', '${o.status || 'New'}')">Toggle Status</button>
+                                <button class="btn btn-outline" style="color: #ff3e3e; padding: 5px 10px; font-size: 0.7rem;" onclick="deleteOrder('${key}')">Delete</button>
+                            </div>
                         </td>
                     </tr>
                     `;

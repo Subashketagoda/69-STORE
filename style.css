@@ -1118,3 +1118,32 @@ footer {
         font-size: 0.95rem;
     }
 }
+
+/* --- Checkout Modal Inputs --- */
+.checkout-input {
+    width: 100%;
+    padding: 16px 20px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    color: white !important;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.checkout-input:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 20px rgba(255, 62, 62, 0.15);
+}
+
+.checkout-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+textarea.checkout-input {
+    min-height: 120px;
+    resize: none;
+}
