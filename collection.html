@@ -683,9 +683,9 @@
                 <div class="footer-col">
                     <h4>Support</h4>
                     <ul>
-                        <li><a href="#" onclick="alert('Feature coming soon!')">Order Tracking</a></li>
-                        <li><a href="#" onclick="alert('Feature coming soon!')">Returns & Exchanges</a></li>
-                        <li><a href="#" onclick="alert('Feature coming soon!')">Size Guide</a></li>
+                        <li><a href="#" onclick="showNotification('Order tracking coming soon!', 'info')">Order Tracking</a></li>
+                        <li><a href="#" onclick="showNotification('Returns policy coming soon!', 'info')">Returns & Exchanges</a></li>
+                        <li><a href="#" onclick="showNotification('Size guide coming soon!', 'info')">Size Guide</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -696,7 +696,7 @@
                         <input type="email" id="newsletterEmailColl" placeholder="Your Email"
                             style="color: white; width: 100%; border: none; background: transparent; outline: none;">
                         <i class="fa-solid fa-arrow-right" style="color: var(--primary-color); cursor: pointer;"
-                            onclick="if(document.getElementById('newsletterEmailColl').value) { alert('Thank you for subscribing!'); document.getElementById('newsletterEmailColl').value=''; } else { alert('Please enter your email'); }"></i>
+                            onclick="if(document.getElementById('newsletterEmailColl').value) { showNotification('Welcome to the elite. You\'re subscribed!', 'success'); document.getElementById('newsletterEmailColl').value=''; } else { showNotification('Please enter a valid email', 'error'); }"></i>
                     </div>
                 </div>
             </div>

@@ -402,7 +402,7 @@
                 initDashboard();
                 showTab('dashboard'); // Ensure dashboard is visible after login
             } else {
-                alert('Wrong password!');
+                showNotification('Access Denied: Invalid Password', 'error', 'Admin Auth');
             }
         };
 
@@ -414,7 +414,7 @@
                 const password = document.getElementById('settingPass').value;
                 const deliveryCharge = parseFloat(document.getElementById('settingDelivery').value) || 0;
                 set(ref(database, '69store/settings'), { waNumber, password, deliveryCharge })
-                    .then(() => alert('Settings updated successfully!'));
+                    .then(() => showNotification('System settings synchronized successfully', 'success', 'System Update'));
             });
         }
 
@@ -529,7 +529,7 @@
             });
             pForm.reset();
             document.getElementById('pSubCat').innerHTML = '<option value="">Select Sub-category</option>';
-            alert('Product added!');
+            showNotification(`${name} has been forged and added to the collection`, 'success', 'Inventory');
         });
 
         document.getElementById('pFile').addEventListener('change', (e) => handleUpload(e, 'pImage'));
@@ -663,6 +663,7 @@
         // Auto-login during development (optional)
         // document.getElementById('adminPass').value = '69admin';
     </script>
+    <script src="script.js"></script>
 </body>
 
 </html>

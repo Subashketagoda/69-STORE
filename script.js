@@ -1,6 +1,54 @@
+// --- Custom Notification System ---
+window.showNotification = (message, type = 'info', title = 'Zenvora') => {
+    let container = document.querySelector('.zen-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'zen-toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `zen-toast ${type}`;
+    
+    const icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info');
+    
+    toast.innerHTML = `
+        <i class="fa-solid ${icon}"></i>
+        <div class="zen-toast-content">
+            <span class="zen-toast-title">${title}</span>
+            <span class="zen-toast-message">${message}</span>
+        </div>
+        <div class="zen-toast-close"><i class="fa-solid fa-xmark"></i></div>
+    `;
+
+    container.appendChild(toast);
+
+    // Fade in
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Auto close
+    const closeToast = () => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    };
+
+    const timer = setTimeout(closeToast, 5000);
+
+    toast.querySelector('.zen-toast-close').onclick = () => {
+        clearTimeout(timer);
+        closeToast();
+    };
+};
+
+// Override standard alert
+window.alert = (msg) => window.showNotification(msg, 'info');
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- PRELOADER & ENTRANCE ---
     const preloader = document.querySelector('.preloader');
+    if (!preloader) {
+        document.body.classList.add('loaded');
+    }
 
     const finishLoading = () => {
         if (preloader && !preloader.classList.contains('fade-out')) {
@@ -150,6 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartBadgeMobile = document.getElementById('cartCountMobile');
     const cartBadgeSidebar = document.getElementById('cartCount');
 
+    if (!cartSidebar || !cartToggle) return;
+
     const updateCartUI = () => {
         if (!cartItemsContainer) return;
         cartItemsContainer.innerHTML = '';
@@ -257,9 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCheckout = document.getElementById('closeCheckout');
     const checkoutForm = document.getElementById('checkoutForm');
 
+    if (!checkoutModal) return;
+
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', () => {
-            if (cart.length === 0) return alert('Your cart is empty!');
+            if (cart.length === 0) return showNotification('Your bag is empty! Add some heat first.', 'error');
             checkoutModal.style.display = 'flex';
         });
     }
@@ -299,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateCartUI();
                     checkoutModal.style.display = 'none';
                     closeCartFn();
-                    alert('Order placed successfully! Redirecting to WhatsApp...');
+                    showNotification('Order placed safely! Redirecting to WhatsApp for confirmation...', 'success');
                 });
             }
         });
