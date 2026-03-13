@@ -513,6 +513,49 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Success Modal (Success Notification) -->
+    <div id="adminNotify" style="position: fixed; top: 20px; right: 20px; z-index: 10000; pointer-events: none;"></div>
+
+    <script>
+        // Simple Admin Notification System
+        window.showNotification = (msg, type = 'info', title = 'Admin') => {
+            const container = document.getElementById('adminNotify');
+            const toast = document.createElement('div');
+            toast.className = 'toast-item show';
+            toast.style.pointerEvents = 'auto';
+            toast.style.marginBottom = '10px';
+            toast.style.background = '#1a1a1a';
+            toast.style.border = '1px solid rgba(255,255,255,0.1)';
+            toast.style.padding = '15px 20px';
+            toast.style.borderRadius = '8px';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '12px';
+            toast.style.color = '#fff';
+            toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+            toast.style.minWidth = '300px';
+            
+            const icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info');
+            const iconColor = type === 'success' ? '#4ade80' : (type === 'error' ? '#ff3e3e' : '#60a5fa');
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${icon}" style="color: ${iconColor}; font-size: 1.2rem;"></i>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #555;">${title}</span>
+                    <span style="font-size: 0.85rem;">${msg}</span>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                toast.style.transition = 'all 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        };
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, set, remove, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
@@ -530,6 +573,15 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+
+        // Global access
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+        window.firebaseSet = set;
+        window.firebaseUpdate = update;
+        window.firebaseRemove = remove;
 
         const subCats = {
             "Men": ["T-Shirts", "Tanks", "Compressions", "Hoodies & Jackets", "Shorts", "Jeans", "Joggers & Pants", "Underwear"],
@@ -954,10 +1006,11 @@
             }
         };
 
-        // Auto-login during development (optional)
-        // document.getElementById('adminPass').value = '69admin';
+        // Initial Load of everything
+        initDashboard();
+        
+        // Auto-login check (optional - can use localStorage if desired)
     </script>
-    <script src="script.js"></script>
 </body>
 
 </html>
