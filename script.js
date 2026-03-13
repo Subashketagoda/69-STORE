@@ -50,28 +50,38 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('loaded');
     }
 
+    // Global fail-safe: forced finish after 8 seconds (safety)
+    let failSafe;
+
     const finishLoading = () => {
         if (preloader && !preloader.classList.contains('fade-out')) {
+            console.log('Zenvora: Dismissing preloader...');
             preloader.classList.add('fade-out');
             document.body.classList.add('loaded');
+            // Ensure interactions are unblocked immediately
+            preloader.style.pointerEvents = 'none';
+            if (failSafe) clearTimeout(failSafe);
         }
     };
 
-    // Fail-safe: forced finish after 15 seconds if user doesn't click TAP TO ENTER
-    const failSafe = setTimeout(finishLoading, 15000);
+    failSafe = setTimeout(finishLoading, 8000);
 
+    // If this is NOT the cinematic preloader, dismiss it quickly!
+    // We don't wait for 'window.load' (which waits for all images/audio) 
+    // because that can take 1 minute on slow connections.
+    if (preloader && preloader.id !== 'cinematicPreloader') {
+        // Dismiss after 300ms of DOM ready for sub-pages
+        setTimeout(finishLoading, 300);
+    }
+
+    // Safety: always try to dismiss on full window load too
     window.addEventListener('load', () => {
-        // Don't auto-dismiss — let the TAP TO ENTER button handle it
-        // But keep failsafe running for safety
+        if (preloader && preloader.id !== 'cinematicPreloader') {
+            finishLoading();
+        }
     });
 
-    // Also trigger on DOMContentLoaded for faster interaction if images are slow
-    document.addEventListener('DOMContentLoaded', () => {
-        // If it's already basically ready, don't wait forever for huge images
-        setTimeout(() => {
-            if (document.readyState === 'complete') finishLoading();
-        }, 1500);
-    });
+    // Custom Cursor logic continues...
 
     // Custom Cursor
     const cursor = document.querySelector('.cursor');
