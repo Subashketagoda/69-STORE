@@ -631,30 +631,78 @@
                 <i class="fa-solid fa-xmark"></i>
             </div>
         </div>
-        <div id="cartItems" style="flex: 1; overflow-y: auto;"></div>
-        <div class="cart-footer" style="padding-top: 30px; border-top: 1px solid var(--border-light);">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
-                <h4 style="color: var(--text-muted);">Subtotal</h4>
-                <h3 id="cartTotal">LKR 0.00</h3>
+
+        <!-- Cart Shipping Info -->
+        <div class="cart-shipping-info">
+            <span class="shipping-progress-text">You're qualifying for free shipping!</span>
+            <div class="shipping-progress-bar">
+                <div class="shipping-progress-fill"></div>
             </div>
-            <button id="checkoutBtn" class="btn btn-black" style="width: 100%;">Checkout via WhatsApp</button>
+        </div>
+
+        <div id="cartItems" style="flex: 1; overflow-y: auto;">
+            <!-- Cart items will be loaded here -->
+        </div>
+
+        <!-- Cart Note -->
+        <div class="cart-note-container">
+            <div class="cart-note-header" onclick="toggleCartNote()">
+                <i class="fa-regular fa-note-sticky"></i>
+                <span>Add a note to your order</span>
+            </div>
+            <textarea id="cartNoteInput" class="cart-note-input" placeholder="Special instructions for delivery..."></textarea>
+        </div>
+
+        <div class="cart-footer" style="padding-top: 30px; border-top: 1px solid var(--border-light);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <h4 style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Subtotal</h4>
+                <h3 id="cartTotal" style="font-size: 1.1rem;">LKR 0.00</h3>
+            </div>
+            <button id="checkoutBtn" class="btn btn-black" style="width: 100%; margin-bottom: 10px;">Checkout</button>
+            <button class="continue-shopping-btn" onclick="closeCartFn()">Continue Shopping</button>
         </div>
     </div>
 
-    <!-- Checkout Modal (reused from index) -->
-    <div id="checkoutModal" class="cart-overlay" style="display: none; align-items: center; justify-content: center;">
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="cart-overlay" style="display: none; align-items: center; justify-content: center; z-index: 99999;">
         <div class="admin-card"
-            style="background: var(--bg-light); width: 95%; max-width: 500px; padding: 40px; border-radius: 25px; position: relative; color: white; border: 1px solid var(--border-light);">
+            style="background: #000; width: 95%; max-width: 900px; padding: 0; border-radius: 0; position: relative; color: white; border: 1px solid var(--border-light); box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: flex; flex-direction: row; overflow: hidden;">
             <div id="closeCheckout"
-                style="position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer;"><i
-                    class="fa-solid fa-xmark"></i></div>
-            <h2>Shipping <span class="accent-text">Details</span></h2>
-            <form id="checkoutForm">
-                <input type="text" id="custName" class="checkout-input" placeholder="Full Name" required>
-                <input type="text" id="custPhone" class="checkout-input" placeholder="Mobile Number" required>
-                <textarea id="custAddress" class="checkout-input" placeholder="Delivery Address" required></textarea>
-                <button type="submit" class="btn btn-black" style="width: 100%;">Confirm & Send Order</button>
-            </form>
+                style="position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; z-index: 10;">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            
+            <!-- Left Side: Form -->
+            <div style="flex: 1; padding: 40px; border-right: 1px solid #222;">
+                <h2 style="margin-bottom: 15px; font-weight: 900; text-transform: uppercase;">Shipping <span class="accent-text">Details</span></h2>
+                <p style="color: var(--text-dim); margin-bottom: 30px; font-size: 0.85rem;">Please enter your delivery details to complete the order.</p>
+                <form id="checkoutForm">
+                    <input type="text" id="custName" class="checkout-input" placeholder="Full Name" required>
+                    <input type="text" id="custPhone" class="checkout-input" placeholder="Mobile Number" required>
+                    <textarea id="custAddress" class="checkout-input" placeholder="Delivery Address" required></textarea>
+                    
+                    <h3 style="margin: 30px 0 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Payment Method</h3>
+                    <div style="background: #111; padding: 15px; border: 1px solid #333; border-radius: 4px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-truck-fast"></i>
+                        <span style="font-size: 0.85rem;">Cash on Delivery (Sri Lanka Only)</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Side: Order Summary -->
+            <div style="width: 350px; background: #0a0a0a; padding: 40px;">
+                <h3 style="font-weight: 900; text-transform: uppercase; margin-bottom: 25px; font-size: 1rem;">Order Summary</h3>
+                <div id="orderSummary" class="checkout-summary-card">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <div class="discount-pill">
+                    <input type="text" placeholder="Discount code">
+                    <button type="button">Apply</button>
+                </div>
+                
+                <button type="submit" form="checkoutForm" class="btn btn-primary" style="width: 100%; height: 55px; margin-top: 20px;">Complete Order</button>
+            </div>
         </div>
     </div>
 
@@ -860,7 +908,13 @@
 
         onValue(ref(database, '69store/products'), (snapshot) => {
             const data = snapshot.val();
-            if (data) localStorage.setItem('zenvora_products', JSON.stringify(data));
+            if (data) {
+                try {
+                    localStorage.setItem('zenvora_products', JSON.stringify(data));
+                } catch (e) {
+                    console.warn("Local storage quota exceeded");
+                }
+            }
             handleData(data);
         });
 
@@ -895,7 +949,17 @@
 
         window.dispatchEvent(new Event('firebaseStoreLoaded'));
     </script>
-    <script src="script.js?v=2.5"></script>
+    <!-- Success Overlay (Order Complete) -->
+    <div id="successOverlay">
+        <div class="s-card">
+            <div class="s-icon"><i class="fa-solid fa-check"></i></div>
+            <h3 id="sTitle">ORDER PLACED!</h3>
+            <p id="sMsg">Thank you for shopping with ZENVORA. Your order has been recorded successfully.</p>
+            <button class="s-btn" onclick="document.getElementById('successOverlay').classList.remove('show'); document.body.style.overflow = '';">Continue Shopping</button>
+        </div>
+    </div>
+
+    <script src="script.js?v=3.5"></script>
 </body>
 
 </html>

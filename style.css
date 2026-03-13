@@ -778,9 +778,140 @@ nav ul li a>i {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     border-bottom: 1px solid var(--border-light);
     padding-bottom: 20px;
+}
+
+/* --- Premium Cart Additions --- */
+.cart-shipping-info {
+    margin-bottom: 25px;
+}
+
+.shipping-progress-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    display: block;
+    letter-spacing: 0.5px;
+}
+
+.shipping-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.shipping-progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: #8b5cf6; /* Purple like the image */
+    width: 0%;
+    transition: width 0.5s ease-out;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+}
+
+.cart-item-qty {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #1a1a1a;
+    padding: 0;
+    border-radius: 50px;
+    margin-top: 5px;
+    width: fit-content;
+}
+
+.qty-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #fff;
+    transition: all 0.2s;
+    border-radius: 50%;
+}
+
+.qty-btn:hover {
+    background: #333;
+}
+
+.qty-val {
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-width: 15px;
+    text-align: center;
+}
+
+.cart-note-container {
+    margin: 30px 0;
+    padding: 15px;
+    background: #111;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+}
+
+.cart-note-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.cart-note-header i {
+    font-size: 0.9rem;
+}
+
+.cart-note-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    display: none;
+    resize: none;
+    height: 60px;
+    font-family: inherit;
+}
+
+.cart-note-input.active {
+    display: block;
+}
+
+.continue-shopping-btn {
+    width: 100%;
+    padding: 15px;
+    background: #eee;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.continue-shopping-btn:hover {
+    background: #fff;
 }
 
 /* --- Mobile Menu Global Hide --- */
@@ -1146,4 +1277,200 @@ footer {
 textarea.checkout-input {
     min-height: 120px;
     resize: none;
+}
+
+/* --- Modern Checkout Summary --- */
+.checkout-summary-card {
+    background: #000;
+    color: #fff;
+    padding: 20px;
+    border-radius: 0;
+}
+
+.discount-pill {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.discount-pill input {
+    flex: 1;
+    background: #000;
+    border: 1px solid #333;
+    padding: 12px 15px;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.discount-pill button {
+    padding: 0 20px;
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.checkout-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.checkout-row.total {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #222;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.checkout-row span:first-child {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+/* --- Success Overlay (Order Complete) --- */
+#successOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+    backdrop-filter: blur(10px);
+}
+
+#successOverlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.s-card {
+    text-align: center;
+    padding: 60px 40px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 450px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.s-card .s-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff3e3e, #ff6b6b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    font-size: 2rem;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(255, 62, 62, 0.3);
+}
+
+.s-card h3 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.s-card p {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 35px;
+    line-height: 1.6;
+}
+
+.s-card .s-btn {
+    display: inline-block;
+    padding: 18px 50px;
+    background: #fff;
+    color: #0a0a0a;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.s-card .s-btn:hover {
+    background: #ff3e3e;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 62, 62, 0.2);
+}
+
+/* --- Mobile Responsiveness for Checkout & Success UI --- */
+@media (max-width: 850px) {
+    #checkoutModal > div {
+        flex-direction: column !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        overflow-y: auto !important;
+    }
+
+    #checkoutModal > div > div:first-child {
+        padding: 60px 20px 30px !important;
+        border-right: none !important;
+        border-bottom: 1px solid #222 !important;
+    }
+
+    #checkoutModal > div > div:last-child {
+        width: 100% !important;
+        padding: 30px 20px 60px !important;
+        background: #000 !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .s-card {
+        padding: 40px 20px;
+    }
+    .s-card h3 {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+    }
+    .s-card p {
+        font-size: 0.8rem;
+    }
+    .s-card .s-btn {
+        width: 100%;
+        padding: 15px 20px;
+    }
 }

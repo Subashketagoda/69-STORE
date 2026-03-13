@@ -187,7 +187,18 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('hashchange', updateNavActive);
 
     // --- CART SYSTEM ---
-    let cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
+    let cart = [];
+    try {
+        const storedCart = localStorage.getItem('zenvora_cart');
+        if (storedCart) {
+            cart = JSON.parse(storedCart);
+            if (!Array.isArray(cart)) cart = [];
+        }
+    } catch(e) {
+        console.error("Cart loading failed:", e);
+        cart = [];
+    }
+    
     let deliveryCharge = parseFloat(localStorage.getItem('zenvora_delivery')) || 0;
     const cartSidebar = document.getElementById('cartSidebar');
     const cartOverlay = document.getElementById('cartOverlay');
@@ -198,63 +209,98 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartBadgeMobile = document.getElementById('cartCountMobile');
     const cartBadgeSidebar = document.getElementById('cartCount');
 
-    if (!cartSidebar || !cartToggle) return;
+    // Define globals FIRST before any potential early returns or conditional logic
 
     const updateCartUI = () => {
         if (!cartItemsContainer) return;
         cartItemsContainer.innerHTML = '';
-        let total = 0;
+        let subtotal = 0;
+        let itemCount = 0;
 
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<div style="text-align: center; color: #666; margin-top: 50px;">Your bag is empty</div>';
+            cartItemsContainer.innerHTML = `
+                <div style="text-align: center; color: #666; margin-top: 50px;">
+                    <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.2;"></i>
+                    <p>Your bag is empty</p>
+                </div>`;
+            // Reset shipping bar
+            const shipInfo = document.querySelector('.cart-shipping-info');
+            if (shipInfo) shipInfo.style.display = 'none';
         } else {
+            // Shipping Info removed as requested (no free delivery)
+            const shipInfo = document.querySelector('.cart-shipping-info');
+            if (shipInfo) shipInfo.style.display = 'none';
+
             cart.forEach((item, index) => {
                 const qty = item.quantity || 1;
-                total += item.price * qty;
+                subtotal += item.price * qty;
+                itemCount += qty;
                 const itemEl = document.createElement('div');
                 itemEl.className = 'cart-item';
-                itemEl.style = "display: flex; gap: 15px; align-items: center; margin-bottom: 20px;";
+                itemEl.style = "display: flex; gap: 15px; align-items: flex-start; margin-bottom: 25px; position: relative;";
                 itemEl.innerHTML = `
-                    <div style="width: 60px; height: 80px; border-radius: 6px; overflow: hidden; background: #1a1a1a; flex-shrink: 0;">
-                        <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="width: 80px; height: 100px; border-radius: 4px; overflow: hidden; background: #111; flex-shrink: 0;">
+                        <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
                     </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <h4 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
-                            <span style="font-size: 0.7rem; color: #ff3e3e; cursor: pointer;" onclick="removeFromCart(${index})"><i class="fa-solid fa-trash"></i></span>
+                    <div style="flex: 1; min-width: 0; padding-right: 25px;">
+                        <h4 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.5px;">${item.name}</h4>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">${item.size || 'M'}</p>
+                        <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;">LKR ${item.price.toLocaleString()}</p>
+                        
+                        <div class="cart-item-qty">
+                            <div class="qty-btn" onclick="changeQuantity(${index}, -1)"><i class="fa-solid fa-minus"></i></div>
+                            <div class="qty-val">${qty}</div>
+                            <div class="qty-btn" onclick="changeQuantity(${index}, 1)"><i class="fa-solid fa-plus"></i></div>
                         </div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">
-                            Size: <span style="color: #fff; font-weight: 800;">${item.size || 'N/A'}</span> | 
-                            Qty: <span style="color: #fff; font-weight: 800;">${qty}</span>
-                        </p>
-                        <p style="font-size: 0.85rem; font-weight: 600;">LKR ${(item.price * qty).toLocaleString()}</p>
                     </div>
+                    <span style="position: absolute; top: 0; right: 0; font-size: 0.9rem; color: #fff; cursor: pointer; opacity: 0.6;" onclick="removeFromCart(${index})">
+                        <i class="fa-solid fa-xmark"></i>
+                    </span>
                 `;
                 cartItemsContainer.appendChild(itemEl);
             });
+        }
 
-            // Add Delivery Charge Row if cart not empty
-            if (deliveryCharge > 0) {
-                total += deliveryCharge;
-                const deliveryEl = document.createElement('div');
-                deliveryEl.className = 'cart-item';
-                deliveryEl.style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-top: 15px; border-top: 1px dashed var(--border-light);";
-                deliveryEl.innerHTML = `
-                    <div style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Delivery Fee</div>
-                    <div style="font-weight: 600; font-size: 0.9rem;">LKR ${deliveryCharge.toLocaleString()}.00</div>
-                `;
-                cartItemsContainer.appendChild(deliveryEl);
-            }
+        let total = subtotal;
+        if (deliveryCharge > 0 && cart.length > 0) {
+            total += deliveryCharge;
+            const deliveryEl = document.createElement('div');
+            deliveryEl.className = 'cart-item';
+            deliveryEl.style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-top: 15px; border-top: 1px dashed var(--border-light);";
+            deliveryEl.innerHTML = `
+                <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Estimated Delivery</div>
+                <div style="font-weight: 600; font-size: 0.85rem;">LKR ${deliveryCharge.toLocaleString()}.00</div>
+            `;
+            cartItemsContainer.appendChild(deliveryEl);
         }
 
         if (cartTotalAmount) cartTotalAmount.textContent = `LKR ${total.toLocaleString()}.00`;
-        if (cartBadgeMobile) cartBadgeMobile.textContent = cart.length;
-        if (cartBadgeSidebar) cartBadgeSidebar.textContent = `(${cart.length})`;
+        if (cartBadgeMobile) cartBadgeMobile.textContent = itemCount;
+        if (cartBadgeSidebar) cartBadgeSidebar.textContent = `(${itemCount})`;
         localStorage.setItem('zenvora_cart', JSON.stringify(cart));
+        
+        // Update Order Summary in Modal if open
+        const orderSummary = document.getElementById('orderSummary');
+        if (orderSummary) {
+            orderSummary.innerHTML = `
+                <div class="checkout-row"><span>Subtotal</span><span>LKR ${subtotal.toLocaleString()}.00</span></div>
+                <div class="checkout-row"><span>Shipping</span><span>${deliveryCharge > 0 ? 'LKR ' + deliveryCharge.toLocaleString() + '.00' : 'FREE'}</span></div>
+                <div class="checkout-row total"><span>Total</span><span>LKR ${total.toLocaleString()}.00</span></div>
+            `;
+        }
+    };
+
+    window.changeQuantity = (index, delta) => {
+        cart[index].quantity = Math.max(1, (cart[index].quantity || 1) + delta);
+        updateCartUI();
+    };
+
+    window.toggleCartNote = () => {
+        const input = document.getElementById('cartNoteInput');
+        if (input) input.classList.toggle('active');
     };
 
     window.addToCart = (id, name, price, image, size = 'M') => {
-        // Check if item with same id and size exists
         const existing = cart.find(i => i.id === id && i.size === size);
         if (existing) {
             existing.quantity = (existing.quantity || 1) + 1;
@@ -271,14 +317,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const openCart = () => {
-        cartSidebar.classList.add('active');
-        cartOverlay.classList.add('active');
+        if (cartSidebar) cartSidebar.classList.add('active');
+        if (cartOverlay) cartOverlay.classList.add('active');
     };
 
     const closeCartFn = () => {
-        cartSidebar.classList.remove('active');
-        cartOverlay.classList.remove('active');
+        if (cartSidebar) cartSidebar.classList.remove('active');
+        if (cartOverlay) cartOverlay.classList.remove('active');
     };
+    window.closeCartFn = closeCartFn;
 
     if (cartToggle) cartToggle.addEventListener('click', openCart);
     if (closeCart) closeCart.addEventListener('click', closeCartFn);
@@ -356,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // User is logged in — open checkout modal with auto-filled data
             checkoutModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
             fillCheckoutFromUser();
         });
     }
@@ -370,6 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (cart.length > 0 && checkoutModal) {
                     checkoutModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
                     fillCheckoutFromUser();
                     showNotification('Welcome! Your details are pre-filled. Confirm your order.', 'success');
                 }
@@ -377,7 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })();
 
-    if (closeCheckout) closeCheckout.addEventListener('click', () => checkoutModal.style.display = 'none');
+    if (closeCheckout) closeCheckout.addEventListener('click', () => {
+        checkoutModal.style.display = 'none';
+        document.body.style.overflow = '';
+    });
 
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', (e) => {
@@ -388,22 +440,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const orderData = {
                 customer: { name, address, phone },
-                items: cart.map(i => ({ ...i })), // Create a clean copy
+                items: cart.map(i => ({ ...i })),
+                note: document.getElementById('cartNoteInput') ? document.getElementById('cartNoteInput').value : '',
                 total: cart.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0),
                 timestamp: new Date().toISOString(),
                 status: 'New'
             };
 
-            if (window.firebaseDB) {
+            const sendOrder = () => {
+                const message = encodeURIComponent(
+                    `*NEW ORDER - ZENVORA*\n\n` +
+                    `*Customer:* ${name}\n` +
+                    `*Phone:* ${phone}\n` +
+                    `*Address:* ${address}\n\n` +
+                    `*Items:*\n${cart.map(i => `- ${i.name} [Size: ${i.size || 'M'}] x${i.quantity || 1} (LKR ${(i.price * (i.quantity || 1)).toLocaleString()})`).join('\n')}\n` +
+                    (deliveryCharge > 0 ? `*Delivery Fee:* LKR ${deliveryCharge.toLocaleString()}\n` : '') + `\n` +
+                    (orderData.note ? `*Order Note:* ${orderData.note}\n\n` : '') +
+                    `*Total Bill:* LKR ${(orderData.total + (deliveryCharge || 0)).toLocaleString()}.00`
+                );
+                
+                const cleanWANumber = waNumber.replace(/\D/g, '');
+                const waUrl = `https://wa.me/${cleanWANumber}?text=${message}`;
+                
+                // Try to open, but also show a link if blocked
+                const win = window.open(waUrl, '_blank');
+                if (!win) {
+                    showNotification('Order logged! Please click the link to confirm on WhatsApp.', 'info');
+                    const link = document.createElement('a');
+                    link.href = waUrl;
+                    link.target = "_blank";
+                    link.click();
+                }
+
+                cart = [];
+                updateCartUI();
+                if (checkoutModal) {
+                    checkoutModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+                if (typeof closeCartFn === 'function') closeCartFn();
+                
+                // Show Success Modal
+                const successOverlay = document.getElementById('successOverlay');
+                if (successOverlay) {
+                    successOverlay.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }
+                else showNotification('Order placed successfully!', 'success');
+            };
+
+            if (window.firebaseDB && window.firebaseRef && window.firebasePush) {
                 const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
                 window.firebasePush(ordersRef, orderData).then(() => {
-                    // Update Stock in Firebase
+                    // Update Stock
                     if (window.firebaseUpdate) {
                         cart.forEach(item => {
                             if (item.id) {
                                 const prodRef = window.firebaseRef(window.firebaseDB, `69store/products/${item.id}`);
-                                // Get current stock and decrement
-                                // Note: Simple decrement for now. Atomic increment(-qty) would be better.
                                 window.firebaseOnValue(prodRef, (snap) => {
                                     const p = snap.val();
                                     if (p && p.stock !== undefined) {
@@ -414,24 +507,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
                     }
-
-                    const message = encodeURIComponent(
-                        `*NEW ORDER - ZENVORA*\n\n` +
-                        `*Customer:* ${name}\n` +
-                        `*Phone:* ${phone}\n` +
-                        `*Address:* ${address}\n\n` +
-                        `*Items:*\n${cart.map(i => `- ${i.name} [Size: ${i.size || 'M'}] x${i.quantity || 1} (LKR ${(i.price * (i.quantity || 1)).toLocaleString()})`).join('\n')}\n` +
-                        (deliveryCharge > 0 ? `*Delivery Fee:* LKR ${deliveryCharge.toLocaleString()}\n` : '') + `\n` +
-                        `*Total Bill:* LKR ${(orderData.total + (deliveryCharge || 0)).toLocaleString()}.00`
-                    );
-                    window.open(`https://wa.me/${waNumber}?text=${message}`);
-
-                    cart = [];
-                    updateCartUI();
-                    checkoutModal.style.display = 'none';
-                    closeCartFn();
-                    showNotification('Order placed safely! Redirecting to WhatsApp for confirmation...', 'success');
+                    sendOrder();
+                }).catch(e => {
+                    console.error("Firebase order failed, falling back to WA only:", e);
+                    sendOrder();
                 });
+            } else {
+                sendOrder();
             }
         });
     }
@@ -549,4 +631,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('keydown', startAudioOnInteract, true);
         window.addEventListener('touchstart', startAudioOnInteract, true);
     }
+    // Sync Delivery Charge from Firebase
+    const syncSettings = () => {
+        if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue) {
+            const settingsRef = window.firebaseRef(window.firebaseDB, '69store/settings');
+            window.firebaseOnValue(settingsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.deliveryCharge !== undefined) {
+                    deliveryCharge = parseFloat(data.deliveryCharge);
+                    localStorage.setItem('zenvora_delivery', deliveryCharge);
+                    updateCartUI();
+                }
+            });
+        } else {
+            // Keep trying if Firebase isn't ready yet
+            setTimeout(syncSettings, 1000);
+        }
+    };
+    syncSettings();
 });
