@@ -57,9 +57,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Fail-safe: forced finish after 3 seconds even if assets are slow
+    const failSafe = setTimeout(finishLoading, 3000);
+
     window.addEventListener('load', () => {
-        // Small delay for smooth visual transition
-        setTimeout(finishLoading, 800);
+        clearTimeout(failSafe);
+        setTimeout(finishLoading, 200); // Reduced delay from 800ms to 200ms
+    });
+
+    // Also trigger on DOMContentLoaded for faster interaction if images are slow
+    document.addEventListener('DOMContentLoaded', () => {
+        // If it's already basically ready, don't wait forever for huge images
+        setTimeout(() => {
+            if (document.readyState === 'complete') finishLoading();
+        }, 1500);
     });
 
     // Custom Cursor

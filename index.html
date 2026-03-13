@@ -236,7 +236,7 @@
 
                     <!-- Mens -->
                     <a href="collection.html?gender=men" class="feature-tile">
-                        <img src="assets/mens_zenvora.png" alt="Mens Collection" loading="lazy">
+                        <img src="assets/mens_zenvora.png" alt="Mens Collection" loading="lazy" decoding="async">
                         <div class="feature-tile-content">
                             <h2>Mens</h2>
                             <div class="feature-tile-btn">
@@ -248,7 +248,7 @@
 
                     <!-- Womens -->
                     <a href="collection.html?gender=women" class="feature-tile">
-                        <img src="assets/womens_zenvora.png" alt="Womens Collection" loading="lazy">
+                        <img src="assets/womens_zenvora.png" alt="Womens Collection" loading="lazy" decoding="async">
                         <div class="feature-tile-content">
                             <h2>Womens</h2>
                             <div class="feature-tile-btn">
@@ -260,7 +260,7 @@
 
                     <!-- Accessories -->
                     <a href="collection.html?cat=accessories" class="feature-tile">
-                        <img src="assets/accessories_zenvora.png" alt="Accessories Collection" loading="lazy">
+                        <img src="assets/accessories_zenvora.png" alt="Accessories Collection" loading="lazy" decoding="async">
                         <div class="feature-tile-content">
                             <h2>Accessories</h2>
                             <div class="feature-tile-btn">
@@ -531,7 +531,7 @@
                     <div class="product-img">
                         ${stockBadge}
                         <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}">
-                            <img src="${product.image}" alt="${product.name}" loading="lazy" style="background: #111;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                            <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" style="background: #111;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
                         </a>
                         <div class="product-overlay">
                             ${stock > 0 
