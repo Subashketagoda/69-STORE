@@ -57,12 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Fail-safe: forced finish after 3 seconds even if assets are slow
-    const failSafe = setTimeout(finishLoading, 3000);
+    // Fail-safe: forced finish after 15 seconds if user doesn't click TAP TO ENTER
+    const failSafe = setTimeout(finishLoading, 15000);
 
     window.addEventListener('load', () => {
-        clearTimeout(failSafe);
-        setTimeout(finishLoading, 200); // Reduced delay from 800ms to 200ms
+        // Don't auto-dismiss — let the TAP TO ENTER button handle it
+        // But keep failsafe running for safety
     });
 
     // Also trigger on DOMContentLoaded for faster interaction if images are slow
