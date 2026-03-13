@@ -38,12 +38,7 @@
 
         <!-- Center Stage -->
         <div class="preloader-stage">
-            <!-- Z Mark Logo with Light Sweep + Flash -->
-            <div class="preloader-logo-wrap">
-                <img src="assets/app-logo.png" alt="ZENVORA" class="preloader-logo">
-                <div class="logo-light-sweep"></div>
-                <div class="logo-flash-burst"></div>
-            </div>
+
 
             <!-- Letter-by-letter Brand Name -->
             <div class="preloader-brand">
@@ -798,91 +793,97 @@
 
         setTimeout(tickProgress, 300);
 
-        // --- ★ CINEMATIC FLASH SOUND (Web Audio API) ★ ---
+        // --- ★ PRO-LEVEL CINEMATIC TRAILER ENGINE ★ ---
         function playCinematicSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                // Resume context if suspended (important for user gesture)
                 if (audioCtx.state === 'suspended') audioCtx.resume();
 
                 const t = audioCtx.currentTime;
+                const dest = audioCtx.destination;
 
-                // === Layer 1: Deep Impact Sub-Bass ===
+                // Function for creating a custom gain envelope
+                const createEnv = (gainNode, attack, decay, sustain, release, maxGain) => {
+                    gainNode.gain.setValueAtTime(0, t);
+                    gainNode.gain.linearRampToValueAtTime(maxGain, t + attack);
+                    gainNode.gain.exponentialRampToValueAtTime(maxGain * sustain, t + attack + decay);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay + release);
+                };
+
+                // === Layer 1: The HEAVY SUB DROP (Trailer Power) ===
                 const sub = audioCtx.createOscillator();
+                const sub2 = audioCtx.createOscillator(); // Layered for thickness
                 const subGain = audioCtx.createGain();
                 sub.type = 'sine';
-                sub.frequency.setValueAtTime(60, t);
-                sub.frequency.exponentialRampToValueAtTime(30, t + 0.8);
-                subGain.gain.setValueAtTime(0.5, t);
-                subGain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+                sub2.type = 'triangle'; // Adds harmonic richness
+                sub.frequency.setValueAtTime(100, t);
+                sub.frequency.exponentialRampToValueAtTime(30, t + 1.5);
+                sub2.frequency.setValueAtTime(100.5, t); // Slightly detuned
+                sub2.frequency.exponentialRampToValueAtTime(30.5, t + 1.5);
+                
+                createEnv(subGain, 0.05, 0.5, 0.3, 1.0, 0.6);
+                
                 sub.connect(subGain);
-                subGain.connect(audioCtx.destination);
-                sub.start(t);
-                sub.stop(t + 1.2);
+                sub2.connect(subGain);
+                subGain.connect(dest);
+                sub.start(t); sub2.start(t);
+                sub.stop(t + 2); sub2.stop(t + 2);
 
-                // === Layer 2: Rising Shimmer Tone ===
-                const shimmer = audioCtx.createOscillator();
-                const shimmerGain = audioCtx.createGain();
-                shimmer.type = 'sine';
-                shimmer.frequency.setValueAtTime(200, t);
-                shimmer.frequency.exponentialRampToValueAtTime(1200, t + 0.5);
-                shimmer.frequency.exponentialRampToValueAtTime(600, t + 1.0);
-                shimmerGain.gain.setValueAtTime(0, t);
-                shimmerGain.gain.linearRampToValueAtTime(0.2, t + 0.1);
-                shimmerGain.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
-                shimmer.connect(shimmerGain);
-                shimmerGain.connect(audioCtx.destination);
-                shimmer.start(t);
-                shimmer.stop(t + 1.5);
+                // === Layer 2: METALLIC RESONANCE (The "Clang") ===
+                const metals = [220, 275, 330, 410, 520, 680]; // Non-harmonic frequencies
+                metals.forEach(freq => {
+                    const osc = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    createEnv(g, 0.01, 0.2, 0.1, 0.8, 0.08);
+                    osc.connect(g);
+                    g.connect(dest);
+                    osc.start(t);
+                    osc.stop(t + 1.5);
+                });
 
-                // === Layer 3: Filtered Noise Whoosh ===
-                const bufferSize = audioCtx.sampleRate * 1.5;
-                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const noiseData = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    noiseData[i] = (Math.random() * 2 - 1) * 0.5;
+                // === Layer 3: THE SWEEP (Wide Stereo Swell) ===
+                const bufferSize = audioCtx.sampleRate * 2;
+                const noiseBuffer = audioCtx.createBuffer(2, bufferSize, audioCtx.sampleRate);
+                for (let ch = 0; ch < 2; ch++) {
+                    const data = noiseBuffer.getChannelData(ch);
+                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
                 }
-                const noiseSource = audioCtx.createBufferSource();
-                noiseSource.buffer = noiseBuffer;
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = noiseBuffer;
 
-                const noiseFilter = audioCtx.createBiquadFilter();
-                noiseFilter.type = 'bandpass';
-                noiseFilter.frequency.setValueAtTime(500, t);
-                noiseFilter.frequency.exponentialRampToValueAtTime(3000, t + 0.3);
-                noiseFilter.frequency.exponentialRampToValueAtTime(200, t + 1.5);
-                noiseFilter.Q.value = 1.5;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.Q.value = 5;
+                filter.frequency.setValueAtTime(100, t);
+                filter.frequency.exponentialRampToValueAtTime(4000, t + 0.3); // Aggressive rise
+                filter.frequency.exponentialRampToValueAtTime(500, t + 1.5); // Slow fall
 
                 const noiseGain = audioCtx.createGain();
-                noiseGain.gain.setValueAtTime(0, t);
-                noiseGain.gain.linearRampToValueAtTime(0.15, t + 0.15);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
+                createEnv(noiseGain, 0.15, 0.2, 0.2, 1.2, 0.3);
 
-                noiseSource.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(audioCtx.destination);
-                noiseSource.start(t);
-                noiseSource.stop(t + 1.5);
+                noise.connect(filter);
+                filter.connect(noiseGain);
+                noiseGain.connect(dest);
+                noise.start(t);
 
-                // === Layer 4: Sparkle/Glitter ===
-                const sparkle = audioCtx.createOscillator();
-                const sparkleGain = audioCtx.createGain();
-                sparkle.type = 'triangle';
-                sparkle.frequency.setValueAtTime(4000, t);
-                sparkle.frequency.exponentialRampToValueAtTime(2000, t + 1.0);
-                sparkleGain.gain.setValueAtTime(0, t);
-                sparkleGain.gain.linearRampToValueAtTime(0.08, t + 0.2);
-                sparkleGain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
-                sparkle.connect(sparkleGain);
-                sparkleGain.connect(audioCtx.destination);
-                sparkle.start(t + 0.1);
-                sparkle.stop(t + 1.2);
+                // === Layer 4: CINEMATIC CRYSTAL (The Shine) ===
+                const crystal = audioCtx.createOscillator();
+                const crystalG = audioCtx.createGain();
+                crystal.type = 'sine';
+                crystal.frequency.setValueAtTime(3000, t);
+                crystal.frequency.exponentialRampToValueAtTime(6000, t + 0.5);
+                createEnv(crystalG, 0.2, 0.3, 0.1, 1.5, 0.1);
+                crystal.connect(crystalG);
+                crystalG.connect(dest);
+                crystal.start(t);
+                crystal.stop(t + 2.5);
 
-                // Clean up audio context
-                setTimeout(() => audioCtx.close(), 2500);
+                // Clean up context after sound ends
+                setTimeout(() => audioCtx.close(), 4000);
 
-            } catch(e) {
-                console.warn('Cinematic sound failed:', e);
-            }
+            } catch(e) { console.error('Pro Engine Error:', e); }
         }
 
         // --- ★ ENTER BUTTON CLICK: Sound + Dismiss ★ ---
