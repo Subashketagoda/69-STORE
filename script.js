@@ -539,8 +539,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioEl = document.createElement('audio');
     audioEl.id = 'bgMusic';
     audioEl.src = audioSrc;
-    audioEl.loop = true;
+    audioEl.loop = true; // Loop so song auto-restarts when it ends
     document.body.appendChild(audioEl);
+
+    // Fallback: if loop is ignored by browser, manually restart when ended
+    audioEl.addEventListener('ended', () => {
+        audioEl.currentTime = 0;
+        audioEl.play().catch(() => {});
+    });
+
+    // Restore saved playback position from previous page (cross-page continuity)
+    const savedTime = parseFloat(localStorage.getItem('zenvora_music_time') || '0');
+    if (savedTime > 0 && isFinite(savedTime)) {
+        audioEl.currentTime = savedTime;
+    }
+
+    // Save playback position every second so next page can resume from same spot
+    setInterval(() => {
+        if (!audioEl.paused && isFinite(audioEl.currentTime)) {
+            localStorage.setItem('zenvora_music_time', audioEl.currentTime);
+        }
+    }, 1000);
+
+    // --- AUTO STOP MUSIC WHEN LEAVING PAGE ---
+    // Save position and pause audio when navigating away
+    const stopMusicOnLeave = () => {
+        if (isFinite(audioEl.currentTime) && audioEl.currentTime > 0) {
+            localStorage.setItem('zenvora_music_time', audioEl.currentTime);
+        }
+        audioEl.pause();
+    };
+    window.addEventListener('pagehide', stopMusicOnLeave);
+    window.addEventListener('beforeunload', stopMusicOnLeave);
 
     // Create premium floating sound toggle button
     const soundBtn = document.createElement('div');
@@ -612,6 +642,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             audioEl.pause();
             localStorage.setItem('zenvora_music', 'paused');
+            // Clear saved time so next session starts fresh from beginning
+            localStorage.removeItem('zenvora_music_time');
             updateSoundIcon();
         }
     });
@@ -637,7 +669,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isMusicAllowed) {
         // Attach varied listeners to window with 'capture: true' to catch the absolute earliest interaction
-        // Note: Chrome only considers 'click', 'touchstart', and 'keydown' as valid user gestures for audio unblocking. 'scroll' will fail and might cause permanent blocking if spammed.
         window.addEventListener('click', startAudioOnInteract, true);
         window.addEventListener('keydown', startAudioOnInteract, true);
         window.addEventListener('touchstart', startAudioOnInteract, true);
