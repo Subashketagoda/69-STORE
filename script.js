@@ -587,6 +587,15 @@ document.addEventListener('DOMContentLoaded', () => {
     soundBtn.className = 'sound-toggle-btn';
     soundBtn.innerHTML = '<i class="fa-solid fa-volume-xmark" style="font-size: 1.1rem;"></i>';
 
+    // Create Tooltip Popup
+    const soundTip = document.createElement('div');
+    soundTip.className = 'sound-tooltip';
+    soundTip.innerHTML = `
+        <div style="font-weight: 800; font-size: 0.7rem; color: var(--primary-color); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px;">Audio Guide</div>
+        <div style="font-size: 0.75rem; line-height: 1.4; color: #fff;">Enable music for the full cinematic experience, or mute here.</div>
+        <div style="position: absolute; bottom: -6px; left: 20px; width: 12px; height: 12px; background: #111; transform: rotate(45deg); border-right: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
+    `;
+
     // Floating style properties
     Object.assign(soundBtn.style, {
         position: 'fixed',
@@ -608,33 +617,75 @@ document.addEventListener('DOMContentLoaded', () => {
         transition: 'all 0.3s ease'
     });
 
+    Object.assign(soundTip.style, {
+        position: 'fixed',
+        bottom: '95px',
+        left: '30px',
+        width: '200px',
+        background: '#111',
+        padding: '15px',
+        borderRadius: '12px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
+        zIndex: '9999',
+        opacity: '0',
+        transform: 'translateY(10px)',
+        transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        pointerEvents: 'none'
+    });
+
     // Hover effects via JS for safety
-    soundBtn.onmouseover = () => { soundBtn.style.background = 'rgba(35, 35, 35, 0.9)'; soundBtn.style.transform = 'scale(1.05)'; };
-    soundBtn.onmouseout = () => { soundBtn.style.background = 'rgba(15, 15, 15, 0.7)'; soundBtn.style.transform = 'scale(1)'; };
+    soundBtn.onmouseover = () => { 
+        soundBtn.style.background = 'rgba(35, 35, 35, 0.9)'; 
+        soundBtn.style.transform = 'scale(1.05)'; 
+    };
+    soundBtn.onmouseout = () => { 
+        soundBtn.style.background = 'rgba(15, 15, 15, 0.7)'; 
+        soundBtn.style.transform = 'scale(1)'; 
+    };
 
     document.body.appendChild(soundBtn);
+    document.body.appendChild(soundTip);
+
+    // Show tooltip if music is allowed but blocked
+    const showTip = () => {
+        soundTip.style.opacity = '1';
+        soundTip.style.transform = 'translateY(0)';
+        // Auto-hide after 10 seconds to keep UI clean
+        setTimeout(hideTip, 10000);
+    };
+    const hideTip = () => {
+        soundTip.style.opacity = '0';
+        soundTip.style.transform = 'translateY(10px)';
+    };
+
+    // Hover to see tip again
+    soundBtn.addEventListener('mouseenter', showTip);
+    soundBtn.addEventListener('mouseleave', hideTip);
 
     // Sync button icon with audio state
     const updateSoundIcon = () => {
-        soundBtn.innerHTML = audioEl.paused
+        const isPaused = audioEl.paused;
+        soundBtn.innerHTML = isPaused
             ? '<i class="fa-solid fa-volume-xmark" style="font-size: 1.1rem; color: #666;"></i>'
             : '<i class="fa-solid fa-volume-high" style="font-size: 1.1rem; color: var(--primary-color, white);"></i>';
+        
+        if (!isPaused) hideTip();
     };
 
     // State management via local storage for permanent cross-tab muted state
-    // Default to 'playing' unless explicitly 'paused' by the user.
     const isMusicAllowed = localStorage.getItem('zenvora_music') !== 'paused';
 
     if (isMusicAllowed) {
-        // Aggressively attempt to play
         const playPromise = audioEl.play();
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 localStorage.setItem('zenvora_music', 'playing');
                 updateSoundIcon();
             }).catch(() => {
-                // Browser blocked autoplay (needs interaction). Icon shows muted state.
+                // Autoplay blocked - show guidance
                 updateSoundIcon();
+                setTimeout(showTip, 2000);
             });
         }
     } else {
@@ -644,6 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Toggle logic via user click
     soundBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        hideTip();
         if (audioEl.paused) {
             audioEl.play().then(() => {
                 localStorage.setItem('zenvora_music', 'playing');
@@ -652,7 +704,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             audioEl.pause();
             localStorage.setItem('zenvora_music', 'paused');
-            // Clear saved time so next session starts fresh from beginning
             localStorage.removeItem('zenvora_music_time');
             updateSoundIcon();
         }
@@ -660,25 +711,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start audio on first interaction anywhere if it hasn't been explicitly paused and was blocked
     const startAudioOnInteract = () => {
-        if (localStorage.getItem('zenvora_music') !== 'paused') {
+        if (localStorage.getItem('zenvora_music') !== 'paused' && audioEl.paused) {
             const playPromise = audioEl.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
                     localStorage.setItem('zenvora_music', 'playing');
                     updateSoundIcon();
-                    // Successfully played, remove listeners
+                    hideTip();
                     window.removeEventListener('click', startAudioOnInteract, true);
                     window.removeEventListener('keydown', startAudioOnInteract, true);
                     window.removeEventListener('touchstart', startAudioOnInteract, true);
-                }).catch((e) => {
-                    // Still blocked, keep trying on next valid interaction
-                });
+                }).catch(() => {});
             }
         }
     };
 
     if (isMusicAllowed) {
-        // Attach varied listeners to window with 'capture: true' to catch the absolute earliest interaction
         window.addEventListener('click', startAudioOnInteract, true);
         window.addEventListener('keydown', startAudioOnInteract, true);
         window.addEventListener('touchstart', startAudioOnInteract, true);
