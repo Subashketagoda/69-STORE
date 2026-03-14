@@ -898,6 +898,9 @@
             enterBtn.addEventListener('click', () => {
                 // 1. Play the cinematic sound (works because it's a user gesture!)
                 playCinematicSound();
+                
+                // Force background music to start sync within user stack
+                if (window.forcePlayMusic) window.forcePlayMusic();
 
                 // 2. Trigger flash burst animation again
                 const burst = document.querySelector('.logo-flash-burst');

@@ -549,8 +549,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioEl = document.createElement('audio');
     audioEl.id = 'bgMusic';
     audioEl.src = audioSrc;
-    audioEl.loop = true; // Loop so song auto-restarts when it ends
+    audioEl.loop = true;
+    audioEl.preload = 'auto'; // Force load as much as possible
     document.body.appendChild(audioEl);
+
+    // Provide global access for preloader button to trigger it
+    window.forcePlayMusic = () => {
+        if (localStorage.getItem('zenvora_music') !== 'paused') {
+            audioEl.play().catch(e => console.warn("Music blocked or failed:", e));
+        }
+    };
 
     // Fallback: if loop is ignored by browser, manually restart when ended
     audioEl.addEventListener('ended', () => {
