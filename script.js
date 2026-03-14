@@ -468,9 +468,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 status: 'New'
             };
 
-            const sendOrder = () => {
+            const finalizeOrder = (orderId = '') => {
                 const message = encodeURIComponent(
                     `*NEW ORDER - ZENVORA*\n\n` +
+                    `*Order ID:* #${orderId ? orderId.substring(1) : 'PENDING'}\n` +
                     `*Customer:* ${name}\n` +
                     `*Phone:* ${phone}\n` +
                     `*Address:* ${address}\n\n` +
@@ -482,19 +483,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const cleanWANumber = waNumber.replace(/\D/g, '');
                 const waUrl = `https://wa.me/${cleanWANumber}?text=${message}`;
+                window.open(waUrl, '_blank');
                 
-                // Try to open, but also show a link if blocked
-                const win = window.open(waUrl, '_blank');
-                if (!win) {
-                    showNotification('Order logged! Please click the link to confirm on WhatsApp.', 'info');
-                    const link = document.createElement('a');
-                    link.href = waUrl;
-                    link.target = "_blank";
-                    link.click();
-                }
-
-                cart = [];
-                updateCartUI();
                 if (checkoutModal) {
                     checkoutModal.style.display = 'none';
                     document.body.style.overflow = '';
@@ -504,15 +494,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Show Success Modal
                 const successOverlay = document.getElementById('successOverlay');
                 if (successOverlay) {
+                    const sMsg = document.getElementById('sMsg');
+                    if (orderId && sMsg) {
+                        sMsg.innerHTML = `Your Order ID: <strong style="color: var(--primary-color);">#${orderId.substring(1)}</strong><br>Thank you for shopping with ZENVORA. You can track your order using this ID.<br><br><a href="track.html?id=${orderId}" class="btn btn-black" style="width: 100%;">Track My Order</a>`;
+                    }
                     successOverlay.classList.add('show');
                     document.body.style.overflow = 'hidden';
+                } else {
+                    showNotification('Order placed successfully!', 'success');
                 }
-                else showNotification('Order placed successfully!', 'success');
+
+                // Clear Cart
+                cart = [];
+                updateCartUI();
             };
 
             if (window.firebaseDB && window.firebaseRef && window.firebasePush) {
                 const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
-                window.firebasePush(ordersRef, orderData).then(() => {
+                window.firebasePush(ordersRef, orderData).then((snapshot) => {
+                    const orderId = snapshot.key;
                     // Update Stock
                     if (window.firebaseUpdate) {
                         cart.forEach(item => {
@@ -528,13 +528,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
                     }
-                    sendOrder();
+                    finalizeOrder(orderId);
                 }).catch(e => {
-                    console.error("Firebase order failed, falling back to WA only:", e);
-                    sendOrder();
+                    console.error("Firebase order failed:", e);
+                    finalizeOrder();
                 });
             } else {
-                sendOrder();
+                finalizeOrder();
             }
         });
     }

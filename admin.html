@@ -400,20 +400,37 @@
         <!-- Orders Tab -->
         <div id="ordersTab" style="display: none;">
             <div class="admin-card">
-                <h3>Customer Orders</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Customer</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersTableBody"></tbody>
-                </table>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                    <h3><i class="fa-solid fa-cart-shopping" style="color: #ff3e3e; margin-right: 8px;"></i>Order Management System</h3>
+                    <div class="search-wrap" style="width: 300px; margin-bottom: 0;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="customer-search" id="orderSearch" placeholder="Search orders..." oninput="filterOrders()" style="margin-bottom: 0;">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;" onclick="filterOrdersByStatus('All')">All</button>
+                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;" onclick="filterOrdersByStatus('New')">New</button>
+                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;" onclick="filterOrdersByStatus('Processing')">Processing</button>
+                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;" onclick="filterOrdersByStatus('Shipped')">Shipped</button>
+                    <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;" onclick="filterOrdersByStatus('Delivered')">Delivered</button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID / Date</th>
+                                <th>Customer Info</th>
+                                <th>Items</th>
+                                <th>Financials</th>
+                                <th>Status Control</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -845,48 +862,99 @@
         };
 
         // --- ORDERS MANAGEMENT ---
+        let allOrders = {};
         onValue(ref(database, '69store/orders'), (snapshot) => {
-            const data = snapshot.val();
-            const tbody = document.getElementById('ordersTableBody');
-            tbody.innerHTML = '';
-            if (data) {
-                Object.keys(data).reverse().forEach(key => {
-                    const o = data[key];
-                    if (!o || !o.customer) return;
-                    
-                    const itemsHtml = o.items ? o.items.map(i => `
-                        <div style="font-size: 0.8rem; margin-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 2px;">
-                            <strong>${i.name}</strong> 
-                            <br><span style="color: var(--primary-color);">Size: ${i.size || 'M'}</span> | Qty: ${i.quantity || 1}
-                        </div>
-                    `).join('') : 'No items';
-
-                    tbody.innerHTML += `
-                    <tr>
-                        <td style="font-size: 0.8rem; color: var(--text-dim);">${o.timestamp ? new Date(o.timestamp).toLocaleString() : 'N/A'}</td>
-                        <td>
-                            <strong style="color: #fff;">${o.customer.name || 'Unknown'}</strong><br>
-                            <small style="color: var(--text-dim);">${o.customer.phone || ''}</small><br>
-                            <small style="color: #666; font-size: 0.75rem;">${o.customer.address || ''}</small>
-                        </td>
-                        <td>${itemsHtml}</td>
-                        <td style="font-weight: 800; color: #fff;">LKR ${o.total ? o.total.toLocaleString() : '0'}</td>
-                        <td><span class="badge-status ${o.status === 'New' ? 'status-new' : 'status-done'}">${o.status || 'New'}</span></td>
-                        <td>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.7rem;" onclick="toggleOrder('${key}', '${o.status || 'New'}')">Toggle Status</button>
-                                <button class="btn btn-outline" style="color: #ff3e3e; padding: 5px 10px; font-size: 0.7rem;" onclick="deleteOrder('${key}')">Delete</button>
-                            </div>
-                        </td>
-                    </tr>
-                    `;
-                });
-            }
+            allOrders = snapshot.val() || {};
+            renderOrders(allOrders);
         });
 
-        window.toggleOrder = (key, current) => {
-            const newStatus = current === 'New' ? 'Completed' : 'New';
-            update(ref(database, `69store/orders/${key}`), { status: newStatus });
+        window.renderOrders = (orders, filterQuery = '', statusFilter = 'All') => {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            
+            if (!orders) return;
+
+            const keys = Object.keys(orders).reverse();
+            keys.forEach(key => {
+                const o = orders[key];
+                if (!o || !o.customer) return;
+                
+                // Filters
+                const searchMatch = !filterQuery || 
+                    key.toLowerCase().includes(filterQuery.toLowerCase()) ||
+                    (o.customer.name && o.customer.name.toLowerCase().includes(filterQuery.toLowerCase())) ||
+                    (o.customer.phone && o.customer.phone.includes(filterQuery));
+                
+                const statusMatch = statusFilter === 'All' || (o.status || 'New') === statusFilter;
+
+                if (!searchMatch || !statusMatch) return;
+
+                const itemsHtml = o.items ? o.items.map(i => `
+                    <div style="font-size: 0.75rem; margin-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 2px;">
+                        <span style="color: #fff;">${i.name}</span> 
+                        <br><span style="color: var(--primary-color);">Size: ${i.size || 'M'}</span> | Qty: ${i.quantity || 1}
+                    </div>
+                `).join('') : 'No items';
+
+                const statusColor = {
+                    'New': '#ff3e3e',
+                    'Processing': '#ffc107',
+                    'Shipped': '#17a2b8',
+                    'Delivered': '#28a745',
+                    'Cancelled': '#6c757d'
+                }[o.status || 'New'] || '#fff';
+
+                tbody.innerHTML += `
+                <tr>
+                    <td style="font-size: 0.75rem;">
+                        <span style="color: #666;">#${key.substring(0, 8)}...</span><br>
+                        <span style="color: #555;">${o.timestamp ? new Date(o.timestamp).toLocaleString() : 'N/A'}</span>
+                    </td>
+                    <td>
+                        <strong style="color: #fff;">${o.customer.name || 'Unknown'}</strong><br>
+                        <small style="color: var(--text-dim);"><i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i> ${o.customer.phone || ''}</small><br>
+                        <small style="color: #666; font-size: 0.75rem;">${o.customer.address || ''}</small>
+                    </td>
+                    <td><div style="max-height: 100px; overflow-y: auto;">${itemsHtml}</div></td>
+                    <td>
+                        <div style="font-weight: 800; color: #fff;">LKR ${o.total ? o.total.toLocaleString() : '0'}</div>
+                        <small style="color: #444; font-size: 0.7rem;">Total Paid</small>
+                    </td>
+                    <td>
+                        <select onchange="updateOrderStatus('${key}', this.value)" 
+                                style="font-size: 0.75rem; padding: 5px; background: transparent; border: 1px solid ${statusColor}; color: ${statusColor}; border-radius: 4px;">
+                            <option value="New" ${o.status === 'New' || !o.status ? 'selected' : ''} style="background: #000;">New</option>
+                            <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''} style="background: #000;">Processing</option>
+                            <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''} style="background: #000;">Shipped</option>
+                            <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''} style="background: #000;">Delivered</option>
+                            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''} style="background: #000;">Cancelled</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <a href="track.html?id=${key}" target="_blank" title="View Tracking Page" style="color: #888;"><i class="fa-solid fa-up-right-from-square"></i></a>
+                            <button class="btn btn-outline" style="color: #ff3e3e; padding: 5px; font-size: 0.8rem; border: none;" onclick="deleteOrder('${key}')" title="Delete Order">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            });
+        };
+
+        window.filterOrders = () => {
+            const query = document.getElementById('orderSearch').value;
+            renderOrders(allOrders, query);
+        };
+
+        window.filterOrdersByStatus = (status) => {
+            renderOrders(allOrders, '', status);
+        };
+
+        window.updateOrderStatus = (key, newStatus) => {
+            update(ref(database, `69store/orders/${key}`), { status: newStatus })
+                .then(() => showNotification(`Order status updated to ${newStatus}`, 'success', 'OMS Update'));
         };
 
         window.deleteOrder = (key) => {
