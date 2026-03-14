@@ -791,12 +791,21 @@
         const sortOrderSelect = document.getElementById('sortOrder');
 
         const renderProducts = (products) => {
-            collectionGrid.innerHTML = '';
+            if (!collectionGrid) return;
             countEl.textContent = `${products.length} Products`;
-            products.forEach(p => {
+            
+            // Build with DocumentFragment for max performance
+            const fragment = document.createDocumentFragment();
+            
+            products.forEach((p, index) => {
                 const isBase64 = p.image && p.image.startsWith('data:');
                 const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(p.image)}`;
                 
+                // Priority Logic: Faster first paint for initial results
+                const isPriority = index < 6;
+                const loadingAttr = isPriority ? 'eager' : 'lazy';
+                const fetchPriority = isPriority ? 'high' : 'auto';
+
                 // Stock Warning Logic
                 let stockBadge = '';
                 const stock = p.stock !== undefined ? p.stock : 100;
@@ -813,7 +822,13 @@
                         ${p.price > 10000 ? '<div class="product-badge">Exclusive</div>' : ''}
                         ${stockBadge}
                         <a href="product.html?id=${p.id || ''}&name=${encodeURIComponent(p.name)}&price=${p.price}${imgParam}">
-                            <img src="${p.image}" alt="${p.name}" loading="lazy" style="${stock <= 0 ? 'filter: grayscale(1); opacity: 0.6;' : ''}" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                            <img src="${p.image}" 
+                                 alt="${p.name}" 
+                                 loading="${loadingAttr}" 
+                                 fetchpriority="${fetchPriority}"
+                                 onload="this.classList.add('loaded')"
+                                 style="${stock <= 0 ? 'filter: grayscale(1); opacity: 0.6;' : ''}" 
+                                 onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'; this.classList.add('loaded')">
                         </a>
                         <div class="product-overlay">
                             ${stock > 0
@@ -829,8 +844,11 @@
                         <p>LKR ${p.price.toLocaleString()}.00</p>
                     </div>
                 `;
-                collectionGrid.appendChild(card);
+                fragment.appendChild(card);
             });
+
+            collectionGrid.innerHTML = '';
+            collectionGrid.appendChild(fragment);
         };
 
         const applySortAndFilter = () => {

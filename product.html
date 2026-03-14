@@ -565,6 +565,12 @@
 
             document.getElementById('productTitle').textContent = product.name;
             document.getElementById('productPrice').textContent = `LKR ${product.price.toLocaleString()}.00`;
+            document.getElementById('productDescription').textContent = product.description || `Premium ZENVORA ${product.subCat || 'Aparel'}. Engineered for performance and style.`;
+            
+            const mainImg = document.getElementById('mainProductImage');
+            mainImg.src = product.image;
+            mainImg.onload = () => mainImg.classList.add('loaded'); // Trigger fade-in
+            window.currentProductImg = product.image;
 
             const stockEl = document.getElementById('productStockStatus');
             const addBtn = document.getElementById('addToCartBtn');
@@ -586,20 +592,18 @@
                 }
             }
 
-            const mainImg = document.getElementById('mainProductImage');
-            mainImg.src = product.image;
-            mainImg.style.opacity = '1';
-
             // Set Thumbnails
             const t0 = document.getElementById('thumb0');
             const t1 = document.getElementById('thumb1');
             const t2 = document.getElementById('thumb2');
 
             t0.src = product.image;
+            t0.onload = () => t0.classList.add('loaded');
 
             if (product.image2) {
                 t1.src = product.image2;
                 t1.style.display = 'block';
+                t1.onload = () => t1.classList.add('loaded');
             } else {
                 t1.style.display = 'none';
             }
@@ -607,6 +611,7 @@
             if (product.image3) {
                 t2.src = product.image3;
                 t2.style.display = 'block';
+                t2.onload = () => t2.classList.add('loaded');
             } else {
                 t2.style.display = 'none';
             }
@@ -618,7 +623,7 @@
             setTimeout(() => {
                 mainImg.src = src;
                 window.currentProductImg = src; // Update current image for cart
-                mainImg.style.opacity = '1';
+                mainImg.onload = () => mainImg.classList.add('loaded');
             }, 200);
 
             // Update active state

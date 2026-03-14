@@ -779,7 +779,7 @@
             // Show loading state on the label
             const label = e.target.previousElementSibling ? e.target.previousElementSibling.previousElementSibling : null;
             const originalText = label ? label.textContent : '';
-            if (label) label.textContent = 'Compressing...';
+            if (label) label.textContent = 'Optimizing Image...';
 
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -789,32 +789,41 @@
                     let width = img.width;
                     let height = img.height;
 
-                    // Max dimensions
-                    const MAX_WIDTH = 800;
-                    const MAX_HEIGHT = 800;
-
+                    // Pro-Level Optimization: Max 800px for catalog items
+                    const MAX_SIZE = 800;
                     if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
                         }
                     } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
                         }
                     }
 
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Compress to 0.7 quality
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    document.getElementById(targetId).value = compressedBase64;
+                    // WebP is ~30% smaller than JPEG at same quality
+                    const compressedBase64 = canvas.toDataURL('image/webp', 0.65);
+                    
+                    // Critical Check: Firebase Realtime DB has a message limit.
+                    // If image is still too big (> 200kb), we alert the user.
+                    if (compressedBase64.length > 250000) {
+                        showNotification('Image is too complex/large. Try a simpler photo.', 'error', 'Compression');
+                        if (label) label.textContent = 'Limit Exceeded';
+                        return;
+                    }
 
-                    if (label) label.textContent = originalText;
+                    document.getElementById(targetId).value = compressedBase64;
+                    if (label) label.textContent = 'Ready ✓';
+                    setTimeout(() => { if (label) label.textContent = originalText; }, 2000);
                 };
                 img.src = event.target.result;
             };

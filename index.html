@@ -556,57 +556,64 @@
             const productGrid = document.getElementById('productGrid');
             if (!productGrid) return;
 
-            const renderProduct = (product, id) => {
-                const isBase64 = product.image && product.image.startsWith('data:');
-                const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
-                
-                // Stock Warning Logic
-                let stockBadge = '';
-                const stock = product.stock !== undefined ? product.stock : 100;
-                if (stock <= 0) {
-                    stockBadge = '<div class="product-badge" style="background: #333; left: auto; right: 15px;">OUT OF STOCK</div>';
-                } else if (stock <= 10) {
-                    stockBadge = `<div class="product-badge" style="background: var(--primary-color); left: auto; right: 15px; font-size: 0.7rem;">ONLY ${stock} LEFT</div>`;
-                }
-
-                const card = document.createElement('div');
-                card.className = 'product-card animate-up';
-                card.innerHTML = `
-                    <div class="product-img">
-                        ${stockBadge}
-                        <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}">
-                            <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" style="background: #111;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
-                        </a>
-                        <div class="product-overlay">
-                            ${stock > 0 
-                                ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart('${id}', '${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>`
-                                : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Sold Out</button>`
-                            }
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}" style="text-decoration: none; color: inherit;">
-                            <h3>${product.name}</h3>
-                        </a>
-                        <p>LKR ${product.price.toLocaleString()}.00</p>
-                    </div>
-                `;
-                productGrid.appendChild(card);
-            };
-
             const renderData = (data) => {
+                if (!data || Object.keys(data).length === 0) return;
+                
+                // Clear and Rebuild with DocumentFragment for performance
+                const fragment = document.createDocumentFragment();
+                const items = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+                
+                items.forEach((product, index) => {
+                    const id = product.id;
+                    const isBase64 = product.image && product.image.startsWith('data:');
+                    const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
+                    
+                    // Priority Logic: First 4 items load instantly, the rest are lazy
+                    const isPriority = index < 4;
+                    const loadingAttr = isPriority ? 'eager' : 'lazy';
+                    const fetchPriority = isPriority ? 'high' : 'auto';
+
+                    let stockBadge = '';
+                    const stock = product.stock !== undefined ? product.stock : 100;
+                    if (stock <= 0) {
+                        stockBadge = '<div class="product-badge" style="background: #333; left: auto; right: 15px;">OUT OF STOCK</div>';
+                    } else if (stock <= 10) {
+                        stockBadge = `<div class="product-badge" style="background: var(--primary-color); left: auto; right: 15px; font-size: 0.7rem;">ONLY ${stock} LEFT</div>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'product-card animate-up';
+                    card.innerHTML = `
+                        <div class="product-img">
+                            ${stockBadge}
+                            <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}">
+                                <img src="${product.image}" 
+                                     alt="${product.name}" 
+                                     loading="${loadingAttr}" 
+                                     fetchpriority="${fetchPriority}"
+                                     onload="this.classList.add('loaded')" 
+                                     style="background: #111;" 
+                                     onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'; this.classList.add('loaded')">
+                            </a>
+                            <div class="product-overlay">
+                                ${stock > 0 
+                                    ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart('${id}', '${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>`
+                                    : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Sold Out</button>`
+                                }
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <a href="product.html?id=${id || ''}&name=${encodeURIComponent(product.name)}&price=${product.price}${imgParam}" style="text-decoration: none; color: inherit;">
+                                <h3>${product.name}</h3>
+                            </a>
+                            <p>LKR ${product.price.toLocaleString()}.00</p>
+                        </div>
+                    `;
+                    fragment.appendChild(card);
+                });
+
                 productGrid.innerHTML = '';
-                if (data && Object.keys(data).length > 0) {
-                    Object.keys(data).forEach(key => renderProduct(data[key], key));
-                } else {
-                    const fallbacks = [
-                        { name: "Zenvora Apex Stringer", price: 3900, image: "assets/gym_stringer.png", mainCat: "Men" },
-                        { name: "Zenvora Shield Compression", price: 5500, image: "assets/compression_shirt.png", mainCat: "Men" },
-                        { name: "Zenvora Stealth Hoodie", price: 8500, image: "assets/hero_slide_2_zenvora.png", mainCat: "Men" },
-                        { name: "Zenvora Pulse Leggings", price: 6200, image: "assets/gym_leggings.png", mainCat: "Women" }
-                    ];
-                    fallbacks.forEach(p => renderProduct(p, ''));
-                }
+                productGrid.appendChild(fragment);
             };
 
             const cached = localStorage.getItem('zenvora_products');
@@ -617,11 +624,9 @@
                 if (data) {
                     try {
                         localStorage.setItem('zenvora_products', JSON.stringify(data));
-                    } catch (e) {
-                        console.warn("Local storage quota exceeded, products not cached");
-                    }
+                    } catch (e) {}
+                    renderData(data);
                 }
-                renderData(data);
             });
         };
 
