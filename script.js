@@ -322,14 +322,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.addToCart = (id, name, price, image, size = 'M') => {
+        // If first argument is an element (this), and second is ID
+        if (typeof id === 'object' && name) {
+            const productId = name;
+            const product = (window.allProductsData && window.allProductsData[productId]) || 
+                          (window.cachedProducts && window.cachedProducts[productId]);
+            
+            if (product) {
+                id = productId;
+                name = product.name;
+                price = product.price;
+                image = product.image;
+            } else {
+                console.error("Product data not found for ID:", productId);
+                return;
+            }
+        }
+
         const existing = cart.find(i => i.id === id && i.size === size);
         if (existing) {
             existing.quantity = (existing.quantity || 1) + 1;
         } else {
             cart.push({ id, name, price, image, size, quantity: 1 });
         }
+        
         updateCartUI();
         openCart();
+        
+        if (window.showNotification) {
+            window.showNotification(`${name} added to bag`, 'success');
+        }
     };
 
     window.removeFromCart = (index) => {

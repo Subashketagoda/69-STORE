@@ -832,7 +832,7 @@
                         </a>
                         <div class="product-overlay">
                             ${stock > 0
-                                ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart('${p.id}', '${p.name}', ${p.price}, '${p.image}')">Add to Cart</button>`
+                                ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart(this, '${p.id}')">Add to Cart</button>`
                                 : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Sold Out</button>`
                             }
                         </div>
@@ -931,19 +931,35 @@
             }
         };
 
-        const cached = localStorage.getItem('zenvora_products');
-        if (cached) handleData(JSON.parse(cached));
+        const cached = localStorage.getItem('zenvora_products_meta') || localStorage.getItem('zenvora_products');
+        if (cached) {
+            const parsedData = JSON.parse(cached);
+            window.cachedProducts = parsedData;
+            handleData(parsedData);
+        }
 
         onValue(ref(database, '69store/products'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 try {
-                    localStorage.setItem('zenvora_products', JSON.stringify(data));
+                    // OPTIMIZATION: Don't cache the massive Base64 images in localStorage
+                    const metadataOnly = {};
+                    Object.keys(data).forEach(key => {
+                        metadataOnly[key] = { ...data[key] };
+                        delete metadataOnly[key].image;
+                        delete metadataOnly[key].image2;
+                        delete metadataOnly[key].image3;
+                    });
+                    localStorage.setItem('zenvora_products_meta', JSON.stringify(metadataOnly));
+                    localStorage.removeItem('zenvora_products');
                 } catch (e) {
-                    console.warn("Local storage quota exceeded");
+                    console.warn("Local storage quota exceeded for metadata");
                 }
+
+                // Store full data in memory for interactions
+                window.allProductsData = data;
+                handleData(data);
             }
-            handleData(data);
         });
 
         sortOrderSelect.addEventListener('change', applySortAndFilter);

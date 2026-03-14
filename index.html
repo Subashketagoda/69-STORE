@@ -575,6 +575,7 @@
                 items.forEach((product, index) => {
                     const id = product.id;
                     const isBase64 = product.image && product.image.startsWith('data:');
+                    // OPTIMIZATION: Shorten URL for products with Base64 to avoid truncation
                     const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
                     
                     const isPriority = index < 4;
@@ -605,7 +606,7 @@
                             </a>
                             <div class="product-overlay">
                                 ${stock > 0 
-                                    ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart('${id}', '${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>`
+                                    ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart(this, '${id}')">Add to Cart</button>`
                                     : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Sold Out</button>`
                                 }
                             </div>
@@ -629,15 +630,35 @@
                 });
             };
 
-            const cached = localStorage.getItem('zenvora_products');
-            if (cached) renderData(JSON.parse(cached));
+            const cached = localStorage.getItem('zenvora_products_meta') || localStorage.getItem('zenvora_products');
+            if (cached) {
+                const parsedData = JSON.parse(cached);
+                window.cachedProducts = parsedData;
+                renderData(parsedData);
+            }
 
             onValue(ref(database, '69store/products'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     try {
-                        localStorage.setItem('zenvora_products', JSON.stringify(data));
-                    } catch (e) {}
+                        // OPTIMIZATION: Don't cache the massive Base64 images in localStorage
+                        // This prevents "Local storage quota exceeded" errors
+                        const metadataOnly = {};
+                        Object.keys(data).forEach(key => {
+                            metadataOnly[key] = { ...data[key] };
+                            delete metadataOnly[key].image;
+                            delete metadataOnly[key].image2;
+                            delete metadataOnly[key].image3;
+                        });
+                        localStorage.setItem('zenvora_products_meta', JSON.stringify(metadataOnly));
+                        // Also clear the old broken cache if it exists
+                        localStorage.removeItem('zenvora_products');
+                    } catch (e) {
+                        console.warn("Local storage quota exceeded for metadata");
+                    }
+                    
+                    // Store full data in memory for interactions
+                    window.allProductsData = data;
                     renderData(data);
                 }
             });

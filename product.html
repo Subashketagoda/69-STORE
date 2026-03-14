@@ -570,6 +570,10 @@
             const mainImg = document.getElementById('mainProductImage');
             mainImg.src = product.image;
             mainImg.onload = () => mainImg.classList.add('loaded'); // Trigger fade-in
+            mainImg.onerror = () => {
+                mainImg.src = 'https://via.placeholder.com/600x800?text=Image+Not+Found';
+                mainImg.classList.add('loaded');
+            };
             window.currentProductImg = product.image;
 
             const stockEl = document.getElementById('productStockStatus');
