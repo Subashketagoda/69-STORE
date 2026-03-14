@@ -615,6 +615,11 @@
             } else {
                 t2.style.display = 'none';
             }
+
+            // Secondary check for cached images
+            [mainImg, t0, t1, t2].forEach(img => {
+                if (img && img.complete) img.classList.add('loaded');
+            });
         };
 
         window.changeMainImage = (src, index) => {

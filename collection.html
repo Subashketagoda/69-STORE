@@ -849,6 +849,11 @@
 
             collectionGrid.innerHTML = '';
             collectionGrid.appendChild(fragment);
+
+            // Handle cached images
+            collectionGrid.querySelectorAll('img').forEach(img => {
+                if (img.complete) img.classList.add('loaded');
+            });
         };
 
         const applySortAndFilter = () => {

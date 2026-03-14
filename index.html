@@ -557,18 +557,26 @@
             if (!productGrid) return;
 
             const renderData = (data) => {
-                if (!data || Object.keys(data).length === 0) return;
-                
-                // Clear and Rebuild with DocumentFragment for performance
                 const fragment = document.createDocumentFragment();
-                const items = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+                let items = [];
+
+                if (data && Object.keys(data).length > 0) {
+                    items = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+                } else {
+                    // Restore fallbacks if no dynamic products found
+                    items = [
+                        { name: "Zenvora Apex Stringer", price: 3900, image: "assets/gym_stringer.png", mainCat: "Men" },
+                        { name: "Zenvora Shield Compression", price: 5500, image: "assets/compression_shirt.png", mainCat: "Men" },
+                        { name: "Zenvora Stealth Hoodie", price: 8500, image: "assets/hero_slide_2_zenvora.png", mainCat: "Men" },
+                        { name: "Zenvora Pulse Leggings", price: 6200, image: "assets/gym_leggings.png", mainCat: "Women" }
+                    ].map((p, i) => ({ ...p, id: 'fb'+i }));
+                }
                 
                 items.forEach((product, index) => {
                     const id = product.id;
                     const isBase64 = product.image && product.image.startsWith('data:');
                     const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
                     
-                    // Priority Logic: First 4 items load instantly, the rest are lazy
                     const isPriority = index < 4;
                     const loadingAttr = isPriority ? 'eager' : 'lazy';
                     const fetchPriority = isPriority ? 'high' : 'auto';
@@ -614,6 +622,11 @@
 
                 productGrid.innerHTML = '';
                 productGrid.appendChild(fragment);
+
+                // Handle cached images that might have loaded before the onload was attached
+                productGrid.querySelectorAll('img').forEach(img => {
+                    if (img.complete) img.classList.add('loaded');
+                });
             };
 
             const cached = localStorage.getItem('zenvora_products');
