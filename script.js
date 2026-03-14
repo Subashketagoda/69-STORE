@@ -388,178 +388,133 @@ document.addEventListener('DOMContentLoaded', () => {
                     sessionStorage.setItem('zenvora_v', '1');
                 }
             }, { onlyOnce: true });
+        }
+    });
 
-            // Brand Settings (WA & Delivery)
-            const sRef = window.firebaseRef(window.firebaseDB, '69store/settings');
-            window.firebaseOnValue(sRef, (snap) => {
-                const data = snap.val();
+    const syncSettings = () => {
+        if (window.firebaseDB) {
+            const settingsRef = window.firebaseRef(window.firebaseDB, '69store/settings');
+            window.firebaseOnValue(settingsRef, (snapshot) => {
+                const data = snapshot.val();
                 if (data) {
-                    if (data.waNumber) waNumber = data.waNumber;
-                    if (data.deliveryCharge !== undefined) {
-                        deliveryCharge = parseFloat(data.deliveryCharge);
+                    if (data.waNumber) localStorage.setItem('zenvora_wa', data.waNumber);
+                    if (data.deliveryCharge) {
+                        const deliveryCharge = parseFloat(data.deliveryCharge);
                         localStorage.setItem('zenvora_delivery', deliveryCharge);
-                        updateCartUI();
+                        if (typeof updateCartUI === 'function') updateCartUI();
                     }
                 }
             });
         }
-    });
+    };
+
+    window.addEventListener('firebaseStoreLoaded', syncSettings);
+    if (window.firebaseStoreLoaded) syncSettings();
 
     const checkoutBtn = document.getElementById('checkoutBtn');
     const checkoutModal = document.getElementById('checkoutModal');
     const closeCheckout = document.getElementById('closeCheckout');
     const checkoutForm = document.getElementById('checkoutForm');
 
-    if (!checkoutModal) return;
-
-    // Auto-fill checkout form with logged-in user data
-    function fillCheckoutFromUser() {
-        const userData = localStorage.getItem('zenvora_user');
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                const nameField = document.getElementById('custName');
-                const phoneField = document.getElementById('custPhone');
-                const addressField = document.getElementById('custAddress');
-                if (nameField && user.firstName) nameField.value = (user.title ? user.title + ' ' : '') + user.firstName + ' ' + (user.lastName || '');
-                if (phoneField && user.phone) phoneField.value = user.phone;
-                if (addressField && user.address) addressField.value = user.address;
-            } catch(e) {}
-        }
-    }
-
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', () => {
-            if (cart.length === 0) return showNotification('Your bag is empty! Add some heat first.', 'error');
-            
-            // Check if user is logged in
+    if (checkoutModal) {
+        // Auto-fill checkout form with logged-in user data
+        function fillCheckoutFromUser() {
             const userData = localStorage.getItem('zenvora_user');
-            if (!userData) {
-                // Not logged in — redirect to login page with return URL
-                showNotification('Please login to place your order.', 'info');
-                setTimeout(() => {
-                    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                    window.location.href = 'login.html?from=checkout&return=' + encodeURIComponent(currentPage);
-                }, 800);
-                return;
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    const nameField = document.getElementById('custName');
+                    const phoneField = document.getElementById('custPhone');
+                    const addressField = document.getElementById('custAddress');
+                    if (nameField && user.firstName) nameField.value = (user.title ? user.title + ' ' : '') + user.firstName + ' ' + (user.lastName || '');
+                    if (phoneField && user.phone) phoneField.value = user.phone;
+                    if (addressField && user.address) addressField.value = user.address;
+                } catch(e) {}
             }
-            
-            // User is logged in — open checkout modal with auto-filled data
-            checkoutModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            fillCheckoutFromUser();
-        });
-    }
-
-    // Auto-open checkout if returning from login
-    (function() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('checkout') === 'true') {
-            // Clean URL
-            window.history.replaceState({}, '', window.location.pathname);
-            // Wait a bit for everything to load, then open checkout
-            setTimeout(() => {
-                if (cart.length > 0 && checkoutModal) {
-                    checkoutModal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                    fillCheckoutFromUser();
-                    showNotification('Welcome! Your details are pre-filled. Confirm your order.', 'success');
-                }
-            }, 1200);
         }
-    })();
 
-    if (closeCheckout) closeCheckout.addEventListener('click', () => {
-        checkoutModal.style.display = 'none';
-        document.body.style.overflow = '';
-    });
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                const cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
+                if (cart.length === 0) {
+                    alert('Your cart is empty');
+                    return;
+                }
+                
+                // If user is not logged in, show login first
+                const user = localStorage.getItem('zenvora_user');
+                if (!user) {
+                    window.location.href = `login.html?redirect=checkout`;
+                    return;
+                }
 
-    if (checkoutForm) {
-        checkoutForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+                fillCheckoutFromUser();
+                checkoutModal.classList.add('active');
+            });
+        }
+
+        if (closeCheckout) {
+            closeCheckout.addEventListener('click', () => {
+                checkoutModal.classList.remove('active');
+            });
+        }
+
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                finalizeOrder();
+            });
+        }
+
+        async function finalizeOrder() {
+            const cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
             const name = document.getElementById('custName').value;
-            const address = document.getElementById('custAddress').value;
             const phone = document.getElementById('custPhone').value;
+            const address = document.getElementById('custAddress').value;
+            const delivery = parseFloat(localStorage.getItem('zenvora_delivery')) || 350;
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = subtotal + delivery;
 
+            const orderId = 'Z' + Date.now().toString().slice(-6);
             const orderData = {
-                customer: { name, address, phone },
-                items: cart.map(i => ({ ...i })),
-                note: document.getElementById('cartNoteInput') ? document.getElementById('cartNoteInput').value : '',
-                total: cart.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0),
+                orderId,
                 timestamp: new Date().toISOString(),
+                customer: { name, phone, address },
+                items: cart,
+                subtotal,
+                delivery,
+                total,
                 status: 'New'
             };
 
-            const finalizeOrder = (orderId = '') => {
-                const message = encodeURIComponent(
-                    `*NEW ORDER - ZENVORA*\n\n` +
-                    `*Order ID:* #${orderId ? orderId.substring(1) : 'PENDING'}\n` +
-                    `*Customer:* ${name}\n` +
-                    `*Phone:* ${phone}\n` +
-                    `*Address:* ${address}\n\n` +
-                    `*Items:*\n${cart.map(i => `- ${i.name} [Size: ${i.size || 'M'}] x${i.quantity || 1} (LKR ${(i.price * (i.quantity || 1)).toLocaleString()})`).join('\n')}\n` +
-                    (deliveryCharge > 0 ? `*Delivery Fee:* LKR ${deliveryCharge.toLocaleString()}\n` : '') + `\n` +
-                    (orderData.note ? `*Order Note:* ${orderData.note}\n\n` : '') +
-                    `*Total Bill:* LKR ${(orderData.total + (deliveryCharge || 0)).toLocaleString()}.00`
-                );
-                
-                const cleanWANumber = waNumber.replace(/\D/g, '');
-                const waUrl = `https://wa.me/${cleanWANumber}?text=${message}`;
-                window.open(waUrl, '_blank');
-                
-                if (checkoutModal) {
-                    checkoutModal.style.display = 'none';
-                    document.body.style.overflow = '';
-                }
-                if (typeof closeCartFn === 'function') closeCartFn();
-                
-                // Show Success Modal
-                const successOverlay = document.getElementById('successOverlay');
-                if (successOverlay) {
-                    const sMsg = document.getElementById('sMsg');
-                    if (orderId && sMsg) {
-                        sMsg.innerHTML = `Your Order ID: <strong style="color: var(--primary-color);">#${orderId.substring(1)}</strong><br>Thank you for shopping with ZENVORA. You can track your order using this ID.<br><br><a href="track.html?id=${orderId}" class="btn btn-black" style="width: 100%;">Track My Order</a>`;
-                    }
-                    successOverlay.classList.add('show');
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    showNotification('Order placed successfully!', 'success');
+            try {
+                // If firebase is ready, sync to DB
+                if (window.firebaseDB) {
+                    const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
+                    await window.firebasePush(ordersRef, orderData);
                 }
 
-                // Clear Cart
-                cart = [];
+                // WhatsApp Integration
+                const waNumber = localStorage.getItem('zenvora_wa') || '94671210164';
+                let itemStr = cart.map(i => `- ${i.name} (${i.size}) x${i.quantity}`).join('%0A');
+                const message = `*NEW ORDER: ${orderId}*%0A%0A*Customer:* ${name}%0A*Phone:* ${phone}%0A*Address:* ${address}%0A%0A*Items:*%0A${itemStr}%0A%0A*Subtotal:* LKR ${subtotal}%0A*Delivery:* LKR ${delivery}%0A*Total:* LKR ${total}%0A%0A_Thank you for shopping with ZENVORA!_`;
+                
+                localStorage.removeItem('zenvora_cart');
                 updateCartUI();
-            };
+                checkoutModal.classList.remove('active');
+                
+                showNotification('Order placed! Redirecting to WhatsApp...', 'success', 'Zen Checkout');
+                setTimeout(() => {
+                    window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
+                    window.location.href = 'index.html';
+                }, 1500);
 
-            if (window.firebaseDB && window.firebaseRef && window.firebasePush) {
-                const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
-                window.firebasePush(ordersRef, orderData).then((snapshot) => {
-                    const orderId = snapshot.key;
-                    // Update Stock
-                    if (window.firebaseUpdate) {
-                        cart.forEach(item => {
-                            if (item.id) {
-                                const prodRef = window.firebaseRef(window.firebaseDB, `69store/products/${item.id}`);
-                                window.firebaseOnValue(prodRef, (snap) => {
-                                    const p = snap.val();
-                                    if (p && p.stock !== undefined) {
-                                        const newStock = Math.max(0, p.stock - (item.quantity || 1));
-                                        window.firebaseUpdate(prodRef, { stock: newStock });
-                                    }
-                                }, { onlyOnce: true });
-                            }
-                        });
-                    }
-                    finalizeOrder(orderId);
-                }).catch(e => {
-                    console.error("Firebase order failed:", e);
-                    finalizeOrder();
-                });
-            } else {
-                finalizeOrder();
+            } catch (err) {
+                console.error(err);
+                alert('Checkout failed. Please try again.');
             }
-        });
-    }
+        }
+    };
 
     // Initial UI Update
     updateCartUI();
@@ -761,22 +716,4 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('keydown', startAudioOnInteract, true);
         window.addEventListener('touchstart', startAudioOnInteract, true);
     }
-    // Sync Delivery Charge from Firebase
-    const syncSettings = () => {
-        if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue) {
-            const settingsRef = window.firebaseRef(window.firebaseDB, '69store/settings');
-            window.firebaseOnValue(settingsRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data && data.deliveryCharge !== undefined) {
-                    deliveryCharge = parseFloat(data.deliveryCharge);
-                    localStorage.setItem('zenvora_delivery', deliveryCharge);
-                    updateCartUI();
-                }
-            });
-        } else {
-            // Keep trying if Firebase isn't ready yet
-            setTimeout(syncSettings, 1000);
-        }
-    };
-    syncSettings();
 });

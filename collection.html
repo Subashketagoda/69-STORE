@@ -991,6 +991,7 @@
             cb.addEventListener('change', applySortAndFilter);
         });
 
+        window.firebaseStoreLoaded = true;
         window.dispatchEvent(new Event('firebaseStoreLoaded'));
     </script>
     <!-- Success Overlay (Order Complete) -->

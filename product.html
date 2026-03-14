@@ -380,6 +380,7 @@
                                 Product Details <i class="fa-solid fa-plus"></i>
                             </div>
                             <div class="accordion-content">
+                                <p id="productDescription" style="margin-bottom: 15px; font-weight: 600; color: #fff;"></p>
                                 <p>• Premium heavyweight cotton blend.</p>
                                 <p>• Oversized dropped shoulder fit.</p>
                                 <p>• High-density ZENVORA authentic logos.</p>
@@ -521,9 +522,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const targetId = params.get('id');
-            window.currentProductName = params.get('name') || 'Zenvora Default Tee';
+            window.currentProductName = params.get('name') || 'ZENVORA Apparel';
             window.currentProductPrice = parseFloat(params.get('price')) || 5500;
-            window.currentProductImg = params.get('img') || 'assets/placeholder_product.png';
+            window.currentProductImg = params.get('img') || 'assets/zenvora-logo.png';
 
             document.title = window.currentProductName + " - ZENVORA";
             document.getElementById('breadcrumbName').textContent = window.currentProductName;
@@ -559,22 +560,33 @@
         });
 
         const updateProductUI = (product) => {
-            window.currentProductName = product.name;
-            window.currentProductPrice = product.price;
-            window.currentProductImg = product.image;
+            if (!product) return;
+            window.currentProductName = product.name || window.currentProductName;
+            window.currentProductPrice = product.price || window.currentProductPrice;
+            
+            // Only update image if product actually has one (to prevent clearing fallback images)
+            if (product.image) window.currentProductImg = product.image;
 
-            document.getElementById('productTitle').textContent = product.name;
-            document.getElementById('productPrice').textContent = `LKR ${product.price.toLocaleString()}.00`;
-            document.getElementById('productDescription').textContent = product.description || `Premium ZENVORA ${product.subCat || 'Aparel'}. Engineered for performance and style.`;
+            document.getElementById('productTitle').textContent = window.currentProductName;
+            document.getElementById('productPrice').textContent = `LKR ${window.currentProductPrice.toLocaleString()}.00`;
+            
+            const descEl = document.getElementById('productDescription');
+            if (descEl) {
+                descEl.textContent = product.description || `Premium ZENVORA ${product.subCat || 'Apparel'}. Engineered for performance and style.`;
+            }
             
             const mainImg = document.getElementById('mainProductImage');
-            mainImg.src = product.image;
-            mainImg.onload = () => mainImg.classList.add('loaded'); // Trigger fade-in
-            mainImg.onerror = () => {
-                mainImg.src = 'https://via.placeholder.com/600x800?text=Image+Not+Found';
-                mainImg.classList.add('loaded');
-            };
-            window.currentProductImg = product.image;
+            if (window.currentProductImg && mainImg) {
+                mainImg.src = window.currentProductImg;
+                mainImg.onload = () => {
+                    mainImg.classList.add('loaded');
+                    mainImg.style.opacity = '1';
+                };
+                mainImg.onerror = () => {
+                    mainImg.src = 'https://via.placeholder.com/600x800?text=Image+Not+Found';
+                    mainImg.classList.add('loaded');
+                };
+            }
 
             const stockEl = document.getElementById('productStockStatus');
             const addBtn = document.getElementById('addToCartBtn');
@@ -601,13 +613,17 @@
             const t1 = document.getElementById('thumb1');
             const t2 = document.getElementById('thumb2');
 
-            t0.src = product.image;
-            t0.onload = () => t0.classList.add('loaded');
+            if (window.currentProductImg) {
+                t0.src = window.currentProductImg;
+                t0.onload = () => t0.classList.add('loaded');
+            }
 
             if (product.image2) {
                 t1.src = product.image2;
                 t1.style.display = 'block';
                 t1.onload = () => t1.classList.add('loaded');
+            } else if (!product.image2 && !product.name) {
+                // If this is a cached partial update, don't hide
             } else {
                 t1.style.display = 'none';
             }
@@ -695,7 +711,7 @@
         const targetName = params.get('name');
 
         // 1. Instantly load from cache
-        const cached = localStorage.getItem('zenvora_products');
+        const cached = localStorage.getItem('zenvora_products_meta') || localStorage.getItem('zenvora_products');
         if (cached) {
             try {
                 const data = JSON.parse(cached);
@@ -746,7 +762,11 @@
                     } else {
                         // Final fallback: use URL params values already set
                         const mainImg = document.getElementById('mainProductImage');
-                        if (mainImg.style.opacity === '0.5') {
+                        if (mainImg) {
+                            mainImg.src = 'assets/zenvora-logo.png'; // Valid Placeholder
+                            mainImg.style.opacity = '0.5';
+                        }
+                        if (mainImg && mainImg.style.opacity === '0.5') {
                             mainImg.src = window.currentProductImg;
                             mainImg.style.opacity = '1';
                             document.getElementById('thumb0').src = window.currentProductImg;
@@ -758,6 +778,7 @@
             }, { onlyOnce: true });
         }
 
+        window.firebaseStoreLoaded = true;
         window.dispatchEvent(new Event('firebaseStoreLoaded'));
     </script>
     <!-- Success Overlay (Order Complete) -->
