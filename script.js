@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cartOverlay) cartOverlay.addEventListener('click', closeCartFn);
 
     // --- CHECKOUT LOGIC ---
-    let waNumber = '94671210164'; // Default
+    let waNumber = '94761210164'; // Default
 
     window.addEventListener('firebaseStoreLoaded', () => {
         if (window.firebaseDB) {
@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // WhatsApp Integration
-                let waNumber = localStorage.getItem('zenvora_wa') || '94671210164';
+                let waNumber = localStorage.getItem('zenvora_wa') || '94761210164';
                 waNumber = waNumber.replace(/\D/g, '');
                 if (waNumber.startsWith('0')) waNumber = '94' + waNumber.substring(1);
                 
