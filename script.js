@@ -565,16 +565,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // WhatsApp Integration
-                const waNumber = localStorage.getItem('zenvora_wa') || '94671210164';
-                let itemStr = cart.map(i => `- ${i.name} (${i.size}) x${i.quantity}`).join('%0A');
-                const message = `*NEW ORDER: ${orderId}*%0A%0A*Customer:* ${name}%0A*Phone:* ${phone}%0A*Address:* ${address}%0A%0A*Items:*%0A${itemStr}%0A%0A*Subtotal:* LKR ${subtotal}%0A*Delivery:* LKR ${delivery}%0A*Total:* LKR ${total}%0A%0A_Thank you for shopping with ZENVORA!_`;
+                let waNumber = localStorage.getItem('zenvora_wa') || '94671210164';
+                waNumber = waNumber.replace(/\D/g, ''); // Ensure only digits for WhatsApp link
+                
+                let itemStr = cart.map(i => `- ${i.name} (${i.size}) x${i.quantity}`).join('\n');
+                const rawMessage = `*NEW ORDER: ${orderId}*\n\n*Customer:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n\n*Items:*\n${itemStr}\n\n*Subtotal:* LKR ${subtotal}\n*Delivery:* LKR ${delivery}\n*Total:* LKR ${total}\n\n_Thank you for shopping with ZENVORA!_`;
+                const encodedMessage = encodeURIComponent(rawMessage);
                 
                 localStorage.removeItem('zenvora_cart');
                 updateCartUI();
                 checkoutModal.classList.remove('active');
                 checkoutModal.style.display = 'none';
                 
-                // Show Success Overlay if available
                 const successOverlay = document.getElementById('successOverlay');
                 if (successOverlay) {
                     const sTitle = document.getElementById('sTitle');
@@ -587,18 +589,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (sBtn) {
                         sBtn.textContent = 'COMPLETE ON WHATSAPP';
                         sBtn.onclick = () => {
-                            window.location.href = `https://wa.me/${waNumber}?text=${message}`;
-                            
-                            
+                            window.location.href = `https://wa.me/${waNumber}?text=${encodedMessage}`;
                         };
                     }
                     successOverlay.classList.add('show');
                 } else {
-                    // Fallback to notification and direct open
                     showNotification('Order recorded! Opening WhatsApp...', 'success', 'Zen Checkout');
                     setTimeout(() => {
-                        window.location.href = `https://wa.me/${waNumber}?text=${message}`;
-                        
+                        window.location.href = `https://wa.me/${waNumber}?text=${encodedMessage}`;
                     }, 1500);
                 }
 
