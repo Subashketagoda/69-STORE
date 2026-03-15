@@ -514,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closeCheckout) {
             closeCheckout.addEventListener('click', () => {
                 checkoutModal.classList.remove('active');
+                checkoutModal.style.display = 'none';
             });
         }
 
@@ -571,6 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('zenvora_cart');
                 updateCartUI();
                 checkoutModal.classList.remove('active');
+                checkoutModal.style.display = 'none';
                 
                 // Show Success Overlay if available
                 const successOverlay = document.getElementById('successOverlay');
@@ -585,9 +587,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (sBtn) {
                         sBtn.textContent = 'COMPLETE ON WHATSAPP';
                         sBtn.onclick = () => {
-                            window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
-                            successOverlay.classList.remove('show');
-                            window.location.href = 'index.html';
+                            window.location.href = `https://wa.me/${waNumber}?text=${message}`;
+                            
+                            
                         };
                     }
                     successOverlay.classList.add('show');
@@ -595,8 +597,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Fallback to notification and direct open
                     showNotification('Order recorded! Opening WhatsApp...', 'success', 'Zen Checkout');
                     setTimeout(() => {
-                        window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
-                        window.location.href = 'index.html';
+                        window.location.href = `https://wa.me/${waNumber}?text=${message}`;
+                        
                     }, 1500);
                 }
 

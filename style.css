@@ -985,7 +985,7 @@ nav ul li a>i {
 }
 
 .cart-overlay.active {
-    display: block;
+    display: flex !important;
 }
 
 .cart-header {
