@@ -566,16 +566,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // WhatsApp Integration
                 let waNumber = localStorage.getItem('zenvora_wa') || '94671210164';
-                // Sanitize number: Remove all non-digits and handle local 0 format
                 waNumber = waNumber.replace(/\D/g, '');
                 if (waNumber.startsWith('0')) waNumber = '94' + waNumber.substring(1);
                 
-                const itemStr = cart.map(i => `- ${i.name} (${i.size}) x${i.quantity}`).join('\n');
-                const rawMessage = `*NEW ORDER: ${orderId}*\n\n*Customer:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n\n*Items:*\n${itemStr}\n\n*Subtotal:* LKR ${subtotal}\n*Shipping:* LKR ${delivery}\n*Total:* LKR ${total}\n\n_Thank you for choosing ZENVORA!_`;
+                // Compact Message for better compatibility (Short URLs are more stable)
+                const itemStr = cart.map(i => `${i.name}(${i.size}) x${i.quantity}`).join('\n');
+                const rawMessage = `ZEN-ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems:\n${itemStr}\nTotal: LKR ${total}`;
                 const encodedMessage = encodeURIComponent(rawMessage);
-                
-                // Construct the link with the more robust api.whatsapp.com endpoint
-                const whatsappUrl = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedMessage}`;
+                const whatsappUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
                 
                 localStorage.removeItem('zenvora_cart');
                 updateCartUI();
@@ -588,28 +586,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     const sMsg = document.getElementById('sMsg');
                     const sBtn = successOverlay.querySelector('.s-btn');
                     
-                    if (sTitle) sTitle.textContent = 'ORDER RECORDED!';
-                    if (sMsg) sMsg.innerHTML = `Your order <b>${orderId}</b> has been saved.<br><br>Finalize your order via WhatsApp.`;
+                    if (sTitle) sTitle.textContent = 'ORDER PLACED!';
+                    if (sMsg) sMsg.innerHTML = `Your order <b>${orderId}</b> has been recorded.<br><br>Please tap the button below to finalize.`;
                     
                     if (sBtn) {
-                        sBtn.textContent = 'COMPLETE ON WHATSAPP';
+                        sBtn.textContent = 'OPEN WHATSAPP';
                         sBtn.onclick = () => {
-                            // Using an anchor injection is sometimes more reliable for app intents on mobile
-                            const link = document.createElement('a');
-                            link.href = whatsappUrl;
-                            link.target = '_blank';
-                            link.rel = 'noopener noreferrer';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            
-                            // Fallback for PWA/WebView environments
-                            setTimeout(() => { window.location.href = whatsappUrl; }, 300);
+                            window.location.href = whatsappUrl;
                         };
                     }
                     successOverlay.classList.add('show');
                 } else {
-                    showNotification('Order recorded! Redirecting...', 'success', 'Zen Checkout');
+                    showNotification('Order recorded! Diverting to WhatsApp...', 'success', 'Zen Checkout');
                     setTimeout(() => { window.location.href = whatsappUrl; }, 1000);
                 }
 
