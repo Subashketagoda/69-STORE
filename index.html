@@ -499,7 +499,7 @@
                     <ul>
                         <li><a href="track.html">Order Tracking</a></li>
                         <li><a href="#" onclick="showNotification('Returns policy coming soon!', 'info')">Returns & Exchanges</a></li>
-                        <li><a href="#" onclick="showNotification('Size guide coming soon!', 'info')">Size Guide</a></li>
+                        <li><a href="#" onclick="openSizeGuide()">Size Guide</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -576,7 +576,7 @@
                     const id = product.id;
                     const isBase64 = product.image && product.image.startsWith('data:');
                     // OPTIMIZATION: Shorten URL for products with Base64 to avoid truncation
-                    const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(product.image)}`;
+                    const imgParam = (product.image && !isBase64) ? `&img=${encodeURIComponent(product.image)}` : '';
                     
                     const isPriority = index < 4;
                     const loadingAttr = isPriority ? 'eager' : 'lazy';
@@ -646,9 +646,9 @@
                         const metadataOnly = {};
                         Object.keys(data).forEach(key => {
                             metadataOnly[key] = { ...data[key] };
-                            delete metadataOnly[key].image;
-                            delete metadataOnly[key].image2;
-                            delete metadataOnly[key].image3;
+                            if (data[key].image && data[key].image.length > 2000) delete metadataOnly[key].image;
+                            if (data[key].image2 && data[key].image2.length > 2000) delete metadataOnly[key].image2;
+                            if (data[key].image3 && data[key].image3.length > 2000) delete metadataOnly[key].image3;
                         });
                         localStorage.setItem('zenvora_products_meta', JSON.stringify(metadataOnly));
                         // Also clear the old broken cache if it exists

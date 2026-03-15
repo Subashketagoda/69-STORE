@@ -1688,3 +1688,111 @@ textarea.checkout-input {
         padding: 15px 20px;
     }
 }
+
+/* --- Size Guide Link --- */
+.size-guide-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary-color);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: opacity 0.3s;
+}
+
+.size-guide-link:hover {
+    opacity: 0.8;
+}
+
+/* --- Size Guide Modal --- */
+.size-guide-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%);
+    width: 90%;
+    max-width: 600px;
+    background: #0a0a0a;
+    border: 1px solid var(--border-light);
+    z-index: 110000;
+    padding: 50px 40px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+}
+
+.size-guide-modal.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%);
+}
+
+.size-guide-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.size-guide-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+
+.size-guide-header p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.size-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.size-table th {
+    padding: 15px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-light);
+    text-align: center;
+}
+
+.size-table td {
+    padding: 15px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.size-table tr:last-child td {
+    border-bottom: none;
+}
+
+.size-guide-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.5rem;
+    color: #444;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.size-guide-close:hover {
+    color: #fff;
+}
+
+.size-note {
+    margin-top: 30px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-style: italic;
+    text-align: center;
+    line-height: 1.5;
+}

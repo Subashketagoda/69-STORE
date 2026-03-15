@@ -735,7 +735,7 @@
                     <ul>
                         <li><a href="track.html">Order Tracking</a></li>
                         <li><a href="#" onclick="showNotification('Returns policy coming soon!', 'info')">Returns & Exchanges</a></li>
-                        <li><a href="#" onclick="showNotification('Size guide coming soon!', 'info')">Size Guide</a></li>
+                        <li><a href="#" onclick="openSizeGuide()">Size Guide</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -799,7 +799,7 @@
             
             products.forEach((p, index) => {
                 const isBase64 = p.image && p.image.startsWith('data:');
-                const imgParam = isBase64 ? '' : `&img=${encodeURIComponent(p.image)}`;
+                const imgParam = (p.image && !isBase64) ? `&img=${encodeURIComponent(p.image)}` : '';
                 
                 // Priority Logic: Faster first paint for initial results
                 const isPriority = index < 6;
@@ -946,9 +946,9 @@
                     const metadataOnly = {};
                     Object.keys(data).forEach(key => {
                         metadataOnly[key] = { ...data[key] };
-                        delete metadataOnly[key].image;
-                        delete metadataOnly[key].image2;
-                        delete metadataOnly[key].image3;
+                        if (data[key].image && data[key].image.length > 2000) delete metadataOnly[key].image;
+                        if (data[key].image2 && data[key].image2.length > 2000) delete metadataOnly[key].image2;
+                        if (data[key].image3 && data[key].image3.length > 2000) delete metadataOnly[key].image3;
                     });
                     localStorage.setItem('zenvora_products_meta', JSON.stringify(metadataOnly));
                     localStorage.removeItem('zenvora_products');

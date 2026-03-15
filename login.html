@@ -655,9 +655,16 @@
 
         // Handle redirect after login/signup
         function handleSuccessRedirect() {
-            var returnUrl = new URLSearchParams(window.location.search).get('return');
-            if (returnUrl) {
-                window.location.href = returnUrl + '?checkout=true';
+            var savedRedirect = localStorage.getItem('zenvora_redirect_after_login');
+            var returnParam = new URLSearchParams(window.location.search).get('return');
+            
+            if (savedRedirect) {
+                localStorage.removeItem('zenvora_redirect_after_login');
+                localStorage.setItem('zenvora_reopen_checkout', 'true');
+                window.location.href = savedRedirect;
+            } else if (returnParam) {
+                var separator = returnParam.includes('?') ? '&' : '?';
+                window.location.href = returnParam + separator + 'checkout=true';
             } else {
                 window.location.href = 'index.html';
             }

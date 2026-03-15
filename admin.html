@@ -271,6 +271,7 @@
                 <button class="tab-btn" onclick="showTab('customers')">Customers</button>
                 <button class="tab-btn" onclick="showTab('settings')">Settings</button>
                 <a href="index.html" class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem; display: inline-block; vertical-align: middle; margin-top: 5px;">View Site</a>
+                <button class="btn btn-outline" onclick="logoutAdmin()" style="padding: 8px 15px; font-size: 0.8rem; color: #ff3e3e; margin-top: 5px; border-color: rgba(255, 62, 62, 0.2);">Logout</button>
             </div>
         </div>
     </div>
@@ -634,6 +635,7 @@
         window.checkAuth = () => {
             const pass = document.getElementById('adminPass').value;
             if (pass === adminSettings.password) {
+                sessionStorage.setItem('zenvora_admin_auth', 'true');
                 document.getElementById('loginOverlay').style.display = 'none';
                 initDashboard();
                 showTab('dashboard'); // Ensure dashboard is visible after login
@@ -641,6 +643,21 @@
                 showNotification('Access Denied: Invalid Password', 'error', 'Admin Auth');
             }
         };
+
+        window.logoutAdmin = () => {
+            if (confirm('Logout from Admin Dashboard?')) {
+                sessionStorage.removeItem('zenvora_admin_auth');
+                window.location.reload();
+            }
+        };
+
+        // Check session on load
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('zenvora_admin_auth') === 'true') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                initDashboard();
+            }
+        });
 
         const sForm = document.getElementById('settingsForm');
         if (sForm) {

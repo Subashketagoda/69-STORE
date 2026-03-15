@@ -43,6 +43,63 @@ window.showNotification = (message, type = 'info', title = 'Zenvora') => {
 // Override standard alert
 window.alert = (msg) => window.showNotification(msg, 'info');
 
+// --- Global Size Guide System ---
+window.openSizeGuide = () => {
+    let modal = document.getElementById('sizeGuideModal');
+    if (!modal) {
+        // Inject modal if not present
+        const modalHTML = `
+            <div id="sizeGuideModal" class="cart-overlay" style="display: flex; align-items: center; justify-content: center; z-index: 100001;">
+                <div class="size-guide-modal active" id="sizeGuideContent">
+                    <div class="size-guide-close" onclick="closeSizeGuide()"><i class="fa-solid fa-xmark"></i></div>
+                    <div class="size-guide-header">
+                        <h2>SIZE <span class="accent-text">GUIDE</span></h2>
+                        <p>Standard Unisex Measurements / Inches</p>
+                    </div>
+                    <table class="size-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Chest</th>
+                                <th>Length</th>
+                                <th>Shoulder</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S</td><td>38"</td><td>27"</td><td>16.5"</td></tr>
+                            <tr><td>M</td><td>40"</td><td>28"</td><td>17.5"</td></tr>
+                            <tr><td>L</td><td>42"</td><td>29"</td><td>18.5"</td></tr>
+                            <tr><td>XL</td><td>44"</td><td>30"</td><td>19.5"</td></tr>
+                            <tr><td>XXL</td><td>46"</td><td>31"</td><td>20.5"</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="size-note">
+                        * Note: Measurements are approximate and may vary by 0.5" - 1" due to manual craftsmanship and fabric stretch. For an oversized look, we recommend sizing up.
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        modal = document.getElementById('sizeGuideModal');
+    }
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+        const content = document.getElementById('sizeGuideContent');
+        if (content) content.classList.add('active');
+    }, 10);
+};
+
+window.closeSizeGuide = () => {
+    const modal = document.getElementById('sizeGuideModal');
+    const content = document.getElementById('sizeGuideContent');
+    if (content) content.classList.remove('active');
+    setTimeout(() => {
+        if (modal) modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 400);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- PRELOADER & ENTRANCE ---
     const preloader = document.querySelector('.preloader');
@@ -444,7 +501,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If user is not logged in, show login first
                 const user = localStorage.getItem('zenvora_user');
                 if (!user) {
-                    window.location.href = `login.html?redirect=checkout`;
+                    localStorage.setItem('zenvora_redirect_after_login', window.location.href);
+                    window.location.href = `login.html?return=${encodeURIComponent(window.location.pathname)}`;
                     return;
                 }
 
@@ -464,6 +522,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 finalizeOrder();
             });
+        }
+
+        // Auto-open checkout if returning from login
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('checkout') === 'true' || localStorage.getItem('zenvora_reopen_checkout')) {
+            localStorage.removeItem('zenvora_reopen_checkout');
+            const cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
+            if (cart.length > 0) {
+                fillCheckoutFromUser();
+                checkoutModal.classList.add('active');
+            }
         }
 
         async function finalizeOrder() {
@@ -503,11 +572,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateCartUI();
                 checkoutModal.classList.remove('active');
                 
-                showNotification('Order placed! Redirecting to WhatsApp...', 'success', 'Zen Checkout');
-                setTimeout(() => {
-                    window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
-                    window.location.href = 'index.html';
-                }, 1500);
+                // Show Success Overlay if available
+                const successOverlay = document.getElementById('successOverlay');
+                if (successOverlay) {
+                    const sTitle = document.getElementById('sTitle');
+                    const sMsg = document.getElementById('sMsg');
+                    const sBtn = successOverlay.querySelector('.s-btn');
+                    
+                    if (sTitle) sTitle.textContent = 'ORDER RECORDED!';
+                    if (sMsg) sMsg.innerHTML = `Your order <b>${orderId}</b> has been saved.<br><br>Please click the button below to finalize it on WhatsApp.`;
+                    
+                    if (sBtn) {
+                        sBtn.textContent = 'COMPLETE ON WHATSAPP';
+                        sBtn.onclick = () => {
+                            window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
+                            successOverlay.classList.remove('show');
+                            window.location.href = 'index.html';
+                        };
+                    }
+                    successOverlay.classList.add('show');
+                } else {
+                    // Fallback to notification and direct open
+                    showNotification('Order recorded! Opening WhatsApp...', 'success', 'Zen Checkout');
+                    setTimeout(() => {
+                        window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
+                        window.location.href = 'index.html';
+                    }, 1500);
+                }
 
             } catch (err) {
                 console.error(err);
