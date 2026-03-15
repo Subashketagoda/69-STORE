@@ -398,36 +398,68 @@
             let inputId = document.getElementById('orderIdInput').value.trim();
             if (!inputId) return;
 
-            // Remove common separators or prefixes for flexibility
-            const searchId = inputId.replace('#', '').trim();
+            // Normalize ID: Remove whitespace and #
+            const cleanId = inputId.replace('#', '').trim();
 
             document.getElementById('loader').style.display = 'block';
             document.getElementById('trackResult').style.display = 'none';
             document.getElementById('noOrder').style.display = 'none';
 
             try {
-                // First try direct lookup by key (legacy support)
-                const legacyId = inputId.startsWith('#') ? '-' + inputId.substring(1) : inputId;
-                const directSnapshot = await get(ref(database, `69store/orders/${legacyId}`));
+                console.log('Searching for:', cleanId);
                 
-                if (directSnapshot.exists()) {
-                    renderUI(legacyId, directSnapshot.val());
+                // Strategy 1: Direct lookup by Key (Z123456 or exact input)
+                let snapshot = await get(ref(database, `69store/orders/${cleanId}`));
+                
+                if (snapshot.exists()) {
+                    console.log('Found by direct key');
+                    renderUI(cleanId, snapshot.val());
                 } else {
-                    // Search by custom orderId (ZXXXXXX)
-                    const ordersRef = ref(database, '69store/orders');
-                    const q = query(ordersRef, orderByChild('orderId'), equalTo(searchId));
-                    const snapshot = await get(q);
+                    // Strategy 2: Try with Z prefix if missing, or without if present
+                    let altId = cleanId.startsWith('Z') ? cleanId.substring(1) : 'Z' + cleanId;
+                    let altSnapshot = await get(ref(database, `69store/orders/${altId}`));
                     
-                    if (snapshot.exists()) {
-                        const data = snapshot.val();
-                        const key = Object.keys(data)[0];
-                        renderUI(key, data[key]);
+                    if (altSnapshot.exists()) {
+                        console.log('Found by alt key:', altId);
+                        renderUI(altId, altSnapshot.val());
                     } else {
-                        document.getElementById('noOrder').style.display = 'block';
+                        // Strategy 3: Try Legacy Firebase Push ID (starts with -)
+                        const legacyId = inputId.startsWith('#') ? '-' + inputId.substring(1) : (inputId.startsWith('-') ? inputId : '-' + cleanId);
+                        const legacySnapshot = await get(ref(database, `69store/orders/${legacyId}`));
+                        
+                        if (legacySnapshot.exists()) {
+                            console.log('Found by legacy key:', legacyId);
+                            renderUI(legacyId, legacySnapshot.val());
+                        } else {
+                            // Strategy 4: Broad Query by orderId field (Case Insensitive not supported by FB, so we try exact)
+                            const ordersRef = ref(database, '69store/orders');
+                            const q = query(ordersRef, orderByChild('orderId'), equalTo(cleanId));
+                            const qSnapshot = await get(q);
+                            
+                            if (qSnapshot.exists()) {
+                                console.log('Found by field query');
+                                const data = qSnapshot.val();
+                                const firstKey = Object.keys(data)[0];
+                                renderUI(firstKey, data[firstKey]);
+                            } else {
+                                // Try query with alt ID
+                                const q2 = query(ordersRef, orderByChild('orderId'), equalTo(altId));
+                                const q2Snapshot = await get(q2);
+                                if (q2Snapshot.exists()) {
+                                    const data = q2Snapshot.val();
+                                    const firstKey = Object.keys(data)[0];
+                                    renderUI(firstKey, data[firstKey]);
+                                } else {
+                                    console.warn('No order found after all attempts');
+                                    document.getElementById('noOrder').style.display = 'block';
+                                }
+                            }
+                        }
                     }
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Track Order Error:', err);
+                // Still show not found but log technical error
                 document.getElementById('noOrder').style.display = 'block';
             } finally {
                 document.getElementById('loader').style.display = 'none';
@@ -435,15 +467,23 @@
         };
 
         function renderUI(key, order) {
+            if (!order || !order.customer) {
+                console.error('Invalid order data:', order);
+                throw new Error('CORRUPT_DATA');
+            }
+
             document.getElementById('trackResult').style.display = 'block';
-            // Display Z ID if available, otherwise fallback to system key
+            
+            // Display Z ID if available, otherwise fallback to key
             const displayId = order.orderId ? order.orderId : (key.startsWith('-') ? '#' + key.substring(1) : key);
             
-            document.getElementById('resOrderId').textContent = displayId.startsWith('Z') ? displayId : '#' + displayId;
-            document.getElementById('resOrderDate').textContent = `Placed On: ${new Date(order.timestamp).toLocaleDateString()}`;
-            document.getElementById('resCustName').textContent = order.customer.name;
-            document.getElementById('resCustAddress').textContent = order.customer.address;
-            document.getElementById('resTotal').textContent = `LKR ${order.total.toLocaleString()}.00`;
+            document.getElementById('resOrderId').textContent = displayId;
+            document.getElementById('resOrderDate').textContent = `Placed On: ${order.timestamp ? new Date(order.timestamp).toLocaleDateString() : 'N/A'}`;
+            document.getElementById('resCustName').textContent = order.customer.name || 'Valued Customer';
+            document.getElementById('resCustAddress').textContent = order.customer.address || 'Address not provided';
+            
+            const totalVal = order.total || 0;
+            document.getElementById('resTotal').textContent = `LKR ${totalVal.toLocaleString()}.00`;
 
             // Items
             const itemsCont = document.getElementById('resItems');
