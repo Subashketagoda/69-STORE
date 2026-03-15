@@ -378,7 +378,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -395,21 +395,36 @@
         const database = getDatabase(app);
 
         window.trackOrder = async () => {
-            const rawId = document.getElementById('orderIdInput').value.trim();
-            const id = rawId.startsWith('#') ? '-' + rawId.substring(1) : rawId;
-            
-            if (!id) return;
+            let inputId = document.getElementById('orderIdInput').value.trim();
+            if (!inputId) return;
+
+            // Remove common separators or prefixes for flexibility
+            const searchId = inputId.replace('#', '').trim();
 
             document.getElementById('loader').style.display = 'block';
             document.getElementById('trackResult').style.display = 'none';
             document.getElementById('noOrder').style.display = 'none';
 
             try {
-                const snapshot = await get(ref(database, `69store/orders/${id}`));
-                if (snapshot.exists()) {
-                    renderUI(id, snapshot.val());
+                // First try direct lookup by key (legacy support)
+                const legacyId = inputId.startsWith('#') ? '-' + inputId.substring(1) : inputId;
+                const directSnapshot = await get(ref(database, `69store/orders/${legacyId}`));
+                
+                if (directSnapshot.exists()) {
+                    renderUI(legacyId, directSnapshot.val());
                 } else {
-                    document.getElementById('noOrder').style.display = 'block';
+                    // Search by custom orderId (ZXXXXXX)
+                    const ordersRef = ref(database, '69store/orders');
+                    const q = query(ordersRef, orderByChild('orderId'), equalTo(searchId));
+                    const snapshot = await get(q);
+                    
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        const key = Object.keys(data)[0];
+                        renderUI(key, data[key]);
+                    } else {
+                        document.getElementById('noOrder').style.display = 'block';
+                    }
                 }
             } catch (err) {
                 console.error(err);
@@ -419,9 +434,12 @@
             }
         };
 
-        function renderUI(id, order) {
+        function renderUI(key, order) {
             document.getElementById('trackResult').style.display = 'block';
-            document.getElementById('resOrderId').textContent = '#' + id.substring(1);
+            // Display Z ID if available, otherwise fallback to system key
+            const displayId = order.orderId ? order.orderId : (key.startsWith('-') ? '#' + key.substring(1) : key);
+            
+            document.getElementById('resOrderId').textContent = displayId.startsWith('Z') ? displayId : '#' + displayId;
             document.getElementById('resOrderDate').textContent = `Placed On: ${new Date(order.timestamp).toLocaleDateString()}`;
             document.getElementById('resCustName').textContent = order.customer.name;
             document.getElementById('resCustAddress').textContent = order.customer.address;

@@ -908,6 +908,7 @@
                 // Filters
                 const searchMatch = !filterQuery || 
                     key.toLowerCase().includes(filterQuery.toLowerCase()) ||
+                    (o.orderId && o.orderId.toLowerCase().includes(filterQuery.toLowerCase())) ||
                     (o.customer.name && o.customer.name.toLowerCase().includes(filterQuery.toLowerCase())) ||
                     (o.customer.phone && o.customer.phone.includes(filterQuery));
                 
@@ -933,7 +934,8 @@
                 tbody.innerHTML += `
                 <tr>
                     <td style="font-size: 0.75rem;">
-                        <span style="color: #666;">#${key.substring(0, 8)}...</span><br>
+                        <span style="color: var(--primary-color); font-weight: 800; font-size: 0.85rem;">${o.orderId || 'UNSET'}</span><br>
+                        <span style="color: #444; font-size: 0.6rem;">Key: ${key.substring(0, 8)}...</span><br>
                         <span style="color: #555;">${o.timestamp ? new Date(o.timestamp).toLocaleString() : 'N/A'}</span>
                     </td>
                     <td>
