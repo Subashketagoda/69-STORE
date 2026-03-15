@@ -560,8 +560,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // If firebase is ready, sync to DB
                 if (window.firebaseDB) {
-                    const ordersRef = window.firebaseRef(window.firebaseDB, '69store/orders');
-                    await window.firebasePush(ordersRef, orderData);
+                    const orderRef = window.firebaseRef(window.firebaseDB, `69store/orders/${orderId}`);
+                    await window.firebaseSet(orderRef, orderData);
                 }
 
                 // WhatsApp Integration
