@@ -380,9 +380,9 @@
                     </p>
                     <form id="reviewForm">
                         <input type="text" id="revName" placeholder="Your Name" required
-                            style="width: 100%; padding: 15px; margin-bottom: 15px; background: var(--bg-light); border: none; outline: none; border-radius: 10px;">
+                            style="width: 100%; padding: 15px; margin-bottom: 15px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); outline: none; border-radius: 10px; color: white;">
                         <textarea id="revMsg" placeholder="Your Message" required
-                            style="width: 100%; padding: 15px; height: 120px; margin-bottom: 15px; background: var(--bg-light); border: none; outline: none; border-radius: 10px;"></textarea>
+                            style="width: 100%; padding: 15px; height: 120px; margin-bottom: 15px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); outline: none; border-radius: 10px; color: white;"></textarea>
                         <button type="submit" class="btn btn-black" style="width: 100%;">Share Review</button>
                     </form>
                 </div>
@@ -687,7 +687,7 @@
                         card.style.padding = "30px";
                         card.style.borderRadius = "20px";
                         card.innerHTML = `
-                            <div style="display: flex; gap: 5px; color: #000; margin-bottom: 15px;">
+                            <div style="display: flex; gap: 5px; color: #ffcc00; margin-bottom: 15px;">
                                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                             </div>
                             <p style="font-style: italic; color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">"${r.msg}"</p>
@@ -701,15 +701,44 @@
             });
         };
 
+        // --- SUBMIT REVIEW ---
+        const setupReviewForm = () => {
+            const form = document.getElementById('reviewForm');
+            if (!form) return;
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('revName').value;
+                const msg = document.getElementById('revMsg').value;
+
+                if (name && msg) {
+                    const reviewRef = ref(database, '69store/reviews');
+                    const newReviewRef = push(reviewRef);
+                    set(newReviewRef, {
+                        name: name,
+                        msg: msg,
+                        timestamp: new Date().toISOString()
+                    }).then(() => {
+                        window.showNotification('Your feedback has been cast into the digital stone!', 'success', 'Review Recorded');
+                        form.reset();
+                    }).catch(err => {
+                        window.showNotification('Could not save review: ' + err.message, 'error');
+                    });
+                }
+            });
+        };
+
         // --- INITIALIZE ---
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 loadProducts();
                 loadReviews();
+                setupReviewForm();
             });
         } else {
             loadProducts();
             loadReviews();
+            setupReviewForm();
         }
 
         window.firebaseStoreLoaded = true;
