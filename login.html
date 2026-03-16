@@ -310,15 +310,65 @@
         .toast-x { margin-left: auto; cursor: pointer; color: #555; transition: color 0.3s; }
         .toast-x:hover { color: #fff; }
 
-        /* Mobile */
+        /* Mobile Styles */
         @media (max-width: 899px) {
-            .hero-side { display: none; }
-            .form-side { width: 100%; padding: 80px 25px 40px; min-height: 100vh; }
-            .form-box { max-width: 100%; }
+            .login-wrapper {
+                flex-direction: column;
+            }
+
+            .hero-side {
+                width: 100%;
+                height: 60vh;
+                min-height: 450px;
+                display: block;
+            }
+
+            .hero-side::after {
+                background: linear-gradient(to bottom, transparent 40%, #0a0a0a 100%);
+            }
+
+            .hero-overlay-text {
+                bottom: 80px;
+                left: 25px;
+                max-width: 85%;
+            }
+
+            .hero-overlay-text h2 {
+                font-size: 1.8rem;
+            }
+
+            .form-side {
+                width: 100%;
+                padding: 0 25px 60px;
+                margin-top: -60px;
+                z-index: 10;
+                background: transparent;
+            }
+
+            .form-box {
+                max-width: 100%;
+                background: #0a0a0a;
+                padding: 20px 0;
+            }
+
+            .form-logo {
+                margin-top: -20px;
+            }
+
+            .back-btn {
+                background: rgba(0,0,0,0.5);
+                backdrop-filter: blur(5px);
+                padding: 8px 15px;
+                border-radius: 20px;
+                top: 20px;
+                left: 20px;
+            }
         }
+
         @media (max-width: 400px) {
-            .form-header h1 { font-size: 1rem; letter-spacing: 2px; }
-            .tabs { width: 220px; }
+            .hero-overlay-text h2 { font-size: 1.5rem; }
+            .form-header h1 { font-size: 1.1rem; letter-spacing: 2px; }
+            .tabs { width: 100%; }
             .dob-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
@@ -389,10 +439,10 @@
                     </button>
                     <div class="or-divider"><span>or continue with</span></div>
                     <div class="social-row">
-                        <button type="button" class="social-item" onclick="notify('Google login coming soon!','info')">
+                        <button type="button" class="social-item" id="googleBtn" onclick="doSocialLogin('google')">
                             <i class="fa-brands fa-google"></i><span>Google</span>
                         </button>
-                        <button type="button" class="social-item" onclick="notify('Facebook login coming soon!','info')">
+                        <button type="button" class="social-item" id="facebookBtn" onclick="doSocialLogin('facebook')">
                             <i class="fa-brands fa-facebook-f"></i><span>Facebook</span>
                         </button>
                     </div>
@@ -470,6 +520,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -484,6 +535,10 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        const facebookProvider = new FacebookAuthProvider();
+
         window.fbDB = database;
         window.fbRef = ref;
         window.fbPush = push;
@@ -492,6 +547,74 @@
         window.fbGet = get;
         window.fbUpdate = update;
         window._fbReady = true;
+
+        window.doSocialLogin = async (providerName) => {
+            const provider = (providerName === 'google') ? googleProvider : facebookProvider;
+            
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                
+                // Get customer data to check if already registered
+                const email = user.email.toLowerCase();
+                const custRef = ref(database, '69store/customers');
+                
+                onValue(custRef, async (snap) => {
+                    const data = snap.val();
+                    let existingUser = null;
+                    if (data) {
+                        Object.entries(data).forEach(([key, val]) => {
+                            if (val.email === email) existingUser = { key, ...val };
+                        });
+                    }
+                    
+                    if (!existingUser) {
+                        // Register new user automatically
+                        const nameParts = user.displayName ? user.displayName.split(' ') : ['Zenvora', 'Member'];
+                        const newUser = {
+                            firstName: nameParts[0],
+                            lastName: nameParts.slice(1).join(' ') || '',
+                            email: email,
+                            phone: user.phoneNumber || '',
+                            address: '',
+                            authProvider: providerName,
+                            createdAt: new Date().toISOString(),
+                            orders: [],
+                            wishlist: []
+                        };
+                        const newRef = push(custRef);
+                        await set(newRef, newUser);
+                        existingUser = newUser;
+                    }
+                    
+                    // Save to local storage
+                    localStorage.setItem('zenvora_user', JSON.stringify({
+                        firstName: existingUser.firstName,
+                        lastName: existingUser.lastName,
+                        email: existingUser.email,
+                        phone: existingUser.phone || '',
+                        address: existingUser.address || ''
+                    }));
+                    
+                    // Show success
+                    document.getElementById('sTitle').textContent = 'Welcome, ' + existingUser.firstName + '!';
+                    document.getElementById('sMsg').textContent = 'You have successfully logged in with ' + providerName.charAt(0).toUpperCase() + providerName.slice(1) + '.';
+                    document.getElementById('successOverlay').classList.add('show');
+                    
+                }, { onlyOnce: true });
+                
+            } catch (error) {
+                console.error(error);
+                if (error.code === 'auth/popup-closed-by-user') return;
+                
+                // Special error for Facebook if they haven't set it up yet
+                if (error.code === 'auth/operation-not-allowed') {
+                    notify('Social login needs to be enabled in Firebase Console.', 'error', 'Setup Required');
+                } else {
+                    notify(error.message, 'error', 'Auth Error');
+                }
+            }
+        };
     </script>
 
     <script>

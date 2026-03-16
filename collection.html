@@ -822,19 +822,16 @@
                         ${p.price > 10000 ? '<div class="product-badge">Exclusive</div>' : ''}
                         ${stockBadge}
                         <a href="product.html?id=${p.id || ''}&name=${encodeURIComponent(p.name)}&price=${p.price}${imgParam}">
-                            <img src="${p.image}" 
+                            <img src="${p.image || 'assets/zenvora-logo.png'}" 
                                  alt="${p.name}" 
                                  loading="${loadingAttr}" 
                                  fetchpriority="${fetchPriority}"
                                  onload="this.classList.add('loaded')"
                                  style="${stock <= 0 ? 'filter: grayscale(1); opacity: 0.6;' : ''}" 
-                                 onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'; this.classList.add('loaded')">
+                                 onerror="this.src='https://via.placeholder.com/300x400?text=Image+Not+Found'; this.classList.add('loaded')">
                         </a>
                         <div class="product-overlay">
-                            ${stock > 0
-                                ? `<button class="btn btn-black" style="width: 100%;" onclick="addToCart(this, '${p.id}')">Add to Cart</button>`
-                                : `<button class="btn btn-outline" style="width: 100%; border-color: #444; color: #666; cursor: not-allowed;" disabled>Sold Out</button>`
-                            }
+                            <a href="product.html?id=${p.id || ''}&name=${encodeURIComponent(p.name)}&price=${p.price}${imgParam}" class="btn btn-black" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center;">VIEW</a>
                         </div>
                     </div>
                     <div class="product-info">

@@ -360,7 +360,7 @@
                     <div class="product-price" id="productPrice" style="margin-bottom: 10px;">LKR 0.00</div>
                     <div id="productStockStatus" style="margin-bottom: 30px; font-size: 0.85rem; letter-spacing: 1px;"></div>
 
-                    <div style="margin-bottom: 30px;">
+                    <div id="sizeSelection" style="margin-bottom: 30px;">
                         <span class="variant-title">Size</span>
                         <div class="size-options">
                             <div class="size-box" onclick="selectSize(this)">S</div>
@@ -594,8 +594,11 @@
 
             // Handle Add To Cart 
             document.getElementById('addToCartBtn').addEventListener('click', () => {
+                const sizeSelection = document.getElementById('sizeSelection');
+                const isAccessory = sizeSelection.style.display === 'none';
+                
                 const activeSizeBox = document.querySelector('.size-box.active');
-                const selectedSize = activeSizeBox ? activeSizeBox.textContent : 'M';
+                const selectedSize = isAccessory ? 'One Size' : (activeSizeBox ? activeSizeBox.textContent : 'M');
                 
                 if (typeof addToCart === 'function') {
                     addToCart(targetId, window.currentProductName, window.currentProductPrice, window.currentProductImg, selectedSize);
@@ -610,7 +613,7 @@
                         quantity: 1
                     });
                     localStorage.setItem('zenvora_cart', JSON.stringify(cart));
-                    showNotification(`${window.currentProductName} (${selectedSize}) added to bag!`, 'success');
+                    showNotification(`${window.currentProductName} ${isAccessory ? '' : '(' + selectedSize + ')'} added to bag!`, 'success');
                     window.location.reload();
                 }
             });
@@ -623,6 +626,15 @@
             
             // Only update image if product actually has one (to prevent clearing fallback images)
             if (product.image) window.currentProductImg = product.image;
+
+            const sizeSelection = document.getElementById('sizeSelection');
+            if (sizeSelection) {
+                if (product.mainCat === 'Accessories') {
+                    sizeSelection.style.display = 'none';
+                } else {
+                    sizeSelection.style.display = 'block';
+                }
+            }
 
             document.getElementById('productTitle').textContent = window.currentProductName;
             document.getElementById('productPrice').textContent = `LKR ${window.currentProductPrice.toLocaleString()}.00`;
@@ -642,6 +654,7 @@
                 mainImg.onerror = () => {
                     mainImg.src = 'https://via.placeholder.com/600x800?text=Image+Not+Found';
                     mainImg.classList.add('loaded');
+                    mainImg.style.opacity = '1';
                 };
             }
 
@@ -680,6 +693,7 @@
             if (window.currentProductImg) {
                 t0.src = window.currentProductImg;
                 t0.onload = () => t0.classList.add('loaded');
+                t0.onerror = () => t0.src = 'assets/zenvora-logo.png';
             }
 
             if (product.image2) {

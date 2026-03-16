@@ -390,6 +390,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 name = product.name;
                 price = product.price;
                 image = product.image;
+                
+                // If it's an accessory, use 'One Size'
+                if (product.mainCat === 'Accessories') {
+                    size = 'One Size';
+                }
             } else {
                 console.error("Product data not found for ID:", productId);
                 return;
@@ -569,11 +574,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 waNumber = waNumber.replace(/\D/g, '');
                 if (waNumber.startsWith('0')) waNumber = '94' + waNumber.substring(1);
                 
-                // Compact Message for better compatibility (Short URLs are more stable)
                 const itemStr = cart.map(i => `${i.name}(${i.size}) x${i.quantity}`).join('\n');
-                const rawMessage = `ZEN-ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems:\n${itemStr}\nTotal: LKR ${total}`;
+                const rawMessage = `Order: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems:\n${itemStr}\nTotal: LKR ${total}`;
                 const encodedMessage = encodeURIComponent(rawMessage);
-                const whatsappUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+                
+                // Use api.whatsapp.com as it's more reliable for direct app switching on iOS
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedMessage}`;
                 
                 localStorage.removeItem('zenvora_cart');
                 updateCartUI();
@@ -587,17 +593,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     const sBtn = successOverlay.querySelector('.s-btn');
                     
                     if (sTitle) sTitle.textContent = 'ORDER PLACED!';
-                    if (sMsg) sMsg.innerHTML = `Your order <b>${orderId}</b> has been recorded.<br><br>Please tap the button below to finalize.`;
+                    if (sMsg) sMsg.innerHTML = `Order <b>${orderId}</b> recorded.<br><br>Tap the button below to complete on WhatsApp.`;
                     
                     if (sBtn) {
-                        sBtn.textContent = 'OPEN WHATSAPP';
-                        sBtn.onclick = () => {
-                            window.location.href = whatsappUrl;
+                        sBtn.textContent = 'COMPLETE ON WHATSAPP';
+                        sBtn.onclick = (e) => {
+                            e.preventDefault();
+                            // Attempt 1: Direct link click
+                            const link = document.createElement('a');
+                            link.href = whatsappUrl;
+                            link.target = '_blank';
+                            link.rel = 'noopener noreferrer';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            // Attempt 2: Location fallback for PWA/WebView
+                            setTimeout(() => {
+                                window.location.href = whatsappUrl;
+                            }, 500);
                         };
                     }
                     successOverlay.classList.add('show');
                 } else {
-                    showNotification('Order recorded! Diverting to WhatsApp...', 'success', 'Zen Checkout');
+                    showNotification('Order recorded! Opening WhatsApp...', 'success', 'Zen Checkout');
                     setTimeout(() => { window.location.href = whatsappUrl; }, 1000);
                 }
 
