@@ -77,6 +77,9 @@
     </div>
 
     <!-- Custom Cursor -->
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
 
@@ -433,9 +436,9 @@
     </div>
 
     <!-- Checkout Modal -->
-    <div id="checkoutModal" class="cart-overlay" style="align-items: center; justify-content: center; z-index: 99999;">
+    <div id="checkoutModal" class="cart-overlay" style="align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(10px);">
         <div class="admin-card"
-            style="background: #000; width: 95%; max-width: 900px; padding: 0; border-radius: 0; position: relative; color: white; border: 1px solid var(--border-light); box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: flex; flex-direction: row; overflow: hidden;">
+            style="background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); width: 95%; max-width: 900px; padding: 0; border-radius: 20px; position: relative; color: white; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 40px 100px rgba(0,0,0,0.8); display: flex; flex-direction: row; overflow: hidden;">
             <div id="closeCheckout"
                 style="position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; z-index: 10;">
                 <i class="fa-solid fa-xmark"></i>
@@ -515,10 +518,21 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 ZENVORA. All Rights Reserved.</p>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <p style="color: #666; font-size: 0.8rem;">&copy; 2026 ZENVORA. All Rights Reserved.</p>
+                </div>
+                
+                <div class="powered-by" style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 8px 15px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);">
+                    <span style="color: #555; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Engineered by</span>
+                    <a href="https://69studiobysubash.online" target="_blank" style="text-decoration: none; display: flex; align-items: center; gap: 8px; color: #fff; font-weight: 900; font-size: 0.75rem; letter-spacing: 1px;">
+                        <img src="assets/logo.png" alt="69 Studio" style="height: 18px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));">
+                        69 STUDIO
+                    </a>
+                </div>
+
                 <div style="display: flex; gap: 20px;">
-                    <a href="#" style="color: #666;"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" style="color: #666;"><i class="fa-brands fa-tiktok"></i></a>
+                    <a href="#" style="color: #666; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#666'"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" style="color: #666; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#666'"><i class="fa-brands fa-tiktok"></i></a>
                 </div>
             </div>
         </div>

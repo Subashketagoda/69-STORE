@@ -2,19 +2,19 @@
 
 :root {
     --primary-color: #ff3e3e;
-    /* Electric Crimson - 69 Studio Signature */
-    --bg-white: #0a0a0a;
-    /* Deep Charcoal */
-    --bg-light: #121212;
-    /* Surface Dark */
-    --bg-grey: #1a1a1a;
+    --bg-white: #050505;
+    --bg-light: rgba(20, 20, 20, 0.4);
+    --bg-grey: rgba(30, 30, 30, 0.4);
     --text-main: #ffffff;
     --text-muted: #888888;
-    --border-light: rgba(255, 255, 255, 0.05);
-    --pill-radius: 6px;
-    --transition: all 0.25s ease-out;
+    --border-light: rgba(255, 255, 255, 0.08);
+    --pill-radius: 8px;
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     --header-height: 80px;
     --mobile-nav-width: 300px;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: blur(25px);
 }
 
 * {
@@ -68,6 +68,37 @@ body {
 }
 
 /* Ambient Glow Orbs */
+.bg-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 62, 62, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(100px);
+    animation: moveGlow 25s infinite alternate;
+    pointer-events: none;
+}
+
+.bg-glow-2 {
+    position: fixed;
+    bottom: -100px;
+    right: -100px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(255, 62, 62, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(80px);
+    animation: moveGlow 18s infinite alternate-reverse;
+    pointer-events: none;
+}
+
+@keyframes moveGlow {
+    0% { transform: translate(-15%, -15%); }
+    100% { transform: translate(25%, 25%); }
+}
+
 .preloader-orb {
     position: absolute;
     border-radius: 50%;
@@ -383,15 +414,13 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(10, 10, 10, 0.8);
-    /* Semi-transparent black */
-    backdrop-filter: blur(15px);
-    /* Glassmorphism */
-    -webkit-backdrop-filter: blur(15px);
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     padding: 0;
     z-index: 2000;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: var(--transition);
+    border-bottom: 1px solid var(--glass-border);
 }
 
 header.scrolled {
@@ -869,10 +898,14 @@ nav ul li a>i {
 }
 
 .product-card {
-    background: var(--bg-white);
+    background: var(--bg-light);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
     transition: var(--transition);
-    border-radius: 0;
+    border-radius: 20px;
     position: relative;
+    overflow: hidden;
 }
 
 .product-img {
@@ -909,7 +942,7 @@ nav ul li a>i {
 }
 
 .product-info {
-    padding: 20px 0;
+    padding: 20px;
     text-align: left;
 }
 
@@ -949,11 +982,13 @@ nav ul li a>i {
     top: 0;
     width: 450px;
     height: 100vh;
-    background: var(--bg-light);
+    background: rgba(15, 15, 15, 0.8);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     z-index: 2100;
-    /* Higher than header and overlay */
+    border-left: 1px solid var(--glass-border);
     transition: var(--transition);
-    box-shadow: -10px 0 50px rgba(0, 0, 0, 0.5);
+    box-shadow: -20px 0 50px rgba(0, 0, 0, 0.5);
     padding: 40px;
     display: flex;
     flex-direction: column;

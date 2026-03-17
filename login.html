@@ -77,6 +77,10 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 50px 40px;
             position: relative;
+            background: rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
             overflow-y: auto;
         }
 
@@ -375,6 +379,8 @@
 </head>
 
 <body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
     <!-- Preloader -->
     <div id="loginPreloader">
         <img src="assets/zenvora-logo.png" alt="ZENVORA">
@@ -803,6 +809,19 @@
             }
         })();
     </script>
+    <!-- Footer -->
+    <footer style="padding: 40px 0; background: #000; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 80px;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px; text-align: center;">
+            <p style="color: #444; font-size: 0.75rem; margin-bottom: 20px;">&copy; 2026 ZENVORA. All Rights Reserved.</p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                <span style="color: #333; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;">Powered by</span>
+                <a href="https://69studiobysubash.online" target="_blank" style="text-decoration: none; display: flex; align-items: center; gap: 8px; color: #666; font-weight: 700; font-size: 0.7rem;">
+                    <img src="assets/logo.png" alt="69 Studio" style="height: 15px; filter: grayscale(1); opacity: 0.5;">
+                    69 STUDIO
+                </a>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>

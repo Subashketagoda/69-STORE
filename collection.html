@@ -51,6 +51,12 @@
             position: sticky;
             top: 100px;
             height: fit-content;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .filter-section {
@@ -229,6 +235,9 @@
 
 <body>
     <!-- Premium Carnage Preloader -->
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+    <!-- Preloader -->
     <div class="preloader">
         <div class="preloader-content">
             <img src="assets/zenvora-logo.png" alt="ZENVORA" class="preloader-logo">
@@ -751,7 +760,18 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 ZENVORA. All Rights Reserved.</p>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <p style="color: #666; font-size: 0.8rem;">&copy; 2026 ZENVORA. All Rights Reserved.</p>
+                </div>
+                
+                <div class="powered-by" style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 8px 15px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);">
+                    <span style="color: #555; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Engineered by</span>
+                    <a href="https://69studiobysubash.online" target="_blank" style="text-decoration: none; display: flex; align-items: center; gap: 8px; color: #fff; font-weight: 900; font-size: 0.75rem; letter-spacing: 1px;">
+                        <img src="assets/logo.png" alt="69 Studio" style="height: 18px;">
+                        69 STUDIO
+                    </a>
+                </div>
+
                 <div style="display: flex; gap: 20px;">
                     <a href="#" style="color: #666;"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#" style="color: #666;"><i class="fa-brands fa-tiktok"></i></a>
