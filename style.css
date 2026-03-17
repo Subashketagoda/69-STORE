@@ -38,7 +38,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #000;
+    background: rgba(5, 5, 5, 0.7);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -47,7 +49,7 @@ body {
     opacity: 1;
     visibility: visible;
     transform: scale(1);
-    transition: opacity 0.8s ease, transform 1s cubic-bezier(0.85, 0, 0.15, 1), visibility 0s linear 1s;
+    transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.85, 0, 0.15, 1), visibility 0s linear 1.2s;
 }
 
 .preloader.fade-out {
@@ -1469,12 +1471,33 @@ footer {
     .section-title h2 {
         font-size: 2.2rem;
     }
+
+    /* Checkout Modal Mobile */
+    .glass-modal {
+        flex-direction: column !important;
+    }
+    
+    .glass-modal > div {
+        width: 100% !important;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 30px 20px !important;
+    }
+
+    .checkout-summary-card {
+        background: transparent !important;
+    }
 }
 
 @media (max-width: 480px) {
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 15px;
+        padding: 0 10px;
+    }
+
+    .product-info {
+        padding: 15px 12px;
     }
 
     .hero-content h1 {
