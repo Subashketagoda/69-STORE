@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     </noscript>
     <!-- Style CSS -->
-    <link rel="stylesheet" href="style.css?v=2.7">
+    <link rel="stylesheet" href="style.css?v=3.5">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
     <link rel="apple-touch-icon" href="assets/app-logo.png">
@@ -614,7 +614,6 @@
 
             // Set a loader or placeholder for images initial state
             document.getElementById('mainProductImage').src = 'assets/zenvora-logo.png'; // Placeholder
-            document.getElementById('mainProductImage').style.opacity = '0.5';
 
             // Handle Add To Cart 
             document.getElementById('addToCartBtn').addEventListener('click', () => {
@@ -673,12 +672,10 @@
                 mainImg.src = window.currentProductImg;
                 mainImg.onload = () => {
                     mainImg.classList.add('loaded');
-                    mainImg.style.opacity = '1';
                 };
                 mainImg.onerror = () => {
                     mainImg.src = 'https://via.placeholder.com/600x800?text=Image+Not+Found';
                     mainImg.classList.add('loaded');
-                    mainImg.style.opacity = '1';
                 };
             }
 
@@ -746,12 +743,9 @@
 
         window.changeMainImage = (src, index) => {
             const mainImg = document.getElementById('mainProductImage');
-            mainImg.style.opacity = '0';
-            setTimeout(() => {
-                mainImg.src = src;
-                window.currentProductImg = src; // Update current image for cart
-                mainImg.onload = () => mainImg.classList.add('loaded');
-            }, 200);
+            mainImg.src = src;
+            window.currentProductImg = src; // Update current image for cart
+            mainImg.onload = () => mainImg.classList.add('loaded');
 
             // Update active state
             document.querySelectorAll('.thumb').forEach((t, i) => {
