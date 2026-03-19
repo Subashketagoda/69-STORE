@@ -371,12 +371,21 @@ body {
 }
 
 /* Product Image Base - Hard Visibility Fix */
+.product-img a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 .product-img img, 
 #mainProductImage,
 .thumb,
 .cart-item img {
     opacity: 1 !important; /* Ensure visibility always */
     transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 
 .product-card.is-loading .product-img {
