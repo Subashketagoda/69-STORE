@@ -671,7 +671,7 @@
                 const uploadToCloud = async (b64) => {
                     const apiKey = adminSettings.imgbbKey || '6a1a1f1bc41b12b5b3c3b0eb4f6c1fbc';
                     const base64Data = b64.split(',')[1];
-                    const formData = new FormData();
+                    const formData = new URLSearchParams();
                     formData.append('image', base64Data);
 
                     const r = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
@@ -716,17 +716,16 @@
                     }
                     
                     if (needsUpdate) {
-                        statusEl.textContent = `Pushing fix for: ${p.name || 'Product'}...`;
+                        statusEl.innerHTML += `<br>Pushing fix for: ${p.name || 'Product'}...`;
                         await update(ref(database, `69store/products/${key}`), updates);
                         migratedCount++;
                     }
                 }
                 
-                statusEl.textContent = `Migration Complete. Fixed: ${migratedCount}. Errors: ${errorCount}.`;
-                statusEl.style.color = '#4ade80';
+                statusEl.innerHTML += `<br><br><span style="color: #4ade80;">Migration Complete. Fixed: ${migratedCount}. Errors: ${errorCount}.</span>`;
             } catch(e) {
                 console.error(e);
-                statusEl.textContent = 'Error migrating: ' + e.message;
+                statusEl.innerHTML += `<br><span style="color: #ff3e3e;">Critical Error: ${e.message}</span>`;
             }
             btn.disabled = false;
             btn.textContent = 'Done';
@@ -970,7 +969,7 @@
 
                     const compressedBase64 = canvas.toDataURL('image/webp', 0.65);
                     const base64Data = compressedBase64.split(',')[1];
-                    const formData = new FormData();
+                    const formData = new URLSearchParams();
                     formData.append('image', base64Data);
 
                     if (label) label.textContent = 'Uploading to Cloud...';
