@@ -217,61 +217,120 @@
 
         @media (max-width: 768px) {
             .admin-nav {
-                padding: 15px 10px;
+                padding: 12px;
                 flex-direction: column;
-                gap: 12px;
+                gap: 15px;
+                background: #121212;
             }
 
             .logo img {
-                height: 30px !important;
+                height: 32px !important;
             }
 
-            .admin-container {
-                margin: 20px auto;
-                padding: 0 10px;
+            .logo span {
+                font-size: 1rem !important;
             }
 
-            .admin-card {
-                padding: 15px;
-                border-radius: 12px;
-                margin-bottom: 20px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            table {
-                min-width: 500px;
-                font-size: 0.85rem;
-            }
-
-            th, td {
-                padding: 10px;
+            .tabs-container {
+                justify-content: center !important;
+                padding-bottom: 5px;
             }
 
             .tab-btn {
                 padding: 8px 12px;
-                font-size: 0.75rem;
+                font-size: 0.7rem;
+                letter-spacing: 0.5px;
+            }
+
+            .admin-container {
+                margin: 15px auto;
+                padding: 0 12px;
+            }
+
+            .admin-card {
+                padding: 20px 15px;
+                border-radius: 12px;
+                margin-bottom: 15px;
+            }
+
+            /* Responsive Stat Grid */
+            #dashboardTab > div:first-child {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px !important;
+            }
+
+            .admin-card h2 {
+                font-size: 1.1rem !important;
+            }
+
+            .admin-card i {
+                font-size: 1.4rem !important;
+                margin-bottom: 5px !important;
+            }
+
+            .admin-card h4 {
+                font-size: 0.65rem !important;
+            }
+
+            /* Product form stacking */
+            .form-row {
+                grid-template-columns: 1fr !important;
+                gap: 12px;
+            }
+
+            .form-row.img-row {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            .form-row div {
+                width: 100% !important;
+            }
+
+            /* Responsive Tables to scrollable containers */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -15px;
+                padding: 0 15px;
+            }
+
+            table {
+                min-width: 700px;
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            /* Buttons consistency */
+            .btn {
+                width: 100%;
+                justify-content: center;
+                margin-top: 5px;
             }
 
             #loginOverlay .admin-card {
-                width: 85% !important;
-                padding: 25px 20px;
+                width: 90% !important;
+                padding: 30px 20px;
             }
 
+            /* Customer Stats mini */
             .stat-mini-card {
-                flex: 1 1 140px;
+                flex: 1 1 calc(50% - 10px);
                 padding: 12px;
             }
-            
-            .stat-mini-card .stat-num {
-                font-size: 1.1rem;
-            }
 
-            .tabs-container::-webkit-scrollbar {
-                display: none;
+            .stat-mini-card .stat-num {
+                font-size: 1rem;
+            }
+        }
+
+        /* Even smaller mobile fix */
+        @media (max-width: 480px) {
+            #dashboardTab > div:first-child {
+                grid-template-columns: 1fr !important;
             }
         }
     </style>
@@ -386,7 +445,7 @@
                             <option value="Essentials">Essentials</option>
                             <option value="Seamless">Seamless</option>
                         </select>
-                        <div class="form-row">
+                        <div class="form-row img-row" style="display: flex; gap: 15px;">
                             <div style="flex: 1;">
                                 <label
                                     style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 5px; display: block;">Primary
@@ -416,7 +475,7 @@
 
             <div class="admin-card">
                 <h3>Current Products</h3>
-                <div id="productsList">
+                <div id="productsList" class="table-container">
                     <table>
                         <thead>
                             <tr>
@@ -453,7 +512,7 @@
                     <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;" onclick="filterOrdersByStatus('Delivered')">Delivered</button>
                 </div>
 
-                <div style="overflow-x: auto;">
+                <div class="table-container">
                     <table>
                         <thead>
                             <tr>
@@ -499,7 +558,7 @@
                     <input type="text" class="customer-search" id="custSearch" placeholder="Search by name, email, or phone..." oninput="filterCustomers()">
                 </div>
 
-                <div style="overflow-x: auto;">
+                <div class="table-container">
                     <table>
                         <thead>
                             <tr>
