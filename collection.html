@@ -848,7 +848,7 @@
                                  fetchpriority="${fetchPriority}"
                                  onload="this.classList.add('loaded')"
                                  style="${stock <= 0 ? 'filter: grayscale(1); opacity: 0.6;' : ''}" 
-                                 onerror="this.src='https://via.placeholder.com/300x400?text=Image+Not+Found'; this.classList.add('loaded')">
+                                 onerror="this.onerror=null; this.src='assets/zenvora-logo.png'; this.classList.add('loaded')">
                         </a>
                         <div class="product-overlay">
                             <a href="product.html?id=${p.id || ''}&name=${encodeURIComponent(p.name)}&price=${p.price}${imgParam}" class="btn btn-black" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center;">VIEW</a>

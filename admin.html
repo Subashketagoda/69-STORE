@@ -556,8 +556,20 @@
                         <div></div>
                     </div>
                     <button type="submit" class="btn btn-primary">Update Settings</button>
+                    <button type="button" class="btn btn-outline" style="margin-top: 20px; color: #ff3e3e; border-color: rgba(255, 62, 62, 0.4);" onclick="document.getElementById('migrateBtnModal').style.display='flex'">Migrate Old Base64 Images</button>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <!-- Migration Modal -->
+    <div id="migrateBtnModal" class="customer-detail-modal" style="display: none;">
+        <div class="cust-detail-card">
+             <div class="close-detail" onclick="document.getElementById('migrateBtnModal').style.display='none'"><i class="fa-solid fa-xmark"></i></div>
+             <h3 style="margin-bottom: 20px;">Migrate Base64 Images</h3>
+             <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 20px;">This one-time action will download all products, upload their heavy base64 strings to cloud storage, and fix the database. It will take a few minutes depending on database size. Do not close this tab during migration!</p>
+             <p id="migrateStatusText" style="color: #ff3e3e; font-weight: bold; margin-bottom: 20px;"></p>
+             <button id="doMigrateBtn" class="btn btn-primary" style="width: 100%;" onclick="startMigration()">Start Auto-Migration</button>
         </div>
     </div>
 
@@ -631,6 +643,92 @@
         window.firebaseOnValue = onValue;
         window.firebaseSet = set;
         window.firebaseUpdate = update;
+        // --- MIGRATION LOGIC ---
+        window.startMigration = async () => {
+            const statusEl = document.getElementById('migrateStatusText');
+            const btn = document.getElementById('doMigrateBtn');
+            btn.disabled = true;
+            statusEl.textContent = 'Fetching products...';
+            
+            try {
+                // We use REST API to bypass realtime DB payload size limits
+                const res = await fetch('https://studio-7cdf1-default-rtdb.firebaseio.com/69store/products.json');
+                const products = await res.json();
+                
+                if (!products) {
+                    statusEl.textContent = 'No products found.';
+                    return;
+                }
+                
+                const keys = Object.keys(products);
+                let migratedCount = 0;
+                let errorCount = 0;
+                
+                const uploadToImgBB = async (b64) => {
+                    const base64Data = b64.split(',')[1];
+                    const formData = new FormData();
+                    formData.append('image', base64Data);
+                    const r = await fetch('https://api.imgbb.com/1/upload?key=e2c56ac6be6eafeaa71fbdb36c1ba66a', {
+                        method: 'POST', body: formData
+                    });
+                    const j = await r.json();
+                    if (!j.data || !j.data.url) throw new Error('Failed to upload');
+                    return j.data.url;
+                };
+
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    const p = products[key];
+                    let needsUpdate = false;
+                    let updates = {};
+                    
+                    statusEl.textContent = `Processing ${i+1}/${keys.length}: ${p.name || 'Product'}...`;
+                    
+                    if (p.image && p.image.startsWith('data:image')) {
+                        try {
+                            const newUrl = await uploadToImgBB(p.image);
+                            updates.image = newUrl;
+                            needsUpdate = true;
+                        } catch(e) { console.error('Error uploading image 1', e); errorCount++; }
+                    }
+                    if (p.image2 && p.image2.startsWith('data:image')) {
+                        try {
+                            const newUrl = await uploadToImgBB(p.image2);
+                            updates.image2 = newUrl;
+                            needsUpdate = true;
+                        } catch(e) { console.error('Error uploading image 2', e); errorCount++; }
+                    }
+                    if (p.image3 && p.image3.startsWith('data:image')) {
+                        try {
+                            const newUrl = await uploadToImgBB(p.image3);
+                            updates.image3 = newUrl;
+                            needsUpdate = true;
+                        } catch(e) { console.error('Error uploading image 3', e); errorCount++; }
+                    }
+                    
+                    if (needsUpdate) {
+                        statusEl.textContent = `Pushing fix for: ${p.name || 'Product'}...`;
+                        await update(ref(database, `69store/products/${key}`), updates);
+                        migratedCount++;
+                    }
+                }
+                
+                statusEl.textContent = `Migration Complete. Fixed: ${migratedCount}. Errors: ${errorCount}.`;
+                statusEl.style.color = '#4ade80';
+            } catch(e) {
+                console.error(e);
+                statusEl.textContent = 'Error migrating: ' + e.message;
+            }
+            btn.disabled = false;
+            btn.textContent = 'Done';
+            btn.onclick = () => document.getElementById('migrateBtnModal').style.display='none';
+            // Hard delete local cache to force download
+            localStorage.removeItem('zenvora_products_meta');
+            localStorage.removeItem('zenvora_products');
+        };
+
+        window.firebaseStoreLoaded = true;
+        window.dispatchEvent(new Event('firebaseStoreLoaded'));
         window.firebaseRemove = remove;
 
         const subCats = {
@@ -857,20 +955,32 @@
                     ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // WebP is ~30% smaller than JPEG at same quality
                     const compressedBase64 = canvas.toDataURL('image/webp', 0.65);
-                    
-                    // Critical Check: Firebase Realtime DB has a message limit.
-                    // If image is still too big (> 200kb), we alert the user.
-                    if (compressedBase64.length > 250000) {
-                        showNotification('Image is too complex/large. Try a simpler photo.', 'error', 'Compression');
-                        if (label) label.textContent = 'Limit Exceeded';
-                        return;
-                    }
+                    const base64Data = compressedBase64.split(',')[1];
+                    const formData = new FormData();
+                    formData.append('image', base64Data);
 
-                    document.getElementById(targetId).value = compressedBase64;
-                    if (label) label.textContent = 'Ready ✓';
-                    setTimeout(() => { if (label) label.textContent = originalText; }, 2000);
+                    if (label) label.textContent = 'Uploading to Cloud...';
+
+                    fetch('https://api.imgbb.com/1/upload?key=e2c56ac6be6eafeaa71fbdb36c1ba66a', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.data && res.data.url) {
+                            document.getElementById(targetId).value = res.data.url;
+                            if (label) label.textContent = 'Ready ✓';
+                            setTimeout(() => { if (label) label.textContent = originalText; }, 2000);
+                        } else {
+                            throw new Error('Upload Failed');
+                        }
+                    })
+                    .catch(e => {
+                        showNotification('Image upload failed. Try again.', 'error', 'Upload Error');
+                        if (label) label.textContent = 'Failed';
+                        setTimeout(() => { if (label) label.textContent = originalText; }, 2000);
+                    });
                 };
                 img.src = event.target.result;
             };

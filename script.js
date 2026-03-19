@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemEl.style = "display: flex; gap: 15px; align-items: flex-start; margin-bottom: 25px; position: relative;";
                 itemEl.innerHTML = `
                     <div style="width: 80px; height: 100px; border-radius: 4px; overflow: hidden; background: #111; flex-shrink: 0;">
-                        <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/300x400?text=69+Store'">
+                        <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='assets/zenvora-logo.png';">
                     </div>
                     <div style="flex: 1; min-width: 0; padding-right: 25px;">
                         <h4 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.5px;">${item.name}</h4>
