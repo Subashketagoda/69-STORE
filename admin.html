@@ -553,7 +553,11 @@
                                 (LKR)</label>
                             <input type="number" id="settingDelivery" placeholder="e.g. 350" required>
                         </div>
-                        <div></div>
+                        <div>
+                            <label style="color: var(--text-dim); display: block; margin-bottom: 8px;">ImgBB API Key (For Image Uploads)</label>
+                            <input type="text" id="settingImgBB" placeholder="Leave empty for free fallback">
+                            <small style="color: #666; font-size: 0.7rem; display: block; margin-top: 5px;">If uploads fail, get a free key at api.imgbb.com and paste it here.</small>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Update Settings</button>
                     <button type="button" class="btn btn-outline" style="margin-top: 20px; color: #ff3e3e; border-color: rgba(255, 62, 62, 0.4);" onclick="document.getElementById('migrateBtnModal').style.display='flex'">Migrate Old Base64 Images</button>
@@ -618,10 +622,8 @@
         };
     </script>
 
-    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, set, remove, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
-        import { getStorage, ref as sRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDp7G3C1mMeK1Htfsxharb05wtf0VTw88",
@@ -636,11 +638,9 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const storage = getStorage(app);
 
         // Global access
         window.firebaseDB = database;
-        window.firebaseStorage = storage;
         window.firebaseRef = ref;
         window.firebasePush = push;
         window.firebaseOnValue = onValue;
@@ -667,13 +667,21 @@
                 let migratedCount = 0;
                 let errorCount = 0;
                 
-                const uploadToStorage = async (b64, nameSuffix) => {
-                    const fileName = `products/${Date.now()}_${nameSuffix}.webp`;
-                    const storageRef = sRef(storage, fileName);
-                    // Upload Base64 data to Firebase Storage
-                    await uploadString(storageRef, b64, 'data_url');
-                    const downloadUrl = await getDownloadURL(storageRef);
-                    return downloadUrl;
+                const uploadToCloud = async (b64) => {
+                    const apiKey = adminSettings.imgbbKey || '6a1a1f1bc41b12b5b3c3b0eb4f6c1fbc';
+                    const base64Data = b64.split(',')[1];
+                    const formData = new FormData();
+                    formData.append('image', base64Data);
+
+                    const r = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                        method: 'POST', body: formData
+                    });
+                    const res = await r.json();
+                    
+                    if (!res.data || !res.data.url) {
+                        throw new Error(res.error ? res.error.message : 'Invalid ImgBB Response');
+                    }
+                    return res.data.url;
                 };
 
                 for (let i = 0; i < keys.length; i++) {
@@ -686,21 +694,21 @@
                     
                     if (p.image && p.image.startsWith('data:image')) {
                         try {
-                            const newUrl = await uploadToStorage(p.image, 'img1');
+                            const newUrl = await uploadToCloud(p.image);
                             updates.image = newUrl;
                             needsUpdate = true;
-                        } catch(e) { console.error('Error uploading image 1', e); errorCount++; statusEl.innerHTML += `<br>Img1 Error: ${e.message}`; }
+                        } catch(e) { console.error('Error uploading image 1', e); errorCount++; statusEl.innerHTML += `<br>Img1 Error: ${e.message}. Note: Check your ImgBB Key in Settings!`; }
                     }
                     if (p.image2 && p.image2.startsWith('data:image')) {
                         try {
-                            const newUrl = await uploadToStorage(p.image2, 'img2');
+                            const newUrl = await uploadToCloud(p.image2);
                             updates.image2 = newUrl;
                             needsUpdate = true;
                         } catch(e) { console.error('Error uploading image 2', e); errorCount++; }
                     }
                     if (p.image3 && p.image3.startsWith('data:image')) {
                         try {
-                            const newUrl = await uploadToStorage(p.image3, 'img3');
+                            const newUrl = await uploadToCloud(p.image3);
                             updates.image3 = newUrl;
                             needsUpdate = true;
                         } catch(e) { console.error('Error uploading image 3', e); errorCount++; }
@@ -749,14 +757,17 @@
         };
 
         // --- AUTH & SETTINGS ---
-        let adminSettings = { password: '69admin', waNumber: '94761210164' };
+        let adminSettings = { password: '69admin', waNumber: '94761210164', imgbbKey: '' };
         onValue(ref(database, '69store/settings'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                adminSettings = data;
+                adminSettings = { ...adminSettings, ...data };
                 document.getElementById('settingWA').value = data.waNumber || '';
                 document.getElementById('settingPass').value = data.password || '';
                 document.getElementById('settingDelivery').value = data.deliveryCharge || 0;
+                if (document.getElementById('settingImgBB')) {
+                    document.getElementById('settingImgBB').value = data.imgbbKey || '';
+                }
             }
         });
 
@@ -794,7 +805,8 @@
                 const waNumber = document.getElementById('settingWA').value;
                 const password = document.getElementById('settingPass').value;
                 const deliveryCharge = parseFloat(document.getElementById('settingDelivery').value) || 0;
-                set(ref(database, '69store/settings'), { waNumber, password, deliveryCharge })
+                const imgbbKey = document.getElementById('settingImgBB') ? document.getElementById('settingImgBB').value.trim() : '';
+                set(ref(database, '69store/settings'), { waNumber, password, deliveryCharge, imgbbKey })
                     .then(() => showNotification('System settings synchronized successfully', 'success', 'System Update'));
             });
         }
@@ -956,21 +968,30 @@
                     ctx.drawImage(img, 0, 0, width, height);
 
                     const compressedBase64 = canvas.toDataURL('image/webp', 0.65);
+                    const base64Data = compressedBase64.split(',')[1];
+                    const formData = new FormData();
+                    formData.append('image', base64Data);
 
-                    if (label) label.textContent = 'Uploading to Storage...';
+                    if (label) label.textContent = 'Uploading to Cloud...';
 
-                    const fileName = `products/${Date.now()}_img.webp`;
-                    const storageRef = sRef(window.firebaseStorage, fileName);
-                    
-                    uploadString(storageRef, compressedBase64, 'data_url')
-                    .then(() => getDownloadURL(storageRef))
-                    .then(url => {
-                        document.getElementById(targetId).value = url;
-                        if (label) label.textContent = 'Ready ✓';
-                        setTimeout(() => { if (label) label.textContent = originalText; }, 2000);
+                    const apiKey = adminSettings.imgbbKey || '6a1a1f1bc41b12b5b3c3b0eb4f6c1fbc';
+
+                    fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.data && res.data.url) {
+                            document.getElementById(targetId).value = res.data.url;
+                            if (label) label.textContent = 'Ready ✓';
+                            setTimeout(() => { if (label) label.textContent = originalText; }, 2000);
+                        } else {
+                            throw new Error(res.error ? res.error.message : 'Invalid ImgBB Response');
+                        }
                     })
                     .catch(e => {
-                        showNotification('Upload Failed: ' + e.message, 'error', 'Upload Error');
+                        showNotification('Upload Error: ' + e.message, 'error', 'Upload Issue');
                         if (label) label.textContent = 'Failed';
                         setTimeout(() => { if (label) label.textContent = originalText; }, 2000);
                     });
