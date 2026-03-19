@@ -427,6 +427,7 @@
                     <div class="filter-section">
                         <div class="filter-title">Department</div>
                         <div class="filter-options">
+                            <label style="display:none;"><input type="radio" name="gender" value="all" id="dept-all"> All</label>
                             <label class="filter-checkbox"><input type="radio" name="gender" value="men" id="dept-men">
                                 Men</label>
                             <label class="filter-checkbox"><input type="radio" name="gender" value="women"
@@ -530,6 +531,7 @@
                             let activeDept = 'men';
                             if (params.get('gender') === 'women') activeDept = 'women';
                             if (params.get('cat') === 'accessories') activeDept = 'accessories';
+                            if (params.get('q')) activeDept = 'all';
 
                             const radio = document.getElementById('dept-' + activeDept);
                             if (radio) {
@@ -880,8 +882,20 @@
 
             let filtered = [...allProducts];
 
+            // Add Text Search Filter
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+            if (query) {
+                const searchLower = query.toLowerCase();
+                filtered = filtered.filter(p => 
+                    (p.name && p.name.toLowerCase().includes(searchLower)) ||
+                    (p.subCat && p.subCat.toLowerCase().includes(searchLower)) ||
+                    (p.collection && p.collection.toLowerCase().includes(searchLower))
+                );
+            }
+
             // Department (Main Category) Filter
-            if (activeGender) {
+            if (activeGender && activeGender !== 'all') {
                 filtered = filtered.filter(p => p.mainCat?.toLowerCase() === activeGender);
             }
 
@@ -904,7 +918,12 @@
             renderProducts(filtered);
 
             // Update Header/Breadcrumbs
-            let title = activeGender === 'men' ? "Men's Wear" : activeGender === 'women' ? "Women's Wear" : "Accessories";
+            let title = "Search Results";
+            if (!query) {
+                title = activeGender === 'men' ? "Men's Wear" : activeGender === 'women' ? "Women's Wear" : "Accessories";
+            } else {
+                title = "Search: " + query;
+            }
             document.querySelector('.collection-title').textContent = title;
             document.querySelector('.active-category').textContent = title;
         };
@@ -990,10 +1009,12 @@
                 document.getElementById('section-accessories').style.display = val === 'accessories' ? 'block' : 'none';
 
                 // Reset sub-category to Shop All when changing department
-                const currentSection = document.querySelector(`.filter-section[id="section-${val}s"]`);
-                if (currentSection) {
-                    const shopAll = currentSection.querySelector('input[value="shop-all"]');
-                    if (shopAll) shopAll.checked = true;
+                if (val !== 'all') {
+                    const currentSection = document.querySelector(`.filter-section[id="section-${val}s"]`);
+                    if (currentSection) {
+                        const shopAll = currentSection.querySelector('input[value="shop-all"]');
+                        if (shopAll) shopAll.checked = true;
+                    }
                 }
 
                 applySortAndFilter();

@@ -230,6 +230,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- GLOBAL SEARCH FUNCTIONALITY ---
+    const searchInputs = document.querySelectorAll('.search-pill input');
+    searchInputs.forEach(input => {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = e.target.value.trim();
+                if (query) {
+                    window.location.href = `collection.html?q=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+    });
+
     // --- DYNAMIC NAVIGATION ACTIVE STATE ---
     const updateNavActive = () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -542,12 +556,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function finalizeOrder() {
-            const cart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
+            const currentCart = JSON.parse(localStorage.getItem('zenvora_cart')) || [];
             const name = document.getElementById('custName').value;
             const phone = document.getElementById('custPhone').value;
             const address = document.getElementById('custAddress').value;
             const delivery = parseFloat(localStorage.getItem('zenvora_delivery')) || 350;
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const subtotal = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const total = subtotal + delivery;
 
             const orderId = 'Z' + Date.now().toString().slice(-6);
@@ -555,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 orderId,
                 timestamp: new Date().toISOString(),
                 customer: { name, phone, address },
-                items: cart,
+                items: currentCart,
                 subtotal,
                 delivery,
                 total,
@@ -574,13 +588,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 waNumber = waNumber.replace(/\D/g, '');
                 if (waNumber.startsWith('0')) waNumber = '94' + waNumber.substring(1);
                 
-                const itemStr = cart.map(i => `${i.name}(${i.size}) x${i.quantity}`).join('\n');
+                const itemStr = currentCart.map(i => `${i.name}(${i.size}) x${i.quantity}`).join('\n');
                 const rawMessage = `Order: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems:\n${itemStr}\nTotal: LKR ${total}`;
                 const encodedMessage = encodeURIComponent(rawMessage);
                 
                 // Use api.whatsapp.com as it's more reliable for direct app switching on iOS
                 const whatsappUrl = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedMessage}`;
                 
+                cart.length = 0; // Wipe outer memory array
                 localStorage.removeItem('zenvora_cart');
                 updateCartUI();
                 checkoutModal.classList.remove('active');

@@ -285,6 +285,12 @@
             <h2 style="margin-bottom: 20px; font-size: 1.2rem; color: var(--text-dim);">ADMIN ACCESS</h2>
             <input type="password" id="adminPass" placeholder="Enter Admin Password" style="margin-bottom: 20px;">
             <button class="btn btn-primary" onclick="checkAuth()" style="width: 100%;">Login</button>
+            <div id="biometricLoginArea" style="margin-top: 15px; display: none;">
+                <button class="btn btn-outline" onclick="biometricLogin()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; border-color: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-face-smile" style="font-size: 1.2rem; color: var(--primary-color);"></i>
+                    Face / Touch ID Unlock
+                </button>
+            </div>
         </div>
     </div>
 
@@ -560,6 +566,23 @@
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Update Settings</button>
+                    
+                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <h4 style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-shield-halved" style="color: var(--primary-color);"></i>
+                            Biometric Security
+                        </h4>
+                        <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 15px;">Enable Face ID or Fingerprint unlock specifically for this device.</p>
+                        <div id="biometricSettingArea">
+                            <button type="button" class="btn btn-outline" id="btnRegisterBiometric" onclick="registerBiometric()">
+                                <i class="fa-solid fa-fingerprint"></i> Setup Biometric Unlock
+                            </button>
+                            <button type="button" class="btn btn-outline" id="btnRemoveBiometric" onclick="removeBiometric()" style="display: none; color: #ff3e3e; border-color: rgba(255,62,62,0.2);">
+                                <i class="fa-solid fa-trash"></i> Remove Biometric Access
+                            </button>
+                        </div>
+                    </div>
+
                     <button type="button" class="btn btn-outline" style="margin-top: 20px; color: #ff3e3e; border-color: rgba(255, 62, 62, 0.4);" onclick="document.getElementById('migrateBtnModal').style.display='flex'">Migrate Old Base64 Images</button>
                 </form>
             </div>
@@ -771,6 +794,7 @@
             }
         });
 
+        // --- AUTH & BIOMETRIC LOGIC ---
         window.checkAuth = () => {
             const pass = document.getElementById('adminPass').value;
             if (pass === adminSettings.password) {
@@ -783,6 +807,112 @@
             }
         };
 
+        // WebAuthn Biometric Implementation
+        const base64ToUint8Array = (base64) => {
+            const binaryString = window.atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+            return bytes;
+        };
+
+        const uint8ArrayToBase64 = (array) => {
+            return window.btoa(String.fromCharCode.apply(null, array));
+        };
+
+        window.registerBiometric = async () => {
+            if (!window.PublicKeyCredential) return alert("Biometric login not supported on this browser.");
+            
+            try {
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                
+                const createOptions = {
+                    publicKey: {
+                        challenge,
+                        rp: { name: "ZENVORA Admin" },
+                        user: {
+                            id: new Uint8Array(16),
+                            name: "admin@zenvora.com",
+                            displayName: "ZENVORA Admin"
+                        },
+                        pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+                        timeout: 60000,
+                        authenticatorSelection: { userVerification: "required" }
+                    }
+                };
+
+                const credential = await navigator.credentials.create(createOptions);
+                if (credential) {
+                    const credId = uint8ArrayToBase64(new Uint8Array(credential.rawId));
+                    localStorage.setItem('zenvora_admin_biometric_id', credId);
+                    updateBiometricUI();
+                    showNotification("Face ID / Biometric registered successfully!", "success", "Security");
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification("Biometric Setup Failed: " + e.message, "error", "Security");
+            }
+        };
+
+        window.biometricLogin = async () => {
+            const storedId = localStorage.getItem('zenvora_admin_biometric_id');
+            if (!storedId) return;
+
+            try {
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+
+                const getOptions = {
+                    publicKey: {
+                        challenge,
+                        allowCredentials: [{
+                            id: base64ToUint8Array(storedId),
+                            type: 'public-key'
+                        }],
+                        userVerification: "required",
+                        timeout: 60000
+                    }
+                };
+
+                const assertion = await navigator.credentials.get(getOptions);
+                if (assertion) {
+                    sessionStorage.setItem('zenvora_admin_auth', 'true');
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    initDashboard();
+                    showTab('dashboard');
+                    showNotification("Welcome back! Face Unlock Successful.", "success", "Admin Auth");
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification("Biometric Login Failed", "error", "Security");
+            }
+        };
+
+        window.removeBiometric = () => {
+            if (confirm("Remove Face ID access from this device?")) {
+                localStorage.removeItem('zenvora_admin_biometric_id');
+                updateBiometricUI();
+                showNotification("Biometric access removed.", "info", "Security");
+            }
+        };
+
+        function updateBiometricUI() {
+            const storedId = localStorage.getItem('zenvora_admin_biometric_id');
+            const btnReg = document.getElementById('btnRegisterBiometric');
+            const btnRem = document.getElementById('btnRemoveBiometric');
+            const loginArea = document.getElementById('biometricLoginArea');
+
+            if (storedId) {
+                if (btnReg) btnReg.style.display = 'none';
+                if (btnRem) btnRem.style.display = 'inline-block';
+                if (loginArea) loginArea.style.display = 'block';
+            } else {
+                if (btnReg) btnReg.style.display = 'inline-block';
+                if (btnRem) btnRem.style.display = 'none';
+                if (loginArea) loginArea.style.display = 'none';
+            }
+        }
+
         window.logoutAdmin = () => {
             if (confirm('Logout from Admin Dashboard?')) {
                 sessionStorage.removeItem('zenvora_admin_auth');
@@ -792,6 +922,7 @@
 
         // Check session on load
         window.addEventListener('load', () => {
+            updateBiometricUI();
             if (sessionStorage.getItem('zenvora_admin_auth') === 'true') {
                 document.getElementById('loginOverlay').style.display = 'none';
                 initDashboard();
