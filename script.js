@@ -581,6 +581,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.firebaseDB) {
                     const orderRef = window.firebaseRef(window.firebaseDB, `69store/orders/${orderId}`);
                     await window.firebaseSet(orderRef, orderData);
+
+                    // --- REAL-TIME STOCK DEDUCTION ---
+                    for (const item of currentCart) {
+                        if (item.id) {
+                            const product = (window.allProductsData && window.allProductsData[item.id]) || 
+                                          (window.cachedProducts && window.cachedProducts[item.id]);
+                            if (product) {
+                                const currentStock = parseInt(product.stock) || 0;
+                                const newStock = Math.max(0, currentStock - (item.quantity || 1));
+                                const pRef = window.firebaseRef(window.firebaseDB, `69store/products/${item.id}`);
+                                await window.firebaseUpdate(pRef, { stock: newStock });
+                            }
+                        }
+                    }
                 }
 
                 // WhatsApp Integration
